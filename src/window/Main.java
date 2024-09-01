@@ -10,7 +10,7 @@ public class Main extends ParentFrame {
 
     GameManager gameManager;    // controls game
     
-    // CONSTRUCTOR
+    
     public Main(int framePerSecond) {
         super("puzzle game", 960, 640);
     }

@@ -11,9 +11,10 @@ public class GameManager extends JPanel {
     // game loop
     private int fps;
     private boolean hasGameLoopInterval;
-    private int gameLoopInterval;
+    private long gameLoopInterval;
     protected Thread gameLoopThread;    // controls the game loop
     public boolean runningGameLoop;
+    public double dt;
 
     // input
     KeyInput keyInput;
@@ -21,9 +22,9 @@ public class GameManager extends JPanel {
 
     // get the FPS and delay based off of FPS
     public int getFPS() { return fps; }
-    public int getGameLoopInterval() {
+    public long getGameLoopInterval() {
         if (!hasGameLoopInterval) {
-            gameLoopInterval = (int) Math.round(1000 / fps); 
+            gameLoopInterval = (long) Math.round(1000 / fps); 
             hasGameLoopInterval = true;
         }
         return gameLoopInterval; 
@@ -36,7 +37,7 @@ public class GameManager extends JPanel {
         this.fps = framesPerSecond;
         this.keyInput = keyInput;
         this.mouseInput = mouseInput;
-        gameBoard = new GameBoard();
+        gameBoard = new GameBoard(keyInput, mouseInput);
     }
     
     // start the game
@@ -46,13 +47,20 @@ public class GameManager extends JPanel {
         gameLoopThread = new Thread() {
             @Override
             public void run() {
+
+                long prevTime = System.currentTimeMillis();
+                long currentTime = System.currentTimeMillis();
+
                 while (runningGameLoop) {
+                    prevTime = currentTime;
+                    currentTime = System.currentTimeMillis();
+                    dt = (currentTime - prevTime) / 1000.;
 
                     // update input
                     keyInput.update();
                     mouseInput.update();
 
-                    updateGame();                                             // update function
+                    updateGame(dt);                                             // update function
                     repaint();                                                // draw function
 
                     // delay between current frame and next frame
@@ -79,17 +87,22 @@ public class GameManager extends JPanel {
         runningGameLoop = false;
     }
 
-    public void updateGame() {
-        gameBoard.update();
+    public void updateGame(double dt) {
+        gameBoard.update(dt);
     }
 
     // swing's built in draw function for UI components
     protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        
         Graphics2D g2 = (Graphics2D) g;
 
         drawGame(g2);
 
-        g2.dispose();
+        g2.setColor(Color.BLACK);
+        g2.drawString(String.valueOf(dt), 20, 20);
+
+        g2.drawString(String.valueOf(getGameLoopInterval()), 20, 40);
     }
 
     public void drawGame(Graphics2D g) {

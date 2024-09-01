@@ -1,9 +1,17 @@
 package gameplay;
 
 import java.awt.*;
-import java.util.*;
+
+import gameplay.gameObjects.*;
+import input.*;
 
 public class GameBoard {
+
+    // input
+    private KeyInput keyInput;
+    private MouseInput mouseInput;
+    public KeyInput getKeyInput() { return keyInput; }
+    public MouseInput getMouseInput() { return mouseInput; }
     
     // board properties
     public final int TILE_SIZE = 32;
@@ -11,33 +19,85 @@ public class GameBoard {
     public final int HEIGHT = 10;
 
     // list of all game objects represented with a 2D grid
-    private ArrayList<ArrayList<GameObject>> board;
+    private GameObject[][] board;
     
-    // CONSTRUCTOR
-    public GameBoard() {
-        board = new ArrayList<>();
+    
+    public GameBoard(KeyInput keyInput, MouseInput mouseInput) {
+        this.keyInput = keyInput;
+        this.mouseInput = mouseInput;
+
+        board = createEmptyBoard(WIDTH, HEIGHT);
 
         // TEMP fill the board with some game objects
-        createBoard();
+        board = fillBoard(board);
     }
 
-    private void createBoard() {
-        System.out.println("width: " + WIDTH + " | height: " + HEIGHT);
-        for (int y=0; y<HEIGHT; y++) {
-            ArrayList<GameObject> row = new ArrayList<>();
-            for (int x=0; x<WIDTH; x++) {
-                if (x == 2 && y == 3) { row.add(new PuzzlePiece(this, x, y)); } 
-                else                  { row.add(new EmptyObject(this, x, y)); }
+    // check if a position is in the board boundaries
+    public boolean inBounds(int boardx, int boardy) {
+        return boardx >= 0 && boardx < WIDTH && boardy >= 0 && boardy < HEIGHT;
+    }
+
+    // get the game object at a certain position
+    public GameObject getGameObject(int boardx, int boardy) {
+        return board[boardy][boardx];
+    }
+
+    // get the game object type at a certain position
+    public GameObject.OBJECT_TYPE getGameObjectType(int boardx, int boardy) {
+        if (!inBounds(boardx, boardy)) { return GameObject.OBJECT_TYPE.WALL; }
+        GameObject gameObject = getGameObject(boardx, boardy);
+        return gameObject == null ? null : gameObject.getObjectType();
+    }
+
+    private GameObject[][] createEmptyBoard(int boardWidth, int boardHeight) {
+        GameObject[][] emptyBoard = new GameObject[boardHeight][boardWidth];
+        return emptyBoard;
+    }
+
+    private GameObject[][] fillBoard(GameObject[][] emptyBoard) {
+        GameObject[][] newBoard = new GameObject[emptyBoard.length][emptyBoard[0].length];
+        for (int y=0; y<emptyBoard.length; y++) {
+            for (int x=0; x<emptyBoard[0].length; x++) {
+                if      (x == 2 && y == 3) { newBoard[y][x] = new PlayerPiece(this, x, y); } 
+                else if (x == 2 && y == 2) { newBoard[y][x] = new PuzzlePiece(this, x, y); } 
+                else if (x == 2 && y == 1) { newBoard[y][x] = new PuzzlePiece(this, x, y); } 
+                else if (x == 2 && y == 0) { newBoard[y][x] = new PuzzlePiece(this, x, y); } 
             }
-            board.add(row);
         }
+        return newBoard;
     }
 
     // update loop
-    public void update() {
-        for (ArrayList<GameObject> row : board) {
+    public void update(double dt) {
+
+        for (GameObject[] row : board) {
             for (GameObject gameObject : row) {
-                gameObject.update();
+                if (gameObject == null) { continue; }
+                gameObject.update(dt);
+            }
+        }
+        //printBoard(board);
+        board = updateGameObjectPositions(board);
+        //printBoard(board);
+    }
+
+    private GameObject[][] updateGameObjectPositions(GameObject[][] board) {
+        GameObject[][] newBoard = createEmptyBoard(board[0].length, board.length);
+        for (int y=0; y<HEIGHT; y++) {
+            for (int x=0; x<WIDTH; x++) {
+                GameObject gameObject = board[y][x];
+                if (gameObject == null) { continue; }
+                newBoard[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
+            }
+        }
+        return newBoard;
+    }
+
+    public void printBoard(GameObject[][] board) {
+        for (int y=0; y<board.length; y++) {
+            for (int x=0; x<board.length; x++) {
+                if (board[y][x] == null) { continue; }
+                System.out.println(board[y][x].toString());
             }
         }
     }
@@ -52,17 +112,13 @@ public class GameBoard {
     public void draw(Graphics2D g) {
         g.fillRect(getDrawX(), getDrawY(), getDrawWidth(), getDrawHeight());
 
-        try {
-            // loop through game board and draw game objects
-            for (int y=0; y<HEIGHT; y++) {
-                ArrayList<GameObject> row = board.get(y);
-                for (int x=0; x<WIDTH; x++) {
-                    GameObject gameObject = row.get(x);
-                    drawGameObject(g, gameObject);
-                }
+        // loop through game board and draw game objects
+        for (int y=0; y<HEIGHT; y++) {
+            for (int x=0; x<WIDTH; x++) {
+                GameObject gameObject = board[y][x];
+                if (gameObject == null) { continue; }
+                drawGameObject(g, gameObject);
             }
-        } catch (IndexOutOfBoundsException e) {
-            System.out.println(board.size());
         }
     }
 
@@ -74,7 +130,12 @@ public class GameBoard {
         g.setColor(getGameObjectColor(gameObject));
         g.fillRect(x, y, TILE_SIZE, TILE_SIZE);
 
-        if (gameObject.getObjectType() != GameObject.OBJECT_TYPE.EMPTY) {
+        //drawGameObjectName(g, gameObject, x, y);
+    }
+
+    private void drawGameObjectName(Graphics2D g, GameObject gameObject, int x, int y) {
+
+        if (gameObject.getObjectType() != null) {
             g.setColor(Color.WHITE);
             g.drawString(gameObject.getName(), x, y);
         }
@@ -85,7 +146,6 @@ public class GameBoard {
         switch (gameObject.getObjectType()) {
             case PUZZLE_PIECE: return Color.BLUE;
             case PLAYER_PIECE: return Color.GREEN;
-            case EMPTY: return new Color(0, 0, 0, 0);
             default: return new Color(0, 0, 0, 0);
         }
     }
