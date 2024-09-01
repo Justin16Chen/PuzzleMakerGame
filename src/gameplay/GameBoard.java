@@ -43,8 +43,8 @@ public class GameBoard {
     }
 
     // get the game object type at a certain position
-    public GameObject.OBJECT_TYPE getGameObjectType(int boardx, int boardy) {
-        if (!inBounds(boardx, boardy)) { return GameObject.OBJECT_TYPE.WALL; }
+    public GameObject.ObjectType getGameObjectType(int boardx, int boardy) {
+        if (!inBounds(boardx, boardy)) { return GameObject.ObjectType.WALL; }
         GameObject gameObject = getGameObject(boardx, boardy);
         return gameObject == null ? null : gameObject.getObjectType();
     }
@@ -58,10 +58,9 @@ public class GameBoard {
         GameObject[][] newBoard = new GameObject[emptyBoard.length][emptyBoard[0].length];
         for (int y=0; y<emptyBoard.length; y++) {
             for (int x=0; x<emptyBoard[0].length; x++) {
-                if      (x == 2 && y == 3) { newBoard[y][x] = new PlayerPiece(this, x, y); } 
-                else if (x == 2 && y == 2) { newBoard[y][x] = new PuzzlePiece(this, x, y); } 
-                else if (x == 2 && y == 1) { newBoard[y][x] = new PuzzlePiece(this, x, y); } 
-                else if (x == 2 && y == 0) { newBoard[y][x] = new PuzzlePiece(this, x, y); } 
+                if      (x == 2 && y == 2) { newBoard[y][x] = new PuzzlePiece(this, x, y, "0200"); }
+                else if (x == 2 && y == 3) { newBoard[y][x] = new PuzzlePiece(this, x, y, "0200"); }
+                else if (x == 2 && y == 4) { newBoard[y][x] = new PlayerPiece(this, x, y, "0001"); } 
             }
         }
         return newBoard;

@@ -4,8 +4,8 @@ import gameplay.GameBoard;
 
 public class PlayerPiece extends PuzzlePiece {
 
-    public PlayerPiece(GameBoard gameBoard, int boardx, int boardy) {
-        super(gameBoard, GameObject.OBJECT_TYPE.PLAYER_PIECE, boardx, boardy);
+    public PlayerPiece(GameBoard gameBoard, int boardx, int boardy, String sideData) {
+        super(gameBoard, GameObject.ObjectType.PLAYER_PIECE, boardx, boardy, sideData);
     }
 
     // update the player piece
@@ -20,9 +20,11 @@ public class PlayerPiece extends PuzzlePiece {
         if (hdir != 0 || vdir != 0) {
             int targetx = getBoardX() + hdir;
             int targety = getBoardY() + vdir;
+
             // make sure movement is in bounds and is valid
-            if (gameBoard.inBounds(targetx, targety) && canMove(hdir, vdir)) {
-                move(hdir, vdir);
+            MoveInfo moveInfo = getMoveInfo(hdir, vdir);
+            if (gameBoard.inBounds(targetx, targety) && moveInfo.getCanMove()) {
+                move(moveInfo);
             }
         }
     }
