@@ -1,7 +1,7 @@
 package gameplay.gameObjects;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.awt.Color;
+import java.awt.Graphics2D;
 
 import gameplay.GameBoard;
 import input.*;
@@ -73,12 +73,20 @@ public abstract class GameObject {
 
     // check if the game object and any subsequent game objects can move in a certain direction
     public MoveInfo getMoveInfo(int hdir, int vdir) {
+        return getMoveInfo(0, 0, hdir, vdir);
+    }
+    public MoveInfo getMoveInfo(int xoff, int yoff, int hdir, int vdir) {
+
+        // cannot move immovable game objects
+        if (!isMovable()) {
+            return MoveInfo.makeInvalidMove();
+        }
 
         // find target position
-        int targetx = boardx + hdir;
-        int targety = boardy + vdir;
+        int targetx = getBoardX() + xoff + hdir;
+        int targety = getBoardY() + yoff + vdir;
 
-        // cannot move it target is out of bounds
+        // out of bounds
         if (!gameBoard.inBounds(targetx, targety)) { 
             return MoveInfo.makeInvalidMove();
         }
@@ -91,13 +99,13 @@ public abstract class GameObject {
              return MoveInfo.makeValidMove(hdir, vdir);
             }
 
-        //System.out.println("parent type: " + objectType + " | target x: " + targetx + " | target y: " + targety + " | target type: " + gameObject.getObjectType());
+        //System.out.println("Moving " + objectType + ": offset: " + xoff + ", " + yoff + " | target: " + targetx + ", " + targety + " | target type: " + gameObject.getObjectType());
 
-        // get all of the future move info
+        // get move info for game object this one is trying to move into
         MoveInfo moveInfo = gameObject.getMoveInfo(hdir, vdir);
 
-        // if the last affected game object by the motion can move, all subsequent game objects can also move
-        if (moveInfo.getCanMove()) {
+        // if that game object can move, this one can move
+        if (moveInfo.canMove()) {
             return MoveInfo.makeValidMove(hdir, vdir);
         }
         return MoveInfo.makeInvalidMove();
@@ -121,10 +129,20 @@ public abstract class GameObject {
         // move self
         moveBoardX(moveInfo.getHdir());
         moveBoardY(moveInfo.getVdir());
-
     }
 
     public abstract void update(double dt);
+    public abstract void draw(Graphics2D g, int drawx, int drawy);
+
+    public void drawName(Graphics2D g, int x, int y) {
+        g.setColor(Color.WHITE);
+        g.drawString(getName(), x, y);
+    }
+
+    public void drawPosition(Graphics2D g, int drawx, int drawy) {
+        g.setColor(Color.WHITE);
+        g.drawString(getBoardX() + ", " + getBoardY(), drawx, drawy);
+    }
 
     @Override
     public String toString() {

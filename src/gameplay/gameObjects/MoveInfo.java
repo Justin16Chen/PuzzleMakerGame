@@ -9,6 +9,10 @@ public class MoveInfo {
     public static MoveInfo makeInvalidMove() {
         return new MoveInfo();
     }
+    public static MoveInfo[] makeInvalidMoveList() {
+        MoveInfo[] list = new MoveInfo[1];
+        return list;
+    }
 
     private int hdir, vdir;
     private boolean canMove;
@@ -33,7 +37,7 @@ public class MoveInfo {
 
     public int getHdir() { return hdir; }
     public int getVdir() { return vdir; }
-    public boolean getCanMove() { return canMove; }
+    public boolean canMove() { return canMove; }
 
 
 }

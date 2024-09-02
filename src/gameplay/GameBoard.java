@@ -58,7 +58,7 @@ public class GameBoard {
         GameObject[][] newBoard = new GameObject[emptyBoard.length][emptyBoard[0].length];
         for (int y=0; y<emptyBoard.length; y++) {
             for (int x=0; x<emptyBoard[0].length; x++) {
-                if      (x == 2 && y == 2) { newBoard[y][x] = new PuzzlePiece(this, x, y, "0200"); }
+                if      (x == 5 && y == 2) { newBoard[y][x] = new Wall(this, x, y); }
                 else if (x == 2 && y == 3) { newBoard[y][x] = new PuzzlePiece(this, x, y, "0200"); }
                 else if (x == 2 && y == 4) { newBoard[y][x] = new PlayerPiece(this, x, y, "0001"); } 
             }
@@ -116,36 +116,12 @@ public class GameBoard {
             for (int x=0; x<WIDTH; x++) {
                 GameObject gameObject = board[y][x];
                 if (gameObject == null) { continue; }
-                drawGameObject(g, gameObject);
+                //drawGameObject(g, gameObject);
+                int drawx = getDrawX() + gameObject.getBoardX() * TILE_SIZE;
+                int drawy = getDrawY() + gameObject.getBoardY() * TILE_SIZE;
+                gameObject.draw(g, drawx, drawy);
+                gameObject.drawPosition(g, drawx + 4, drawy + (int) (TILE_SIZE * 0.5));
             }
-        }
-    }
-
-    // TEMP draw function to draw game object
-    private void drawGameObject(Graphics2D g, GameObject gameObject) {
-        int x = getDrawX() + gameObject.getBoardX() * TILE_SIZE;
-        int y = getDrawY() + gameObject.getBoardY() * TILE_SIZE;
-
-        g.setColor(getGameObjectColor(gameObject));
-        g.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-
-        //drawGameObjectName(g, gameObject, x, y);
-    }
-
-    private void drawGameObjectName(Graphics2D g, GameObject gameObject, int x, int y) {
-
-        if (gameObject.getObjectType() != null) {
-            g.setColor(Color.WHITE);
-            g.drawString(gameObject.getName(), x, y);
-        }
-    }
-
-    // TEMP get the color of a game object
-    private Color getGameObjectColor(GameObject gameObject) {
-        switch (gameObject.getObjectType()) {
-            case PUZZLE_PIECE: return Color.BLUE;
-            case PLAYER_PIECE: return Color.GREEN;
-            default: return new Color(0, 0, 0, 0);
         }
     }
 }
