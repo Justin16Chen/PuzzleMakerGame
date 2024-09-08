@@ -64,7 +64,8 @@ public class GameBoard {
         for (int y=0; y<emptyBoard.length; y++) {
             for (int x=0; x<emptyBoard[0].length; x++) {
                 if      (x == 5 && y == 6) { newBoard[y][x] = new Wall(this, x, y); }
-                else if (x == 2 && y == 3) { newBoard[y][x] = new PuzzlePiece(this, x, y, "0201"); }
+                else if (x == 2 && y == 3) { newBoard[y][x] = new PuzzlePiece(this, x, y, "1201"); }
+                else if (x == 7 && y == 5) { newBoard[y][x] = new PuzzlePiece(this, x, y, "0020"); }
                 else if (x == 4 && y == 3) { newBoard[y][x] = new PuzzlePiece(this, x, y, "0200"); }
                 else if (x == 2 && y == 4) { newBoard[y][x] = new PlayerPiece(this, x, y, "0001"); } 
             }
