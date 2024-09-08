@@ -12,7 +12,7 @@ public class Main extends ParentFrame {
     
     
     public Main(int framePerSecond) {
-        super("puzzle game", 960, 640);
+        super("puzzle game", 360, 550);
     }
 
     // setup the window
@@ -22,7 +22,9 @@ public class Main extends ParentFrame {
         contentPane = this.getContentPane();
         contentPane.setPreferredSize(new Dimension(width, height));
 
+        setResizable(false);
         setTitle(title);                                                        // title of window
+        setAlwaysOnTop(true);
 
         // setup input
         KeyInput keyInput = new KeyInput();
@@ -32,7 +34,7 @@ public class Main extends ParentFrame {
         this.addMouseMotionListener(mouseInput);
 
         // setup and add the game manager (JPanel)
-        gameManager = new GameManager(60, keyInput, mouseInput);
+        gameManager = new GameManager(this, 60, keyInput, mouseInput);
         contentPane.add(gameManager);
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);                    // setup how to close the window

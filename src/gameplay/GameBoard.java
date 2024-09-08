@@ -7,6 +7,9 @@ import input.*;
 
 public class GameBoard {
 
+    // window
+    private GameManager gameManager;
+
     // input
     private KeyInput keyInput;
     private MouseInput mouseInput;
@@ -22,7 +25,8 @@ public class GameBoard {
     private GameObject[][] board;
     
     
-    public GameBoard(KeyInput keyInput, MouseInput mouseInput) {
+    public GameBoard(GameManager gameManager, KeyInput keyInput, MouseInput mouseInput) {
+        this.gameManager = gameManager;
         this.keyInput = keyInput;
         this.mouseInput = mouseInput;
 
@@ -39,6 +43,7 @@ public class GameBoard {
 
     // get the game object at a certain position
     public GameObject getGameObject(int boardx, int boardy) {
+        if (!inBounds(boardx, boardy)) { return GameObject.OUT_OF_BOUNDS; }
         return board[boardy][boardx];
     }
 
@@ -58,8 +63,9 @@ public class GameBoard {
         GameObject[][] newBoard = new GameObject[emptyBoard.length][emptyBoard[0].length];
         for (int y=0; y<emptyBoard.length; y++) {
             for (int x=0; x<emptyBoard[0].length; x++) {
-                if      (x == 5 && y == 2) { newBoard[y][x] = new Wall(this, x, y); }
-                else if (x == 2 && y == 3) { newBoard[y][x] = new PuzzlePiece(this, x, y, "0200"); }
+                if      (x == 5 && y == 6) { newBoard[y][x] = new Wall(this, x, y); }
+                else if (x == 2 && y == 3) { newBoard[y][x] = new PuzzlePiece(this, x, y, "0201"); }
+                else if (x == 4 && y == 3) { newBoard[y][x] = new PuzzlePiece(this, x, y, "0200"); }
                 else if (x == 2 && y == 4) { newBoard[y][x] = new PlayerPiece(this, x, y, "0001"); } 
             }
         }
@@ -72,6 +78,7 @@ public class GameBoard {
         for (GameObject[] row : board) {
             for (GameObject gameObject : row) {
                 if (gameObject == null) { continue; }
+                gameObject.resetMovedThisFrame();
                 gameObject.update(dt);
             }
         }
@@ -96,14 +103,14 @@ public class GameBoard {
         for (int y=0; y<board.length; y++) {
             for (int x=0; x<board.length; x++) {
                 if (board[y][x] == null) { continue; }
-                System.out.println(board[y][x].toString());
+                //System.out.println(board[y][x].toString());
             }
         }
     }
 
     // drawing getters
-    public int getDrawX() { return 100; }
-    public int getDrawY() { return 100; }
+    public int getDrawX() { return (int) ((gameManager.getWidth() - getDrawWidth()) * 0.5); }
+    public int getDrawY() { return (int) ((gameManager.getHeight() - getDrawHeight()) - 30); }
     public int getDrawWidth() { return WIDTH * TILE_SIZE; }
     public int getDrawHeight() { return HEIGHT * TILE_SIZE; }
 

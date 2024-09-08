@@ -5,8 +5,12 @@ import java.awt.*;
 import javax.swing.*;
 
 import input.*;
+import window.ParentFrame;
 
 public class GameManager extends JPanel {
+    
+    // window
+    private ParentFrame window;
     
     // game loop
     private int fps;
@@ -15,6 +19,9 @@ public class GameManager extends JPanel {
     protected Thread gameLoopThread;    // controls the game loop
     public boolean runningGameLoop;
     public double dt;
+
+    // debug
+    private boolean showDebug;
 
     // input
     KeyInput keyInput;
@@ -33,11 +40,20 @@ public class GameManager extends JPanel {
     // game board
     GameBoard gameBoard;
 
-    public GameManager(int framesPerSecond, KeyInput keyInput, MouseInput mouseInput) {
+    public GameManager(ParentFrame window, int framesPerSecond, KeyInput keyInput, MouseInput mouseInput) {
+        this.window = window;
         this.fps = framesPerSecond;
         this.keyInput = keyInput;
         this.mouseInput = mouseInput;
-        gameBoard = new GameBoard(keyInput, mouseInput);
+        gameBoard = new GameBoard(this, keyInput, mouseInput);
+    }
+
+    // get the size of the window
+    public int getWindowWidth() {
+        return getWidth();
+    }
+    public int getWindowHeight() {
+        return getHeight();
     }
     
     // start the game
@@ -99,13 +115,23 @@ public class GameManager extends JPanel {
 
         drawGame(g2);
 
-        g2.setColor(Color.BLACK);
-        g2.drawString(String.valueOf(dt), 20, 20);
-
-        g2.drawString(String.valueOf(getGameLoopInterval()), 20, 40);
+        if (keyInput.keyClicked("Q")) {
+            showDebug = !showDebug;
+        }
+        if (showDebug) {
+            drawDebug(g2);
+        }
     }
 
     public void drawGame(Graphics2D g) {
         gameBoard.draw(g);
+    }
+
+    private void drawDebug(Graphics2D g) {
+        g.setColor(new Color(180, 180, 180, 140));
+        g.fillRect(0, 0, 200, 50);
+        g.setColor(Color.BLACK);
+        g.drawString("dt: " + dt, 20, 20);
+        g.drawString("window size: " + getWindowWidth() + ", " + getWindowHeight(), 20, 35);
     }
 }

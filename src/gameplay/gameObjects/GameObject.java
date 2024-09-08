@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 
 import gameplay.GameBoard;
 import input.*;
+import utils.ConsoleColors;
 
 public abstract class GameObject {
 
@@ -12,14 +13,18 @@ public abstract class GameObject {
     public static enum ObjectType {
         PUZZLE_PIECE,
         PLAYER_PIECE,
-        WALL
+        WALL,
+        OUT_OF_BOUNDS
     }
+    // out of bounds instance (wall)
+    public static GameObject OUT_OF_BOUNDS = new OutOfBounds();
     // get the string name of of the game object type
     public static String getObjectTypeName(ObjectType objectType) {
         switch (objectType) {
             case PUZZLE_PIECE: return "puzzle piece";
             case PLAYER_PIECE: return "player piece";
             case WALL: return "wall";
+            case OUT_OF_BOUNDS: return "outOfBounds";
             default: return "empty";
         }
     }
@@ -30,6 +35,7 @@ public abstract class GameObject {
             case PUZZLE_PIECE: return true;
             case PLAYER_PIECE: return true;
             case WALL: return false;
+            case OUT_OF_BOUNDS: return false;
             default: return false;
         }
     }
@@ -41,6 +47,7 @@ public abstract class GameObject {
     private ObjectType objectType;
     private int boardx, boardy;
     private boolean movable;
+    private boolean movedThisFrame;
     
 
     public GameObject(GameBoard gameBoard, ObjectType objectType, int boardx, int boardy) {
@@ -54,6 +61,12 @@ public abstract class GameObject {
         this.name = GameObject.getObjectTypeName(objectType);
         this.movable = GameObject.getMovable(objectType);
     }
+    public GameObject(ObjectType objectType) {
+        this.objectType = objectType;
+
+        this.name = GameObject.getObjectTypeName(objectType);
+        this.movable = GameObject.getMovable(objectType);
+    }
 
     // getters
     public String getName() { return name; }
@@ -61,7 +74,12 @@ public abstract class GameObject {
     public int getBoardX() { return boardx; }
     public int getBoardY() { return boardy; }
     public boolean isMovable() { return movable; }
+    public boolean movedThisFrame() { return movedThisFrame; }
 
+    // can only move once a frame - this is function to reset to allow new movement
+    public void resetMovedThisFrame() {
+        movedThisFrame = false;
+    }
     // move the game object and also move any subsequent game objects
     public void moveBoardX(int x) {
         boardx += x;
@@ -114,12 +132,21 @@ public abstract class GameObject {
     // move the game object and any subsequent objects
     public void move(MoveInfo moveInfo) {
 
+        if (movedThisFrame) {
+            return;
+        }
+
+        //System.out.println(ConsoleColors.RED + "MOVING GAME OBJECT" + ConsoleColors.RESET);
+        movedThisFrame = true;
+
         // get starting game object to move
         int targetx = getBoardX() + moveInfo.getHdir();
         int targety = getBoardY() + moveInfo.getVdir();
         GameObject gameObject = gameBoard.getGameObject(targetx, targety);
+        
+        //System.out.println(this + " moving by (" + moveInfo.getHdir() + ", " + moveInfo.getVdir() + ") to (" + targetx + ", " + targety + ")");
             
-        //System.out.println("Parent: " + gameObject.toString() + ", ");
+        //System.out.println("Parent: " + toString() + ", ");
         //System.out.println(moveInfo.toString());
 
         // move game object current object is moving into

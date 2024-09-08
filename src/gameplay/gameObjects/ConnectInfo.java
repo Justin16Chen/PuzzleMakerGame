@@ -5,7 +5,7 @@ import utils.Direction;
 public class ConnectInfo {
 
     private PuzzlePiece piece1, piece2;
-    private Direction piece1Direction, piece2Direction;
+    private Direction.Type piece1Direction, piece2Direction;
     private PuzzlePiece.Side piece1Side, piece2Side;
     private boolean canConnect;
     private ConnectType connectionType;
@@ -15,7 +15,7 @@ public class ConnectInfo {
         INVALID,
     }
     
-    public static ConnectInfo makeValidConnection(PuzzlePiece piece1, PuzzlePiece piece2, Direction piece1Direction, Direction piece2Direction, PuzzlePiece.Side piece1Side, PuzzlePiece.Side piece2Side) {
+    public static ConnectInfo makeValidConnection(PuzzlePiece piece1, PuzzlePiece piece2, Direction.Type piece1Direction, Direction.Type piece2Direction, PuzzlePiece.Side piece1Side, PuzzlePiece.Side piece2Side) {
         return new ConnectInfo(piece1, piece2, piece1Direction, piece2Direction, piece1Side, piece2Side);
     }
     public static ConnectInfo makeInvalidConnection(boolean canMove) {
@@ -24,7 +24,7 @@ public class ConnectInfo {
 
     private boolean canMove;
 
-    private ConnectInfo(PuzzlePiece piece1, PuzzlePiece piece2, Direction piece1Direction, Direction piece2Direction, PuzzlePiece.Side piece1Side, PuzzlePiece.Side piece2Side) {
+    private ConnectInfo(PuzzlePiece piece1, PuzzlePiece piece2, Direction.Type piece1Direction, Direction.Type piece2Direction, PuzzlePiece.Side piece1Side, PuzzlePiece.Side piece2Side) {
         this.connectionType = ConnectType.VALID;
         this.canConnect = true;
         this.canMove = true;
@@ -44,8 +44,8 @@ public class ConnectInfo {
 
     public PuzzlePiece getPiece1() { return piece1; }
     public PuzzlePiece getPiece2() { return piece2; }
-    public Direction getPiece1Direction() { return piece1Direction; } 
-    public Direction getPiece2Direction() { return piece2Direction; } 
+    public Direction.Type getPiece1Direction() { return piece1Direction; } 
+    public Direction.Type getPiece2Direction() { return piece2Direction; } 
     public PuzzlePiece.Side getPiece1Side() { return piece1Side; } 
     public PuzzlePiece.Side getPiece2Side() { return piece2Side; } 
     public boolean canConnect() { return canConnect; }
