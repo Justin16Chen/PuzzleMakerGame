@@ -98,6 +98,16 @@ public class PuzzlePiece extends GameObject {
     public boolean isSideConnected(Direction.Type direction) { return sideConnectionType[Direction.getIndex(direction)] != ConnectionType.EMPTY; }
     // if the connectionType is connected
     public boolean isConnectionConnected(ConnectionType connectionType) { return connectionType != ConnectionType.EMPTY; }
+    // if at least one of the sides are connected
+    public boolean hasConnection() {
+        for (int i=0; i<4; i++) {
+            Direction.Type direction = Direction.getDirection(i);
+            if (getSideType(direction) != Side.EDGE && getSideConnectionType(direction) == ConnectionType.EMPTY) {
+                return false;
+            }
+        }
+        return true;
+    }
     // connect a side
     public void connectSide(Direction.Type direction, ConnectionType connectionType) { sideConnectionType[Direction.getIndex(direction)] = connectionType; }
     
@@ -279,15 +289,15 @@ public class PuzzlePiece extends GameObject {
     @Override
     public void draw(Graphics2D g, int drawx, int drawy) {
         g.setColor(Color.GRAY);
-        g.fillRect(drawx, drawy, gameBoard.TILE_SIZE, gameBoard.TILE_SIZE);
+        g.fillRect(drawx, drawy, gameBoard.tileSize, gameBoard.tileSize);
 
         Color outColor = Color.RED;
         Color inColor = Color.BLUE;
         Color edgeColor = Color.YELLOW;
         Color connectedColor = Color.GREEN;
 
-        int right = drawx + gameBoard.TILE_SIZE;
-        int bottom = drawy + gameBoard.TILE_SIZE;
+        int right = drawx + gameBoard.tileSize;
+        int bottom = drawy + gameBoard.tileSize;
 
         Color[] colorList = new Color[4];
 

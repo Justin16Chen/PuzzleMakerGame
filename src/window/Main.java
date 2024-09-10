@@ -12,7 +12,7 @@ public class Main extends ParentFrame {
     
     
     public Main(int framePerSecond) {
-        super("puzzle game", 360, 550);
+        super("puzzle game", 500, 500);
     }
 
     // setup the window

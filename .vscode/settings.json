@@ -2,6 +2,7 @@
     "java.project.sourcePaths": ["src"],
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
-        "lib/**/*.jar"
+        "lib/**/*.jar",
+        "c:\\Users\\jchen3\\OneDrive - North Allegheny School District\\java files\\java dependencies\\json-20240303.jar"
     ]
 }

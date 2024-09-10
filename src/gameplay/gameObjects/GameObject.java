@@ -5,27 +5,39 @@ import java.awt.Graphics2D;
 
 import gameplay.GameBoard;
 import input.*;
-import utils.ConsoleColors;
 
 public abstract class GameObject {
-
+    
     // game object enum types
     public static enum ObjectType {
         PUZZLE_PIECE,
         PLAYER_PIECE,
         WALL,
-        OUT_OF_BOUNDS
+        OUT_OF_BOUNDS,
+        EMPTY
     }
     // out of bounds instance (wall)
     public static GameObject OUT_OF_BOUNDS = new OutOfBounds();
     // get the string name of of the game object type
     public static String getObjectTypeName(ObjectType objectType) {
         switch (objectType) {
-            case PUZZLE_PIECE: return "puzzle piece";
-            case PLAYER_PIECE: return "player piece";
+            case PUZZLE_PIECE: return "puzzlePiece";
+            case PLAYER_PIECE: return "playerPiece";
             case WALL: return "wall";
             case OUT_OF_BOUNDS: return "outOfBounds";
+            case EMPTY: return "empty";
             default: return "empty";
+        }
+    }
+    // get the enum given the string name of the object type
+    public static ObjectType getObjectType(String objectTypeName) {
+        switch (objectTypeName) {
+            case "puzzlePiece": return ObjectType.PUZZLE_PIECE;
+            case "playerPiece": return ObjectType.PLAYER_PIECE;
+            case "wall": return ObjectType.WALL;
+            case "outOfBounds": return ObjectType.OUT_OF_BOUNDS;
+            case "empty": return ObjectType.EMPTY;
+            default: return ObjectType.EMPTY;
         }
     }
     
@@ -36,6 +48,7 @@ public abstract class GameObject {
             case PLAYER_PIECE: return true;
             case WALL: return false;
             case OUT_OF_BOUNDS: return false;
+            case EMPTY: return true;
             default: return false;
         }
     }

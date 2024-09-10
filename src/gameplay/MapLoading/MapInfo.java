@@ -1,4 +1,4 @@
-package gameplay.MapLoading;
+package gameplay.mapLoading;
 
 import java.util.*;
 
@@ -7,25 +7,30 @@ import gameplay.gameObjects.*;
 public class MapInfo {
 
     private int width, height;
-    private ArrayList<GameObjectPrimitive> gameObjectPrimitives;
+    private  ArrayList<GameObject> gameObjects;
     
-    public MapInfo(int mapWidth, int mapHeight, ArrayList<GameObjectPrimitive> gameObjectPrimitives) {
+    public MapInfo(int mapWidth, int mapHeight, ArrayList<GameObject> gameObjects) {
         this.width = mapWidth;
         this.height = mapHeight;
-        this.gameObjectPrimitives = gameObjectPrimitives;
+        this.gameObjects = gameObjects;
+    }
+
+    public String getGameObjectsString() {
+        String gmString = "";
+
+        for (GameObject gameObject : gameObjects) {
+            gmString += gameObject + "\n";
+        }
+        return gmString;
     }
 
     @Override
     public String toString() {
-        String gmString = "";
-
-        for (GameObjectPrimitive gmPrimitive : gameObjectPrimitives) {
-            gmString += gmPrimitive + "\n";
-        }
-        return "MapInfo(\nwidth: " + width + " | height: " + height + " \ngameObjectPrimitives: " + gmString +")";
+        
+        return "MapInfo(\nwidth: " + width + " | height: " + height + " \ngameObjectPrimitives: " + getGameObjectsString() +")";
     }
 
     public int getMapWidth() { return width; }
     public int getMapHeight() { return height; }
-    public ArrayList<GameObjectPrimitive> getGameObjects() { return gameObjectPrimitives; }
+    public ArrayList<GameObject> getGameObjects() { return gameObjects; }
 }

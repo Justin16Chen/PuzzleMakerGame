@@ -4,6 +4,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import gameplay.mapLoading.*;
 import input.*;
 import window.ParentFrame;
 
@@ -17,8 +18,12 @@ public class GameManager extends JPanel {
     private boolean hasGameLoopInterval;
     private long gameLoopInterval;
     protected Thread gameLoopThread;    // controls the game loop
+    public boolean createdGameLoop;
     public boolean runningGameLoop;
     public double dt;
+
+    // level management
+    public int currentLevel = 1;
 
     // debug
     private boolean showDebug;
@@ -45,21 +50,32 @@ public class GameManager extends JPanel {
         this.fps = framesPerSecond;
         this.keyInput = keyInput;
         this.mouseInput = mouseInput;
-        gameBoard = new GameBoard(this, keyInput, mouseInput);
     }
 
-    // get the size of the window
-    public int getWindowWidth() {
-        return getWidth();
+    public void setLevel(int level) {
+
+        // load in the level
+        MapInfo mapInfo = GameLoader.getMapInfo(level + ".json", gameBoard);
+        gameBoard.setCurrentBoard(mapInfo);
     }
-    public int getWindowHeight() {
-        return getHeight();
-    }
-    
+
     // start the game
     public void startGame() {
 
-        // create the game loop
+        // create game board
+        gameBoard = new GameBoard(this, keyInput, mouseInput);
+
+        // load level
+        currentLevel = 1;
+        setLevel(currentLevel);
+
+        // create and start the game loop
+        createGameLoop();
+        startGameLoop();
+    }
+
+    // create the game loop
+    public void createGameLoop() {
         gameLoopThread = new Thread() {
             @Override
             public void run() {
@@ -89,9 +105,9 @@ public class GameManager extends JPanel {
                 }
             }
         };
-        startGameLoop();
+        createdGameLoop = true;
     }
-
+    
     // start the game loop
     public void startGameLoop() {
         runningGameLoop = true;
@@ -105,6 +121,11 @@ public class GameManager extends JPanel {
 
     public void updateGame(double dt) {
         gameBoard.update(dt);
+
+        if (gameBoard.allPuzzlePiecesConnected()) {
+            System.out.println("new level");
+            setLevel(++currentLevel);
+        }
     }
 
     // swing's built in draw function for UI components
@@ -113,7 +134,9 @@ public class GameManager extends JPanel {
         
         Graphics2D g2 = (Graphics2D) g;
 
-        drawGame(g2);
+        if (createdGameLoop) {
+            drawGame(g2);
+        }
 
         if (keyInput.keyClicked("Q")) {
             showDebug = !showDebug;
@@ -132,6 +155,6 @@ public class GameManager extends JPanel {
         g.fillRect(0, 0, 200, 50);
         g.setColor(Color.BLACK);
         g.drawString("dt: " + dt, 20, 20);
-        g.drawString("window size: " + getWindowWidth() + ", " + getWindowHeight(), 20, 35);
+        g.drawString("window size: " + getWidth() + ", " + getHeight(), 20, 35);
     }
 }

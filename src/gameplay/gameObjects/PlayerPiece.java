@@ -11,7 +11,7 @@ public class PlayerPiece extends PuzzlePiece {
         super(gameBoard, GameObject.ObjectType.PLAYER_PIECE, boardx, boardy, sideData);
     }
 
-    // update the player piece
+    // update the playerPiece
     @Override
     public void update(double dt) {
 
