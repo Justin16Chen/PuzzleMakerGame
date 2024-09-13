@@ -60,7 +60,6 @@ public class GameBoard {
 
     // create a new game board given the map info
     public void setCurrentBoard(MapInfo mapInfo) {
-        System.out.println(mapInfo);
         width = mapInfo.getMapWidth();
         height = mapInfo.getMapHeight();
         tileSize = (int) Math.min(

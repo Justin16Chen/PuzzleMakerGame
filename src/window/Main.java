@@ -42,7 +42,6 @@ public class Main extends ParentFrame {
         this.setVisible(true);                                                // show window
     }
 
-
     public static void main(String[] args) {
         Main main = new Main(60);
         main.setupWindow();

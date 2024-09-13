@@ -58,7 +58,7 @@ public class PuzzlePiece extends GameObject {
         connectInfo.getPiece1().connectSide(connectInfo.getPiece1Direction(), ConnectionType.PARENT);
         connectInfo.getPiece2().connectSide(connectInfo.getPiece2Direction(), ConnectionType.CHILD);
 
-        //System.out.println(ConsoleColors.YELLOW + "CONNECTION DATA: " + ConsoleColors.RESET);
+        //System.out.println(Print.YELLOW + "CONNECTION DATA: " + Print.RESET);
         //System.out.println(
         //    "p1: " + connectInfo.getPiece1() + 
         //    "| side: " + connectInfo.getPiece1Direction() + 
@@ -215,7 +215,7 @@ public class PuzzlePiece extends GameObject {
     
     // gets the moveinfo based on all of the attached puzzle pieces
     public MoveInfo getAllMoveInfo(int hdir, int vdir) {
-        //System.out.println(ConsoleColors.PURPLE + "GET ALL MOVE INFO FOR " + this + ConsoleColors.RESET);
+        //System.out.println(Print.PURPLE + "GET ALL MOVE INFO FOR " + this + Print.RESET);
         // make sure movement is in bounds and is valid
         // currently using base GameObject.getMoveInfo
         // need to create PuzzlePiece.getMoveInfo to account for any connected PuzzlePieces
@@ -266,10 +266,10 @@ public class PuzzlePiece extends GameObject {
     // moves itself and any attached puzzle pieces
     // also look for any new connections to attach puzzle pieces
     public void moveAllAttached(MoveInfo moveInfo) {
-        //System.out.println(ConsoleColors.RED + "MOVING ALL ATTACHED FOR: " + this + ConsoleColors.RESET);
+        //System.out.println(Print.RED + "MOVING ALL ATTACHED FOR: " + this + Print.RESET);
         //System.out.println("getting adjacent connected pieces in moveAllAttached function");
         ArrayList<PuzzlePiece> adjecentConnections = getAdjacentConnectedPieces(ConnectionType.PARENT, ConnectionType.CHILD);
-        //System.out.println(ConsoleColors.BLUE + "puzzle pieces: " + ConsoleColors.RESET);
+        //System.out.println(Print.BLUE + "puzzle pieces: " + Print.RESET);
         for (PuzzlePiece puzzlePiece : adjecentConnections) {
             //System.out.println("connected piece: " + puzzlePiece);
 

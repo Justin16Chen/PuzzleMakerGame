@@ -36,7 +36,7 @@ public class GameLoader {
     }
 
     // gets all the info to create a map from a json file
-    public static MapInfo getMapInfo(String fileName, GameBoard gameBoard) {
+    public static MapInfo getMapInfo(String fileName, GameBoard gameBoard) throws Exception {
         File file = new File(ROOT_PATH + "/" + fileName);
         try {
             int mapWidth = 0;
@@ -55,6 +55,16 @@ public class GameLoader {
                 gameObjects.add(createGameObject(gameObjectsData.getJSONObject(i), gameBoard));
             }
 
+            for (int i=0; i<gameObjects.size(); i++) {
+                for (int j=0; j<gameObjects.size(); j++) {
+                    if (i == j) continue;
+                    GameObject gameObject = gameObjects.get(i);
+                    GameObject gameObject2 = gameObjects.get(j);
+                    if (gameObject.getBoardX() == gameObject2.getBoardX() && gameObject.getBoardY() == gameObject2.getBoardY()) {
+                        throw new Exception(gameObject + " has the same position as " + gameObject2);
+                    }
+                }
+            }   
             return new MapInfo(mapWidth, mapHeight, gameObjects);
         } catch (IOException e) {
         }

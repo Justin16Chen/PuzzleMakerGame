@@ -149,7 +149,7 @@ public abstract class GameObject {
             return;
         }
 
-        //System.out.println(ConsoleColors.RED + "MOVING GAME OBJECT" + ConsoleColors.RESET);
+        //System.out.println(Print.RED + "MOVING GAME OBJECT" + Print.RESET);
         movedThisFrame = true;
 
         // get starting game object to move

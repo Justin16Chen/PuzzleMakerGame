@@ -13,13 +13,19 @@
             "name": "puzzlePiece",
             "x": 5,
             "y": 4,
-            "sideData": "0202"
+            "sideData": "0200"
         },
         {
             "name": "puzzlePiece",
-            "x": 7,
+            "x": 0,
             "y": 4,
-            "sideData": "0100"
+            "sideData": "0011"
+        },
+        {
+            "name": "puzzlePiece",
+            "x": 5,
+            "y": 7,
+            "sideData": "2000"
         }
     ]
 }

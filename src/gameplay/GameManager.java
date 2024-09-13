@@ -2,10 +2,13 @@ package gameplay;
 
 import java.awt.*;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 
 import gameplay.mapLoading.*;
 import input.*;
+import utils.drawing.Sprite;
+import utils.tween.Timer;
+import utils.tween.Updatable;
 import window.ParentFrame;
 
 public class GameManager extends JPanel {
@@ -23,7 +26,7 @@ public class GameManager extends JPanel {
     public double dt;
 
     // level management
-    public int currentLevel = 1;
+    LevelManager levelManager;
 
     // debug
     private boolean showDebug;
@@ -52,13 +55,6 @@ public class GameManager extends JPanel {
         this.mouseInput = mouseInput;
     }
 
-    public void setLevel(int level) {
-
-        // load in the level
-        MapInfo mapInfo = GameLoader.getMapInfo(level + ".json", gameBoard);
-        gameBoard.setCurrentBoard(mapInfo);
-    }
-
     // start the game
     public void startGame() {
 
@@ -66,8 +62,8 @@ public class GameManager extends JPanel {
         gameBoard = new GameBoard(this, keyInput, mouseInput);
 
         // load level
-        currentLevel = 1;
-        setLevel(currentLevel);
+        levelManager = new LevelManager(this, gameBoard);
+        levelManager.transitionToLevel(1, false, true);
 
         // create and start the game loop
         createGameLoop();
@@ -91,6 +87,9 @@ public class GameManager extends JPanel {
                     // update input
                     keyInput.update();
                     mouseInput.update();
+
+                    // update background systems
+                    Updatable.updateUpdatables(dt);
 
                     updateGame(dt);                                             // update function
                     repaint();                                                // draw function
@@ -122,9 +121,8 @@ public class GameManager extends JPanel {
     public void updateGame(double dt) {
         gameBoard.update(dt);
 
-        if (gameBoard.allPuzzlePiecesConnected()) {
-            System.out.println("new level");
-            setLevel(++currentLevel);
+        if (gameBoard.allPuzzlePiecesConnected() && !levelManager.transitioningBetweenLevels()) {
+            levelManager.transitionToNextLevel(true, true);
         }
     }
 
@@ -136,6 +134,7 @@ public class GameManager extends JPanel {
 
         if (createdGameLoop) {
             drawGame(g2);
+            Sprite.drawSprites(g2);
         }
 
         if (keyInput.keyClicked("Q")) {
