@@ -7,24 +7,57 @@ import java.util.ArrayList;
 import utils.Print;
 
 public abstract class Updatable {
+
+    public enum PrintType {
+        ALWAYS,
+        NEVER,
+        ON_COMPLETE,
+        ON_LOOP
+    }
     private static ArrayList<Updatable> list = new ArrayList<>();
 
     public static void addUpdatable(Updatable updatable) {
-        //System.out.println(updatable);
-        list.add(updatable);
+        boolean valid = true;
+        if (updatable.getType().equals("call")) {
+            if (!Updatable.hasMethod(updatable.getTarget(), updatable.getMethodName(), updatable.getMethodArgs())) {
+                valid = false;
+                throw new RuntimeException("method " + updatable.getMethodName() + " does not exist in " + updatable.getTarget() + " with parameters " + Updatable.getParameterTypesString(updatable.getMethodArgs()));
+            }
+        } 
+        else if (updatable.getType().equals("set")) {
+            if (!Updatable.hasProperty(updatable.getTarget(), updatable.getPropertyName())) {
+                valid = false;
+                throw new RuntimeException(updatable + " does not have property named " + updatable.getPropertyName());
+            }
+        }
+
+        if (valid) {
+            Print.println("VALID: " + updatable, Print.GREEN);
+            list.add(updatable);
+        } else {
+            Print.println("INVALID: " + updatable, Print.RED);
+        }
     }
 
     public static void updateUpdatables(double dt) {
         for (int i=0; i<list.size(); i++) {
 
+            // make sure it doesn't go past list
             if (i >= list.size()) {
                 break;
             }
 
             Updatable updatable = list.get(i);
 
-            updatable.update(dt);
+            // update updatable
+            updatable.step(dt);
 
+            // print updatable
+            if (canPrintUpdatable(updatable)) {
+                System.out.println("PRINTING UPDATABLE: " + updatable);
+            }
+
+            // remove updatable
             if (updatable.isComplete()) {
                 list.remove(i);
             }
@@ -35,6 +68,20 @@ public abstract class Updatable {
         list.clear();
     }
 
+    private static boolean canPrintUpdatable(Updatable updatable) {
+        switch (updatable.getPrint()) {
+            case ALWAYS:
+                return true;
+            case NEVER:
+                return false;
+            case ON_COMPLETE:
+                return updatable.isComplete();
+            case ON_LOOP:
+                return updatable.isLoopComplete();
+            default:
+                return false;
+        }
+    }
     public static double lerp(Number start, Number end, Number t) {
         return start.doubleValue() + t.doubleValue() * (end.doubleValue() - start.doubleValue());
     }
@@ -107,6 +154,7 @@ public abstract class Updatable {
     }
 
     public static Class<?>[] getParameterTypes(Object...args) {
+
         // Determine parameter types and handle primitive type conversion
         Class<?>[] parameterTypes = new Class[args.length];
         for (int i = 0; i < args.length; i++) {
@@ -139,7 +187,7 @@ public abstract class Updatable {
             // get the parameter types
             Class<?>[] parameterTypes = getParameterTypes(args);
             // will throw an exception if there doesn't exist a method with the parameters specified
-            Method method = obj.getClass().getDeclaredMethod(methodName, parameterTypes);
+            obj.getClass().getDeclaredMethod(methodName, parameterTypes);
             return true;
         } catch (NoSuchMethodException e) {
             Print.println("Method not found: " + methodName + " with parameters: " + getParameterTypesString(args) + " in " + obj.getClass(), Print.RED);
@@ -183,36 +231,87 @@ public abstract class Updatable {
     private String type;
     private Object target;         // The object to be tweened
     private String propertyName;   // The name of the property to modify
+    private String methodName;
+    private Object[] methodArgs;
     private double duration;        // Duration of the tween
     private double elapsedTime;     // Time elapsed since the tween started
+    private boolean paused;         // if the updatable is paused or not
+    private int repeatCount;
+    private int currentRepeat;
+    private boolean loopFinished;     // if the updatable just finished looping  
+    private boolean complete;         // if the updatable is fully complete
+    private PrintType print;          // Print values for debugging
 
-    public Updatable(String name, String type, Object target, String propertyName, double duration) {
+    public Updatable(String name, Object target, String propertyName, double duration, int repeatCount) {
         this.name = name;
-        this.type = type;
+        this.type = "set";
         this.target = target;
         this.propertyName = propertyName;
         this.duration = duration;
-        this.elapsedTime = 0f;
+        this.repeatCount = repeatCount;
+        this.elapsedTime = 0;
+        this.currentRepeat = 0;
+        this.print = PrintType.NEVER;
     }
-
+    public Updatable(String name, Object target, String methodName, double duration, int repeatCount, Object...methodArgs) {
+        this.name = name;
+        this.type = "call";
+        this.target = target;
+        this.methodName = methodName;
+        this.duration = duration;
+        this.repeatCount = repeatCount;
+        this.methodArgs = methodArgs;
+        this.elapsedTime = 0;
+        this.currentRepeat = 0;
+        this.print = PrintType.NEVER;
+    }
     @Override
     public String toString() {
         return "Updatable(name: " + name + " | type: " + type + " | property: " + propertyName + " | duration" + duration + " | elapsed time:" + elapsedTime + ")";
     }
 
-    public abstract void update(double deltaTime);
+    public void step(double deltaTime) {
+        if (paused) {
+            return;
+        }
+
+        if (elapsedTime >= duration) {
+            currentRepeat++;
+            loopFinished = true;
+            if (repeatCount > 0) {
+                elapsedTime -= duration;
+                complete = currentRepeat >= repeatCount + 1;
+            }
+            else {
+                complete = true;
+            }
+        }
+
+        update(deltaTime);
+
+        loopFinished = false;
+    }
+    protected abstract void update(double deltaTime);
 
     public String getName() { return name; }
     public String getType() { return type; }
     public Object getTarget() { return target; }
     public String getPropertyName() { return propertyName; }
+    public String getMethodName() { return methodName; }
+    public Object[] getMethodArgs() { return methodArgs; }
     public double getDuration() { return duration; }
     public double getElapsedTime() { return elapsedTime; }
+    public boolean isPaused() { return paused; }
+    public int getRepeatCount() { return repeatCount; }
+    public boolean isLoopComplete() { return loopFinished; }
+    public boolean isComplete() { return complete; }
+    public PrintType getPrint() { return print; }
 
     public void setElapsedTime(double num) { elapsedTime = num; }
     public void addToElapsedTime(double num) { elapsedTime += num; }
+    public void setPaused(boolean paused) { this.paused = paused; }
+    public void addToRepeat(int num) { currentRepeat += num; }
+    public void complete() { complete = true; }
+    public void setPrint(PrintType print) { this.print = print; }
 
-    public boolean isComplete() {
-        return elapsedTime >= duration;
-    }
 }

@@ -3,22 +3,16 @@ package gameplay.mapLoading;
 import java.io.*;
 
 import java.util.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.json.*;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
 import gameplay.gameObjects.GameObject.ObjectType;
 
-public class GameLoader {
+public class LevelLoader {
 
     final private static String ROOT_PATH = "res/levels";
 
@@ -36,7 +30,7 @@ public class GameLoader {
     }
 
     // gets all the info to create a map from a json file
-    public static MapInfo getMapInfo(String fileName, GameBoard gameBoard) throws Exception {
+    public static MapInfo getMapInfo(String fileName, GameBoard gameBoard) {
         File file = new File(ROOT_PATH + "/" + fileName);
         try {
             int mapWidth = 0;
@@ -52,6 +46,7 @@ public class GameLoader {
             JSONArray gameObjectsData = mapObject.getJSONArray("gameObjects");
 
             for (int i=0; i<gameObjectsData.length(); i++) {
+                // TODO: check JSON data to make sure all the neccesary info is in the json object
                 gameObjects.add(createGameObject(gameObjectsData.getJSONObject(i), gameBoard));
             }
 
@@ -61,12 +56,15 @@ public class GameLoader {
                     GameObject gameObject = gameObjects.get(i);
                     GameObject gameObject2 = gameObjects.get(j);
                     if (gameObject.getBoardX() == gameObject2.getBoardX() && gameObject.getBoardY() == gameObject2.getBoardY()) {
-                        throw new Exception(gameObject + " has the same position as " + gameObject2);
+                        throw new RuntimeException(gameObject + " has the same position as " + gameObject2);
                     }
                 }
             }   
             return new MapInfo(mapWidth, mapHeight, gameObjects);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            System.out.println("INVALID JSON FILE");
         }
         return null;
     }

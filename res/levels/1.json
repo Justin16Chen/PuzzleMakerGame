@@ -5,15 +5,15 @@
     "gameObjects": [
         {
             "name": "playerPiece",
-            "x": 2,
+            "x": 1,
             "y": 2,
-            "sideData": "0001"
+            "sideData": "0010"
         },
         {
             "name": "puzzlePiece",
-            "x": 4,
+            "x": 5,
             "y": 2,
-            "sideData": "0200"
+            "sideData": "2000"
         }
     ]
 }

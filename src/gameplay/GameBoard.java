@@ -1,6 +1,7 @@
 package gameplay;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 import gameplay.gameObjects.*;
 import gameplay.mapLoading.*;
@@ -27,6 +28,8 @@ public class GameBoard {
 
     // list of all game objects represented with a 2D grid
     private GameObject[][] board;
+    // list of all game objects
+    private ArrayList<GameObject> gameObjects;
     
     
     public GameBoard(GameManager gameManager, KeyInput keyInput, MouseInput mouseInput) {
@@ -35,11 +38,19 @@ public class GameBoard {
         this.mouseInput = mouseInput;
     }
 
+    // get the size of the game board
+    public int getBoardWidth() { return width; }
+    public int getBoardHeight() { return height; }
+
     // check if a position is in the board boundaries
     public boolean inBounds(int boardx, int boardy) {
         return boardx >= 0 && boardx < width && boardy >= 0 && boardy < height;
     }
 
+    // gets all the game objects on the board
+    public ArrayList<GameObject> getGameObjects() {
+        return gameObjects;
+    }
     // get the game object at a certain position
     public GameObject getGameObject(int boardx, int boardy) {
         if (!inBounds(boardx, boardy)) { return GameObject.OUT_OF_BOUNDS; }
@@ -60,12 +71,17 @@ public class GameBoard {
 
     // create a new game board given the map info
     public void setCurrentBoard(MapInfo mapInfo) {
+        
+        // map size
         width = mapInfo.getMapWidth();
         height = mapInfo.getMapHeight();
         tileSize = (int) Math.min(
             gameManager.getWidth() * screenSizeRatio / width, 
             gameManager.getHeight() * screenSizeRatio / height
         );
+
+        // game objects
+        gameObjects = mapInfo.getGameObjects();
         board = new GameObject[height][width];
 
         for (int i=0; i<mapInfo.getGameObjects().size(); i++) {
@@ -77,12 +93,10 @@ public class GameBoard {
     // update loop
     public void update(double dt) {
 
-        for (GameObject[] row : board) {
-            for (GameObject gameObject : row) {
-                if (gameObject == null) { continue; }
-                gameObject.resetMovedThisFrame();
-                gameObject.update(dt);
-            }
+        for (int i=0; i<gameObjects.size(); i++) {
+            GameObject gameObject = gameObjects.get(i);
+            gameObject.resetMovedThisFrame();
+            gameObject.update(dt);
         }
         //printBoard(board);
         board = updateGameObjectPositions(board);
@@ -91,28 +105,23 @@ public class GameBoard {
 
     private GameObject[][] updateGameObjectPositions(GameObject[][] board) {
         GameObject[][] newBoard = createEmptyBoard(board[0].length, board.length);
-        for (int y=0; y<height; y++) {
-            for (int x=0; x<width; x++) {
-                GameObject gameObject = board[y][x];
-                if (gameObject == null) { continue; }
+        for (int i=0; i<gameObjects.size(); i++) {
+            GameObject gameObject = gameObjects.get(i);
                 newBoard[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
-            }
         }
         return newBoard;
     }
 
     // checks if all of the puzzle pieces are connected (win condition)
     public boolean allPuzzlePiecesConnected() {
-        for (int y=0; y<height; y++) {
-            for (int x=0; x<width; x++) {
-                GameObject gameObject = getGameObject(y, x);
-                if (gameObject == null) { continue; }
-                if (gameObject.getObjectType() == GameObject.ObjectType.PUZZLE_PIECE) {
-                    PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
+        for (int i=0; i<gameObjects.size(); i++) {
+            GameObject gameObject = gameObjects.get(i);
 
-                    if (!puzzlePiece.hasConnection()) {
-                        return false;
-                    }
+            if (gameObject.getObjectType() == GameObject.ObjectType.PUZZLE_PIECE) {
+                PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
+
+                if (!puzzlePiece.hasConnectedSide()) {
+                    return false;
                 }
             }
         }
@@ -133,9 +142,12 @@ public class GameBoard {
     public int getDrawY() { return (int) ((gameManager.getHeight() - getDrawHeight()) * 0.5); }
     public int getDrawWidth() { return width * tileSize; }
     public int getDrawHeight() { return height * tileSize; }
+    public int getDrawCenterX() { return getDrawX() + (int) (getDrawWidth() * 0.5); }
+    public int getDrawCenterY() { return getDrawY() + (int) (getDrawHeight() * 0.5); }
 
     // draw the board and all of the game objects on the board
     public void draw(Graphics2D g) {
+        // game board
         g.fillRect(getDrawX(), getDrawY(), getDrawWidth(), getDrawHeight());
 
         // loop through game board and draw game objects

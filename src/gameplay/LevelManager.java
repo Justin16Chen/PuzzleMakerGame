@@ -1,10 +1,8 @@
 package gameplay;
 
-import gameplay.mapLoading.GameLoader;
-import gameplay.mapLoading.MapInfo;
-import utils.drawing.SimpleSprite;
-import utils.tween.Timer;
-import utils.tween.Tween;
+import gameplay.mapLoading.*;
+import utils.drawing.*;
+import utils.tween.*;
 
 public class LevelManager {
     
@@ -26,45 +24,61 @@ public class LevelManager {
     public int getCurrentLevel() { return currentLevel; }
     public boolean transitioningBetweenLevels() { return transitioning; }
 
-    public void playIntro() {
+    // play the intro/outro tweens for level transition
+    private void playIntro() {
+        transitioning = true;
         transitionSprite.setVisible(true);
-        Tween.createTween("intro", transitionSprite, "height", 0, (int) gameManager.getHeight(), 0.3);
+        Tween.createTween("intro", transitionSprite, "height", 0, (int) gameManager.getHeight(), 0.3, 0);
     }
-    public void playOutro() {
+    private void playOutro() {
+        System.out.println("playOutro function called");
         transitionSprite.setVisible(true);
-        Tween.createTween("outro", transitionSprite, "height", (int) gameManager.getHeight(), 0, 0.3);
+        Tween.createTween("outro", transitionSprite, "height", (int) gameManager.getHeight(), 0, 0.3, 0);
+        Timer.createSetTimer("stop transition", this, 0.3, "transitioning", false, 0);
     }
+
+    // transition to a specific level with optional intro/outro tweens
     public void transitionToLevel(Integer level, boolean intro, boolean outro) {
         currentLevel = level;
-        transitioning = true;
-            currentLevel = level;
-            if (intro) {
-                playIntro();
-                Timer.createCallTimer("call setLevel in transitionToLevel", this, 0.35, "setLevel", currentLevel);
-                if (outro) {
-                    Timer.createCallTimer("play outro", this, 0.4, "playOutro");
-                }
-            } else {
-                setLevel(currentLevel);
-                if (outro) {
-                    playOutro();
-                }
+        if (intro) {
+            playIntro();
+            Timer.createCallTimer("call setLevelInfo in transitionToLevel", this, 0.35, "setLevelInfo", 0, currentLevel);
+            if (outro) {
+                Timer.createCallTimer("play outro", this, 0.4, "playOutro", 0).setPrint(Updatable.PrintType.ON_COMPLETE);
             }
+        } else {
+            setLevelInfo(currentLevel);
+            if (outro) {
+                playOutro();
+            }
+            else {
+                transitioning = false;
+            }
+        }
     }
+    
+    // transition to the next level with optional intro/outro tweens
     public void transitionToNextLevel(boolean intro, boolean outro) {
-        transitioning = true;
         currentLevel++;
         transitionToLevel(currentLevel, true, true);
     }
-    private void setLevel(int level) {
-        Timer.createSetTimer("set transition to false", this, 0.35, "transitioning", false);
+
+    // sets the level info of the gameboard to a level
+    private void setLevelInfo(int level) {
 
         // load in the level
-        try {
-            MapInfo mapInfo = GameLoader.getMapInfo(level + ".json", gameBoard);
+        MapInfo mapInfo = LevelLoader.getMapInfo(currentLevel + ".json", gameBoard);
+        if (mapInfo != null) {
             gameBoard.setCurrentBoard(mapInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+    }
+
+    // updates the map data to any changes in the json files
+    private void updateLevelInfo() {
+        // load in the level
+        MapInfo mapInfo = LevelLoader.getMapInfo(currentLevel + ".json", gameBoard);
+        if (mapInfo != null) {
+            gameBoard.setCurrentBoard(mapInfo);
         }
     }
 }

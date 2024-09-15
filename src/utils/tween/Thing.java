@@ -3,7 +3,7 @@ package utils.tween;
 public class Thing {
     public Thing() {
         Integer num = 5;
-        Timer.createCallTimer("call thing", this, 1, "functionThing", "ddddd", num);
+        Timer.createCallTimer("call thing", this, 1, "functionThing", 0, "ddddd", num);
         Updatable.updateUpdatables(1);
     }
     private void functionThing(String param, int num) {

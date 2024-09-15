@@ -4,11 +4,9 @@ import java.awt.*;
 
 import javax.swing.JPanel;
 
-import gameplay.mapLoading.*;
 import input.*;
 import utils.drawing.Sprite;
-import utils.tween.Timer;
-import utils.tween.Updatable;
+import utils.tween.*;
 import window.ParentFrame;
 
 public class GameManager extends JPanel {
@@ -35,6 +33,11 @@ public class GameManager extends JPanel {
     KeyInput keyInput;
     MouseInput mouseInput;
 
+    // refresh level from json keybind
+    private boolean refreshLevel = false;
+    final String RELOAD_LEVEL_KEY = "1";
+    private Timer refreshTimer;
+
     // get the FPS and delay based off of FPS
     public int getFPS() { return fps; }
     public long getGameLoopInterval() {
@@ -43,6 +46,14 @@ public class GameManager extends JPanel {
             hasGameLoopInterval = true;
         }
         return gameLoopInterval; 
+    }
+    
+    // get window size
+    public int getWindowWidth() {
+        return window.getWidth();
+    }
+    public int getWindowHeight() {
+        return window.getHeight();
     }
 
     // game board
@@ -65,6 +76,11 @@ public class GameManager extends JPanel {
         levelManager = new LevelManager(this, gameBoard);
         levelManager.transitionToLevel(1, false, true);
 
+        // create timer to refresh levels from json
+        refreshTimer = Timer.createCallTimer("refresh level from json", levelManager, 1, "updateLevelInfo", -1);
+        refreshTimer.setPrint(Updatable.PrintType.ON_LOOP);
+        refreshTimer.setPaused(true);
+        
         // create and start the game loop
         createGameLoop();
         startGameLoop();
@@ -121,8 +137,16 @@ public class GameManager extends JPanel {
     public void updateGame(double dt) {
         gameBoard.update(dt);
 
+        // go to next level
         if (gameBoard.allPuzzlePiecesConnected() && !levelManager.transitioningBetweenLevels()) {
             levelManager.transitionToNextLevel(true, true);
+        }
+
+        // refresh map data from json files
+        if (keyInput.keyClicked(RELOAD_LEVEL_KEY)) {
+            refreshLevel = !refreshLevel;
+            refreshTimer.setPaused(!refreshLevel);
+            refreshTimer.setElapsedTime(refreshTimer.getDuration());
         }
     }
 
@@ -151,9 +175,18 @@ public class GameManager extends JPanel {
 
     private void drawDebug(Graphics2D g) {
         g.setColor(new Color(180, 180, 180, 140));
-        g.fillRect(0, 0, 200, 50);
+        g.fillRect(0, 0, 200, 300);
         g.setColor(Color.BLACK);
-        g.drawString("dt: " + dt, 20, 20);
-        g.drawString("window size: " + getWidth() + ", " + getHeight(), 20, 35);
+        g.drawString("===GENERAL===", 20, 20);
+        g.drawString("dt: " + dt, 20, 40);
+        g.drawString("window size: (" + getWidth() + ", " + getHeight() + ")", 20, 55);
+        g.drawString("===LEVEL===", 20, 70);
+        g.drawString("Map Size: (" + gameBoard.getBoardWidth() + ", " + gameBoard.getBoardHeight() + ")", 20, 90);
+        g.drawString("level succeeded: " + gameBoard.allPuzzlePiecesConnected(), 20, 105);
+        g.drawString("transitioning: " + levelManager.transitioningBetweenLevels(), 20, 120);
+        g.drawString("refreshing level: " + refreshLevel, 20, 135);
+        for (int i=0; i<gameBoard.getGameObjects().size(); i++) {
+
+        }
     }
 }

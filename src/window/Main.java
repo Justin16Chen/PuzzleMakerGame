@@ -9,10 +9,12 @@ import input.*;
 public class Main extends ParentFrame {
 
     GameManager gameManager;    // controls game
+    int framesPerSecond;
     
     
-    public Main(int framePerSecond) {
+    public Main(int framesPerSecond) {
         super("puzzle game", 500, 500);
+        this.framesPerSecond = framesPerSecond;
     }
 
     // setup the window
@@ -34,7 +36,7 @@ public class Main extends ParentFrame {
         this.addMouseMotionListener(mouseInput);
 
         // setup and add the game manager (JPanel)
-        gameManager = new GameManager(this, 60, keyInput, mouseInput);
+        gameManager = new GameManager(this, framesPerSecond, keyInput, mouseInput);
         contentPane.add(gameManager);
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);                    // setup how to close the window

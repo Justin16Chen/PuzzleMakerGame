@@ -4,26 +4,19 @@ import utils.Print;
 
 public class Tween extends Updatable {
 
-    public static void createTween(String name, Object target, String propertyName, Number startValue, Number endValue, double duration) {
-        Tween tween = new Tween(name, target, propertyName, startValue, endValue, duration, false);
-        if (!Updatable.hasProperty(target, propertyName)) {
-            Print.println(tween + " does not have property named " + propertyName, Print.RED);
-        }
+    public static Tween createTween(String name, Object target, String propertyName, Number startValue, Number endValue, double duration, int repeatCount) {
+        Tween tween = new Tween(name, target, propertyName, startValue, endValue, duration, repeatCount);
         Updatable.addUpdatable(tween);
-    }
-    public static void createTween(String name, Object target, String propertyName, Number startValue, Number endValue, double duration, boolean print) {
-        Updatable.addUpdatable(new Tween(name, target, propertyName, startValue, endValue, duration, print));
+        return tween;
     }
     private Number startValue;      // Starting value of the tween
     private Number endValue;        // Ending value of the tween
     private double currentValue;
-    private boolean print;          // Print values for debugging
 
-    private Tween(String name, Object target, String propertyName, Number startValue, Number endValue, double duration, boolean print) {
-        super(name, "set", target, propertyName, duration);
+    private Tween(String name, Object target, String propertyName, Number startValue, Number endValue, double duration, int repeatCount) {
+        super(name, target, propertyName, duration, repeatCount);
         this.startValue = startValue;
         this.endValue = endValue;
-        this.print = print;
     }
 
     @Override
@@ -38,8 +31,8 @@ public class Tween extends Updatable {
         currentValue = lerp(startValue, endValue, t);
         Updatable.setProperty(getTarget(), getPropertyName(), currentValue);
 
-        if (print) {
-            System.out.println(this);
+        if (isComplete()) {
+            Print.println(getName() + " tween is complete", Print.BLUE);
         }
     }
 }
