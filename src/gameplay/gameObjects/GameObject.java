@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 
 import gameplay.GameBoard;
 import input.*;
+import utils.Print;
 
 public abstract class GameObject {
     
@@ -16,8 +17,6 @@ public abstract class GameObject {
         OUT_OF_BOUNDS,
         EMPTY
     }
-    // out of bounds instance (wall)
-    public static GameObject OUT_OF_BOUNDS = new OutOfBounds();
     // get the string name of of the game object type
     public static String getObjectTypeName(ObjectType objectType) {
         switch (objectType) {
@@ -144,8 +143,11 @@ public abstract class GameObject {
 
     // move the game object and any subsequent objects
     public void move(MoveInfo moveInfo) {
+        //Print.println("GAME OBJECT MOVE FUNCTION", Print.RED);
+        //System.out.println("for: " + this);
 
         if (movedThisFrame) {
+            System.out.println(getName() + " already moved, overriding movement");
             return;
         }
 
@@ -158,8 +160,6 @@ public abstract class GameObject {
         GameObject gameObject = gameBoard.getGameObject(targetx, targety);
         
         //System.out.println(this + " moving by (" + moveInfo.getHdir() + ", " + moveInfo.getVdir() + ") to (" + targetx + ", " + targety + ")");
-            
-        //System.out.println("Parent: " + toString() + ", ");
         //System.out.println(moveInfo.toString());
 
         // move game object current object is moving into

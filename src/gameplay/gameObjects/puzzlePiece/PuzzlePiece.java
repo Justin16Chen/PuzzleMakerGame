@@ -1,13 +1,14 @@
-package gameplay.gameObjects;
+package gameplay.gameObjects.puzzlePiece;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.io.Console;
 import java.util.ArrayList;
 
 import gameplay.GameBoard;
+import gameplay.gameObjects.GameObject;
+import gameplay.gameObjects.MoveInfo;
+import gameplay.gameObjects.GameObject.ObjectType;
 import utils.*;
-import utils.Direction.Type;
 
 public class PuzzlePiece extends GameObject {
 
@@ -20,6 +21,10 @@ public class PuzzlePiece extends GameObject {
         PARENT,
         CHILD,
         EMPTY
+    }
+    public enum ConnectionStrength {
+        STRONG,
+        WEAK
     }
 
     public static Side[] getSideData(String sideString) {
@@ -80,6 +85,12 @@ public class PuzzlePiece extends GameObject {
         ConnectionType.EMPTY, 
         ConnectionType.EMPTY 
     };
+    private ConnectionStrength[] sideConnectionStrength = {
+        ConnectionStrength.STRONG,
+        ConnectionStrength.STRONG,
+        ConnectionStrength.STRONG,
+        ConnectionStrength.STRONG
+    };
 
     public PuzzlePiece(GameBoard gameBoard, int boardx, int boardy, String sideString) {
         super(gameBoard, GameObject.ObjectType.PUZZLE_PIECE, boardx, boardy);
@@ -114,17 +125,25 @@ public class PuzzlePiece extends GameObject {
     // get the connection info between two puzzle pieces
     public ConnectInfo getConnectInfo(int movex, int movey, int hdir, int vdir) {
 
+        int movePosx = getBoardX() + movex;
+        int movePosy = getBoardY() + movey;
         int targetx = getBoardX() + movex + hdir;
         int targety = getBoardY() + movey + vdir;
 
         // make sure it is in bounds
-        if (!gameBoard.inBounds(targetx, targety)) {
+        if (!gameBoard.inBounds(targetx, targety) || !gameBoard.inBounds(movePosx, movePosy)) {
             //System.out.println("out of bounds, line 96");
-            return ConnectInfo.makeInvalidConnection(true);
+            return ConnectInfo.makeInvalidConnection("out of bounds");
+        }
+
+        // make sure no blocks are in the way
+        GameObject gameObject = gameBoard.getGameObject(movePosx, movePosy);
+        if (gameObject != null) {
+            return ConnectInfo.makeInvalidConnection("block is in the way");
         }
 
         // get game object at target location
-        GameObject gameObject = gameBoard.getGameObject(targetx, targety);
+        gameObject = gameBoard.getGameObject(targetx, targety);
 
         // can only connect with puzzle pieces
         if (gameObject == null) {
@@ -132,11 +151,11 @@ public class PuzzlePiece extends GameObject {
             //System.out.println("target pos: " + targetx + ", " + targety);
             //System.out.println("move offset: " + movex + ", " + movey);
             //System.out.println("side to get connect info on: " + hdir + ", " + vdir);
-            return ConnectInfo.makeInvalidConnection(true);
+            return ConnectInfo.makeInvalidConnection("empty cell");
         }
         if (gameObject.getObjectType() != GameObject.ObjectType.PUZZLE_PIECE && gameObject.getObjectType() != GameObject.ObjectType.PLAYER_PIECE) {
             //System.out.println("gameObject other than puzzle/player, line 109");
-            return ConnectInfo.makeInvalidConnection(true);
+            return ConnectInfo.makeInvalidConnection("not a puzzle piece");
         }
 
         // get the other puzzle piece
@@ -159,7 +178,7 @@ public class PuzzlePiece extends GameObject {
             return ConnectInfo.makeValidConnection(this, piece2, directionToPiece, directionToSelf, piece1Side, piece2Side);
         }
         //System.out.println("incompatible puzzle pieces, line 132");
-        return ConnectInfo.makeInvalidConnection(true);
+        return ConnectInfo.makeInvalidConnection("incompatible puzzle pieces");
     }
 
     // gets all of the connected puzzle pieces
@@ -181,6 +200,12 @@ public class PuzzlePiece extends GameObject {
 
             int targetx = getBoardX() + hdir;
             int targety = getBoardY() + vdir;
+
+            // out of bounds
+            if (!gameBoard.inBounds(targetx, targety)) {
+                continue;
+            }
+            
             GameObject gameObject = gameBoard.getGameObject(targetx, targety);
             PuzzlePiece puzzlePiece;
             
@@ -234,9 +259,10 @@ public class PuzzlePiece extends GameObject {
                 int offsetx = Direction.getDirectionX(selfToPiece);
                 int offsety = Direction.getDirectionY(selfToPiece);
                 PuzzlePiece puzzlePiece = (PuzzlePiece) gameBoard.getGameObject(getBoardX() + offsetx, getBoardY() + offsety);
-                //System.out.println("offset: " + offsetx + ", " + offsety);
-                //System.out.println("target: " + getBoardX() + offsetx + ", " + getBoardY() + offsety);
-                //System.out.println("object: " + puzzlePiece);
+                
+                System.out.println("offset: " + offsetx + ", " + offsety);
+                System.out.println("target: " + getBoardX() + offsetx + ", " + getBoardY() + offsety);
+                System.out.println("object: " + puzzlePiece);
 
                 // checking for parent child relationship
                 if (getSideConnectionType(selfToPiece) == ConnectionType.PARENT && puzzlePiece.getSideConnectionType(pieceToSelf) == ConnectionType.CHILD) {
@@ -266,23 +292,34 @@ public class PuzzlePiece extends GameObject {
     // moves itself and any attached puzzle pieces
     // also look for any new connections to attach puzzle pieces
     public void moveAllAttached(MoveInfo moveInfo) {
-        //System.out.println(Print.RED + "MOVING ALL ATTACHED FOR: " + this + Print.RESET);
-        //System.out.println("getting adjacent connected pieces in moveAllAttached function");
+
         ArrayList<PuzzlePiece> adjecentConnections = getAdjacentConnectedPieces(ConnectionType.PARENT, ConnectionType.CHILD);
-        //System.out.println(Print.BLUE + "puzzle pieces: " + Print.RESET);
         for (PuzzlePiece puzzlePiece : adjecentConnections) {
-            //System.out.println("connected piece: " + puzzlePiece);
-
-            // connect puzzle pieces together
-            ConnectInfo connectInfo = puzzlePiece.getConnectInfo(moveInfo.getHdir(), moveInfo.getVdir(), moveInfo.getHdir(), moveInfo.getVdir());
-            if (connectInfo.canConnect()) {
-                PuzzlePiece.connect(connectInfo);
-            }
-
             // move puzzle piece
             puzzlePiece.moveAllAttached(moveInfo);
         }
+
+        // moves self
         move(moveInfo);
+    }
+
+    @Override
+    public void move(MoveInfo moveInfo) {
+
+        if (movedThisFrame()) {
+            //System.out.println(getName() + " already moved, overriding movement");
+            return;
+        }
+
+        // check if it can connect with other puzzle pieces
+        ConnectInfo connectInfo = getConnectInfo(moveInfo.getHdir(), moveInfo.getVdir(), moveInfo.getHdir(), moveInfo.getVdir());
+        //Print.println(" PUZZLE PIECE MOVE FUNCTION: " + connectInfo, Print.PURPLE);
+        if (connectInfo.canConnect()) {
+            PuzzlePiece.connect(connectInfo);
+        }
+
+        // move
+        super.move(moveInfo);
     }
     @Override
     public void update(double dt) {}

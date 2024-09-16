@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 import gameplay.gameObjects.*;
+import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
 import gameplay.mapLoading.*;
 import input.*;
 
@@ -53,7 +54,9 @@ public class GameBoard {
     }
     // get the game object at a certain position
     public GameObject getGameObject(int boardx, int boardy) {
-        if (!inBounds(boardx, boardy)) { return GameObject.OUT_OF_BOUNDS; }
+        if (!inBounds(boardx, boardy)) { 
+            throw new RuntimeException(boardx + ", " + boardy + " is out of bounds");
+        }
         return board[boardy][boardx];
     }
 
@@ -70,22 +73,22 @@ public class GameBoard {
     }
 
     // create a new game board given the map info
-    public void setCurrentBoard(MapInfo mapInfo) {
+    public void setCurrentBoard(LevelInfo levelInfo) {
         
         // map size
-        width = mapInfo.getMapWidth();
-        height = mapInfo.getMapHeight();
+        width = levelInfo.getMapWidth();
+        height = levelInfo.getMapHeight();
         tileSize = (int) Math.min(
             gameManager.getWidth() * screenSizeRatio / width, 
             gameManager.getHeight() * screenSizeRatio / height
         );
 
         // game objects
-        gameObjects = mapInfo.getGameObjects();
+        gameObjects = levelInfo.getGameObjects();
         board = new GameObject[height][width];
 
-        for (int i=0; i<mapInfo.getGameObjects().size(); i++) {
-            GameObject gameObject = mapInfo.getGameObjects().get(i);
+        for (int i=0; i<levelInfo.getGameObjects().size(); i++) {
+            GameObject gameObject = levelInfo.getGameObjects().get(i);
             board[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
         }
     }

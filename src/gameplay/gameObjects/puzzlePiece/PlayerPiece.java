@@ -1,9 +1,7 @@
-package gameplay.gameObjects;
-
-import java.util.ArrayList;
+package gameplay.gameObjects.puzzlePiece;
 
 import gameplay.GameBoard;
-import utils.Direction;
+import gameplay.gameObjects.*;
 
 public class PlayerPiece extends PuzzlePiece {
 
@@ -31,20 +29,9 @@ public class PlayerPiece extends PuzzlePiece {
 
             if (moveInfo.canMove()) {
                 
-                // then check if connections are valid
-                ConnectInfo connectInfo = getConnectInfo(hdir, vdir, hdir, vdir);
-                //System.out.println(connectInfo.toString());
-
-                // if moving normally is ok and considering the puzzle pieces side data, move
-                if (connectInfo.canMove()) {
-
-                    moveAllAttached(moveInfo);
-
-                    // connect puzzle pieces together
-                    if (connectInfo.canConnect()) {
-                        PuzzlePiece.connect(connectInfo);
-                    }
-                }
+                // TODO: what if you push a puzzle piece into another puzzle piece that can connect with it?
+                // does not account for that yet
+                moveAllAttached(moveInfo);
             }
         }
     }

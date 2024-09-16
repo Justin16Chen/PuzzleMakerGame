@@ -11,6 +11,9 @@ import org.json.*;
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
 import gameplay.gameObjects.GameObject.ObjectType;
+import gameplay.gameObjects.puzzlePiece.PlayerPiece;
+import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
+import utils.Print;
 
 public class LevelLoader {
 
@@ -29,8 +32,32 @@ public class LevelLoader {
         }
     }
 
+    // gets the general info about the levels
+    public static GeneralLevelInfo getGeneralLevelInfo(String fileName) {
+
+        File file = new File(ROOT_PATH + "/" + fileName);
+        try {
+            int numLevels;
+            double transitionTime;
+
+            String content = new String(Files.readAllBytes(Paths.get(file.toURI())));
+            JSONObject levelObject = new JSONObject(content);
+
+            numLevels = levelObject.getInt("numLevels");
+            transitionTime = levelObject.getDouble("transitionTime");
+
+            return new GeneralLevelInfo(numLevels, transitionTime);
+        } catch (JSONException e) {
+            Print.println(fileName + " is not formatted correctly", Print.RED);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     // gets all the info to create a map from a json file
-    public static MapInfo getMapInfo(String fileName, GameBoard gameBoard) {
+    public static LevelInfo getLevelInfo(String fileName, GameBoard gameBoard) {
+
         File file = new File(ROOT_PATH + "/" + fileName);
         try {
             int mapWidth = 0;
@@ -60,7 +87,7 @@ public class LevelLoader {
                     }
                 }
             }   
-            return new MapInfo(mapWidth, mapHeight, gameObjects);
+            return new LevelInfo(mapWidth, mapHeight, gameObjects);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {

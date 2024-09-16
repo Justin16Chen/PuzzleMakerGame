@@ -4,12 +4,12 @@ import java.util.*;
 
 import gameplay.gameObjects.*;
 
-public class MapInfo {
+public class LevelInfo {
 
     private int width, height;
     private  ArrayList<GameObject> gameObjects;
     
-    public MapInfo(int mapWidth, int mapHeight, ArrayList<GameObject> gameObjects) {
+    public LevelInfo(int mapWidth, int mapHeight, ArrayList<GameObject> gameObjects) {
         this.width = mapWidth;
         this.height = mapHeight;
         this.gameObjects = gameObjects;
@@ -27,7 +27,7 @@ public class MapInfo {
     @Override
     public String toString() {
         
-        return "MapInfo(\nwidth: " + width + " | height: " + height + " \ngameObjectPrimitives: " + getGameObjectsString() +")";
+        return "LevelInfo(\nwidth: " + width + " | height: " + height + " \ngameObjectPrimitives: " + getGameObjectsString() +")";
     }
 
     public int getMapWidth() { return width; }

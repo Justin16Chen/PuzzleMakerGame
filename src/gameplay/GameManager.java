@@ -34,9 +34,10 @@ public class GameManager extends JPanel {
     MouseInput mouseInput;
 
     // refresh level from json keybind
-    private boolean refreshLevel = false;
     final String RELOAD_LEVEL_KEY = "1";
-    private Timer refreshTimer;
+    final String PREV_LEVEL_KEY = "2";
+    final String NEXT_LEVEL_KEY = "3";
+    final String ALLOW_TRANSITION_KEY = "Space";
 
     // get the FPS and delay based off of FPS
     public int getFPS() { return fps; }
@@ -75,11 +76,6 @@ public class GameManager extends JPanel {
         // load level
         levelManager = new LevelManager(this, gameBoard);
         levelManager.transitionToLevel(1, false, true);
-
-        // create timer to refresh levels from json
-        refreshTimer = Timer.createCallTimer("refresh level from json", levelManager, 1, "updateLevelInfo", -1);
-        refreshTimer.setPrint(Updatable.PrintType.ON_LOOP);
-        refreshTimer.setPaused(true);
         
         // create and start the game loop
         createGameLoop();
@@ -138,15 +134,27 @@ public class GameManager extends JPanel {
         gameBoard.update(dt);
 
         // go to next level
-        if (gameBoard.allPuzzlePiecesConnected() && !levelManager.transitioningBetweenLevels()) {
-            levelManager.transitionToNextLevel(true, true);
+        if (keyInput.keyClicked(ALLOW_TRANSITION_KEY) && gameBoard.allPuzzlePiecesConnected() && !levelManager.transitioningBetweenLevels()) {
+            if (levelManager.hasLevel(levelManager.getCurrentLevel() + 1)) {
+                levelManager.transitionToNextLevel(true, true);
+            }
+            else {
+                levelManager.transitionToLevel(levelManager.getCurrentLevel(), true, true);
+            }
         }
 
         // refresh map data from json files
         if (keyInput.keyClicked(RELOAD_LEVEL_KEY)) {
-            refreshLevel = !refreshLevel;
-            refreshTimer.setPaused(!refreshLevel);
-            refreshTimer.setElapsedTime(refreshTimer.getDuration());
+            levelManager.updateGeneralLevelInfo();
+            levelManager.updateLevelInfo();
+        }
+
+        // keybinds to move through levels
+        if (keyInput.keyClicked(PREV_LEVEL_KEY)) {
+            levelManager.transitionToLevel(levelManager.getCurrentLevel() - 1, true, true);
+        }
+        if (keyInput.keyClicked(NEXT_LEVEL_KEY)) {
+            levelManager.transitionToNextLevel(true, true);
         }
     }
 
@@ -184,7 +192,6 @@ public class GameManager extends JPanel {
         g.drawString("Map Size: (" + gameBoard.getBoardWidth() + ", " + gameBoard.getBoardHeight() + ")", 20, 90);
         g.drawString("level succeeded: " + gameBoard.allPuzzlePiecesConnected(), 20, 105);
         g.drawString("transitioning: " + levelManager.transitioningBetweenLevels(), 20, 120);
-        g.drawString("refreshing level: " + refreshLevel, 20, 135);
         for (int i=0; i<gameBoard.getGameObjects().size(); i++) {
 
         }
