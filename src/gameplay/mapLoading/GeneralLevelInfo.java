@@ -2,19 +2,19 @@ package gameplay.mapLoading;
 
 public class GeneralLevelInfo {
     
-    private int numLevels;
+    private int lastLevel;
     private double transitionTime;
 
-    public GeneralLevelInfo(int numLevels, double transitionTime) {
-        this.numLevels = numLevels;
+    public GeneralLevelInfo(int lastLevel, double transitionTime) {
+        this.lastLevel = lastLevel;
         this.transitionTime = transitionTime;
     }
 
     @Override
     public String toString() {
-        return "GeneralLevelInfo(numLevels: " + numLevels + " | transitionTime: " + transitionTime + ")";
+        return "GeneralLevelInfo(lastLevel: " + lastLevel + " | transitionTime: " + transitionTime + ")";
     }
 
-    public int getNumLevels() { return numLevels; }
+    public int getLastLevel() { return lastLevel; }
     public double getTransitionTime() { return transitionTime; }
 }

@@ -6,27 +6,32 @@
         {
             "name": "playerPiece",
             "x": 3, "y": 1,
-            "sideData": "0212"
+            "sideData": "n+-+",
+            "strengthData": "ssss"
         },
         {
             "name": "puzzlePiece",
             "x": 1, "y": 1,
-            "sideData": "0001"
+            "sideData": "nnn-",
+            "strengthData": "ssss"
         },
         {
             "name": "puzzlePiece",
             "x": 5, "y": 1,
-            "sideData": "0102"
+            "sideData": "n-n+",
+            "strengthData": "ssss"
         },
         {
             "name": "puzzlePiece",
             "x": 7, "y": 1,
-            "sideData": "0100"
+            "sideData": "n-nn",
+            "strengthData": "ssss"
         },
         {
             "name": "puzzlePiece",
             "x": 5, "y": 5,
-            "sideData": "2000"
+            "sideData": "+nnn",
+            "strengthData": "wsss"
         },
         { "name": "wall", "x": 1, "y": 2 },
         { "name": "wall", "x": 2, "y": 2 },

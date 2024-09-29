@@ -5,7 +5,6 @@ import java.awt.Graphics2D;
 
 import gameplay.GameBoard;
 import input.*;
-import utils.Print;
 
 public abstract class GameObject {
     
@@ -105,29 +104,23 @@ public abstract class GameObject {
     public MoveInfo getMoveInfo(int hdir, int vdir) {
         return getMoveInfo(0, 0, hdir, vdir);
     }
-    public MoveInfo getMoveInfo(int xoff, int yoff, int hdir, int vdir) {
+    public MoveInfo getMoveInfo(int xOff, int yOff, int hdir, int vdir) {
 
         // cannot move immovable game objects
-        if (!isMovable()) {
-            return MoveInfo.makeInvalidMove();
-        }
+        if (!isMovable()) return MoveInfo.makeInvalidMove();
 
         // find target position
-        int targetx = getBoardX() + xoff + hdir;
-        int targety = getBoardY() + yoff + vdir;
+        int targetx = getBoardX() + hdir;
+        int targety = getBoardY() + vdir;
 
         // out of bounds
-        if (!gameBoard.inBounds(targetx, targety)) { 
-            return MoveInfo.makeInvalidMove();
-        }
+        if (!gameBoard.inBounds(targetx, targety)) return MoveInfo.makeInvalidMove();
 
         // find out the type of game object at target location
         GameObject gameObject = gameBoard.getGameObject(targetx, targety);
 
         // empty cell
-        if (gameObject == null) {
-             return MoveInfo.makeValidMove(hdir, vdir);
-            }
+        if (gameObject == null) return MoveInfo.makeValidMove(hdir, vdir);
 
         //System.out.println("Moving " + objectType + ": offset: " + xoff + ", " + yoff + " | target: " + targetx + ", " + targety + " | target type: " + gameObject.getObjectType());
 
@@ -135,9 +128,7 @@ public abstract class GameObject {
         MoveInfo moveInfo = gameObject.getMoveInfo(hdir, vdir);
 
         // if that game object can move, this one can move
-        if (moveInfo.canMove()) {
-            return MoveInfo.makeValidMove(hdir, vdir);
-        }
+        if (moveInfo.canMove()) return MoveInfo.makeValidMove(hdir, vdir);
         return MoveInfo.makeInvalidMove();
     }
 

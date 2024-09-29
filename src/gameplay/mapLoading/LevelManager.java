@@ -1,6 +1,7 @@
-package gameplay;
+package gameplay.mapLoading;
 
-import gameplay.mapLoading.*;
+import gameplay.GameBoard;
+import gameplay.GameManager;
 import utils.Print;
 import utils.drawing.*;
 import utils.tween.*;
@@ -11,7 +12,7 @@ public class LevelManager {
     private GameBoard gameBoard;
 
     private int currentLevel;
-    public int numLevels;
+    public int lastLevel;
     private boolean transitioning;
     private double totalTransitionTime;
     private double transitionTime;
@@ -30,14 +31,14 @@ public class LevelManager {
 
     public int getCurrentLevel() { return currentLevel; }
     public boolean transitioningBetweenLevels() { return transitioning; }
-    public boolean hasLevel(int level) { return level <= numLevels && level > 0; }
+    public boolean hasLevel(int level) { return level <= lastLevel && level >= 0; }
 
     // sets the general level info
     public void updateGeneralLevelInfo() {
         System.out.println("UPDATING GENERAL LEVEL INFO");
         GeneralLevelInfo generalLevelInfo = LevelLoader.getGeneralLevelInfo("levelInfo.json");
         System.out.println(generalLevelInfo);
-        numLevels = generalLevelInfo.getNumLevels();
+        lastLevel = generalLevelInfo.getLastLevel();
         totalTransitionTime = generalLevelInfo.getTransitionTime();
         transitionTime = totalTransitionTime * 0.4;
         waitTime = totalTransitionTime * 0.2;
@@ -91,7 +92,7 @@ public class LevelManager {
     }
 
     // sets the level info of the gameboard to a level
-    private void setLevelInfo(int level) {
+    public void setLevelInfo(int level) {
 
         // load in the level
         LevelInfo levelInfo = LevelLoader.getLevelInfo(level + ".json", gameBoard);

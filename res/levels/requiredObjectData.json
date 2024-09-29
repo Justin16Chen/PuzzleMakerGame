@@ -1,0 +1,6 @@
+{
+    "gameObject": ["name", "x", "y"],
+    "puzzlePiece": ["sideData", "strengthData"],
+    "playerPiece": ["sideData", "strengthData"],
+    "wall": []
+}

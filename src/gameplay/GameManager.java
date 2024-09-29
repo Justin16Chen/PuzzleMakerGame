@@ -4,6 +4,8 @@ import java.awt.*;
 
 import javax.swing.JPanel;
 
+import gameplay.mapLoading.LevelLoader;
+import gameplay.mapLoading.LevelManager;
 import input.*;
 import utils.drawing.Sprite;
 import utils.tween.*;
@@ -73,9 +75,12 @@ public class GameManager extends JPanel {
         // create game board
         gameBoard = new GameBoard(this, keyInput, mouseInput);
 
+        // setup base level properties
+        LevelLoader.getRequiredObjectData("requiredObjectData.json");
+        
         // load level
         levelManager = new LevelManager(this, gameBoard);
-        levelManager.transitionToLevel(1, false, true);
+        levelManager.transitionToLevel(0, false, true);
         
         // create and start the game loop
         createGameLoop();
