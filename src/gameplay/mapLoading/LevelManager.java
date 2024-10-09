@@ -37,7 +37,6 @@ public class LevelManager {
     public void updateGeneralLevelInfo() {
         System.out.println("UPDATING GENERAL LEVEL INFO");
         GeneralLevelInfo generalLevelInfo = LevelLoader.getGeneralLevelInfo("levelInfo.json");
-        System.out.println(generalLevelInfo);
         lastLevel = generalLevelInfo.getLastLevel();
         totalTransitionTime = generalLevelInfo.getTransitionTime();
         transitionTime = totalTransitionTime * 0.4;
@@ -47,13 +46,12 @@ public class LevelManager {
     private void playIntro() {
         transitioning = true;
         transitionSprite.setVisible(true);
-        Tween.createTween("intro", transitionSprite, "height", 0, (int) gameManager.getHeight(), transitionTime, 0);
+        Tween.createTween("transitionIntro", transitionSprite, "height", 0, (int) gameManager.getHeight(), transitionTime, 0);
     }
     private void playOutro() {
-        System.out.println("playOutro function called");
         transitionSprite.setVisible(true);
-        Tween.createTween("outro", transitionSprite, "height", (int) gameManager.getHeight(), 0, transitionTime, 0);
-        Timer.createSetTimer("stop transition", this, transitionTime, "transitioning", false, 0);
+        Tween.createTween("transitionOutro", transitionSprite, "height", (int) gameManager.getHeight(), 0, transitionTime, 0);
+        Timer.createSetTimer("transitionStop", this, transitionTime, "transitioning", false, 0);
     }
 
     // transition to a specific level with optional intro/outro tweens
@@ -64,11 +62,12 @@ public class LevelManager {
             return;
         }
         currentLevel = level;
+        Updatable.deleteUpdatables("transition");
         if (intro) {
             playIntro();
-            Timer.createCallTimer("call setLevelInfo in transitionToLevel", this, transitionTime + waitTime * 0.5, "setLevelInfo", 0, currentLevel);
+            Timer.createCallTimer("transitionSetLevelInfo", this, transitionTime + waitTime * 0.5, "setLevelInfo", 0, currentLevel);
             if (outro) {
-                Timer.createCallTimer("play outro", this, transitionTime, "playOutro", 0).setPrint(Updatable.PrintType.ON_COMPLETE);
+                Timer.createCallTimer("transitionPlayOutro", this, transitionTime, "playOutro", 0).setPrint(Updatable.PrintType.ON_COMPLETE);
             }
         } else {
             setLevelInfo(currentLevel);

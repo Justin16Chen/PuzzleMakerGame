@@ -1,4 +1,4 @@
-package input;
+package utils.input;
 
 public class Key extends InputBase {
     String name;

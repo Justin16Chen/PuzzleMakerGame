@@ -1,4 +1,4 @@
-package input;
+package utils.input;
 
 public class InputBase {
     private int downTime = 0;

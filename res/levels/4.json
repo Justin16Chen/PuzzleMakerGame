@@ -1,17 +1,17 @@
 {
-    "mapWidth": 10,
-    "mapHeight": 6,
+    "mapWidth": 9,
+    "mapHeight": 9,
 
     "gameObjects": [
         {
             "name": "playerPiece",
-            "x": 1, "y": 1,
-            "sideData": "nnn+", "strengthData": "ssss"
+            "x": 3, "y": 1,
+            "sideData": "n+-+", "strengthData": "ssss"
         },
         {
             "name": "puzzlePiece",
-            "x": 4, "y": 1,
-            "sideData": "n-n+", "strengthData": "ssss"
+            "x": 0, "y": 1,
+            "sideData": "nnn-", "strengthData": "ssss"
         },
         {
             "name": "puzzlePiece",
@@ -21,19 +21,20 @@
         {
             "name": "puzzlePiece",
             "x": 8, "y": 1,
-            "sideData": "n-+n", "strengthData": "ssss"
+            "sideData": "n-nn", "strengthData": "ssss"
         },
         {
             "name": "puzzlePiece",
-            "x": 8, "y": 3,
-            "sideData": "-nnn", "strengthData": "ssss"
+            "x": 6, "y": 5,
+            "sideData": "+nnn", "strengthData": "wsss"
         },
         { "name": "wall", "x": 0, "y": 2},
         { "name": "wall", "x": 1, "y": 2},
         { "name": "wall", "x": 2, "y": 2},
         { "name": "wall", "x": 3, "y": 2},
-        { "name": "wall", "x": 4, "y": 2},
         { "name": "wall", "x": 5, "y": 2},
-        { "name": "wall", "x": 6, "y": 2}
+        { "name": "wall", "x": 6, "y": 2},
+        { "name": "wall", "x": 7, "y": 2},
+        { "name": "wall", "x": 8, "y": 2}
     ]
 }

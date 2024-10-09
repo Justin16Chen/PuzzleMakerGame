@@ -24,6 +24,7 @@ public class Tween extends Updatable {
         return "Tween(" + getName() + " | target: " + getTarget() + " | property name: " + getPropertyName() + " | start val: " + startValue + " | end val: " + endValue + " | current value: " + currentValue + " | duration: " + getDuration() + ")";
     }
 
+    @SuppressWarnings("unused")
     public void update(double deltaTime) {
         addToElapsedTime(deltaTime);
         double t = Math.min(getElapsedTime() / getDuration(), 1.0f);  // Normalized time (0 to 1)
@@ -31,7 +32,7 @@ public class Tween extends Updatable {
         currentValue = lerp(startValue, endValue, t);
         Updatable.setProperty(getTarget(), getPropertyName(), currentValue);
 
-        if (isComplete()) {
+        if (ALLOW_PRINT && isComplete()) {
             Print.println(getName() + " tween is complete", Print.BLUE);
         }
     }

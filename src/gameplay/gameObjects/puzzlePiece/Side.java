@@ -1,6 +1,7 @@
 package gameplay.gameObjects.puzzlePiece;
 
 import utils.Direction;
+import utils.Print;
 
 public class Side {
     public enum Hierarchy {
@@ -18,7 +19,7 @@ public class Side {
         WEAK
     }
 
-    public static Side[] getSideData(String typeString, String baseStrengthString) {
+    public static Side[] getSideData(PuzzlePiece parent, String typeString, String baseStrengthString) {
         Side[] sideData = new Side[4];
         for (int i=0; i<4; i++) {
             Type type;
@@ -29,7 +30,7 @@ public class Side {
                 default: type = Type.NEUTRAL; break;
             }
             Strength baseStrength = baseStrengthString.charAt(i) == 's' ? Strength.STRONG : Strength.WEAK;
-            sideData[i] = new Side(Direction.getDirection(i), type, baseStrength);
+            sideData[i] = new Side(parent, Direction.getDirection(i), type, baseStrength);
         }
         return sideData;
     }
@@ -53,17 +54,33 @@ public class Side {
     private Type type;
     private Strength baseStrength;
     private boolean connected;
+    private ConnectInfo connectInfo;
+    private PuzzlePiece parent;
+    private PuzzlePiece piece2;
+    private Side piece2Side;
 
-    public Side(Direction.Type direction, Type type, Strength baseStrength) {
+    public Side(PuzzlePiece parent, Direction.Type direction, Type type, Strength baseStrength) {
+        this.parent = parent;
         this.direction = direction;
         this.hierarchy = Hierarchy.EMPTY;
         this.type = type;
         this.baseStrength = baseStrength;
     }
 
+    public boolean equals(Side side) {
+        return getDirection() == side.getDirection()
+            && getHierarchy() == side.getHierarchy()
+            && getType() == side.getType()
+            && getStrength() == side.getStrength();
+    }
+
     @Override
     public String toString() {
-        return "Side(direction: " + direction + " | type: " + type + " | baseStrength: " + baseStrength + " | hierarchy: " + hierarchy + ")";
+        return getString(0);
+    }
+    public String getString(int number) {
+        if (connected && number == 0) return "Side(" + direction + "|" + type + "|" + baseStrength + "|\n  p2 pos:(" + piece2.getBoardX() + "," + piece2.getBoardY() + ")\n  p2 side:" + piece2Side.getString(1) + ")";
+        return "Side(" + direction + "|" + type + "|" + baseStrength +"|" + hierarchy + ")";
     }
 
     public Direction.Type getDirection() { return direction; }
@@ -71,10 +88,34 @@ public class Side {
     public Type getType() { return type; }
     public Strength getStrength() { return baseStrength; }
     public boolean isConnected() { return connected; }
+    public boolean canConnect() { return type != Type.NEUTRAL; }
+    public ConnectInfo getConnectInfo() { return connectInfo; }
+    public PuzzlePiece getParent() { return parent; }
+    public PuzzlePiece getPiece2() { return piece2; }
+    public Side getPiece2Side() { return piece2Side; }
 
     public void setConnected(boolean connected) { 
         if (type != Side.Type.NEUTRAL) this.connected = connected; 
         else this.connected = false;
+
+        if (!connected) {
+            connectInfo = null;
+            piece2 = null;
+            piece2Side = null;
+        }
+    }
+    public void setConnectInfo(ConnectInfo connectInfo) {
+        this.connectInfo = connectInfo;
+        System.out.println("SETTING CONNECT INFO");
+        if (parent.equals(connectInfo.getPiece1())) {
+            this.piece2 = connectInfo.getPiece2();
+            this.piece2Side = connectInfo.getPiece2Side();
+        } else if (parent.equals(connectInfo.getPiece2())) {
+            this.piece2 = connectInfo.getPiece1();
+            this.piece2Side = connectInfo.getPiece1Side();
+        } else {
+            Print.println("ERROR, PARENT OF " + this + " DOES NOT MATCH WITH ANY IN " + connectInfo);
+        }
     }
     public void setHierarchy(Hierarchy hierarchy ) { this.hierarchy = hierarchy; }
 }

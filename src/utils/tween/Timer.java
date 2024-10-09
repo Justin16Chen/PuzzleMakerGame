@@ -39,7 +39,7 @@ public class Timer extends Updatable {
         addToElapsedTime(deltaTime);
 
         if (getRepeatCount() >= 0 && isComplete() || getRepeatCount() < 0 && isLoopComplete()) {
-            Print.println(this.getName() + " is doing action", Print.BLUE);
+            if (ALLOW_PRINT) Print.println(this.getName() + " is doing action", Print.BLUE);
             doAction();
         }
         

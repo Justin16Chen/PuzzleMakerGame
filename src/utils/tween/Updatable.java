@@ -8,6 +8,8 @@ import utils.Print;
 
 public abstract class Updatable {
 
+    final public static boolean ALLOW_PRINT = false;
+
     public enum PrintType {
         ALWAYS,
         NEVER,
@@ -32,13 +34,14 @@ public abstract class Updatable {
         }
 
         if (valid) {
-            Print.println("VALID: " + updatable, Print.GREEN);
+            if (ALLOW_PRINT) Print.println("VALID: " + updatable, Print.GREEN);
             list.add(updatable);
         } else {
             Print.println("INVALID: " + updatable, Print.RED);
         }
     }
 
+    @SuppressWarnings("unused")
     public static void updateUpdatables(double dt) {
         for (int i=0; i<list.size(); i++) {
 
@@ -53,19 +56,36 @@ public abstract class Updatable {
             updatable.step(dt);
 
             // print updatable
-            if (canPrintUpdatable(updatable)) {
+            if (ALLOW_PRINT && canPrintUpdatable(updatable)) {
                 System.out.println("PRINTING UPDATABLE: " + updatable);
             }
 
             // remove updatable
             if (updatable.isComplete()) {
                 list.remove(i);
+                i--;
             }
         }
     }
 
     public static void clearUpdatables() {
         list.clear();
+    }
+
+    public static void deleteUpdatables(String stringToLookFor) {
+        for (int i=0; i<list.size(); i++) {
+
+            // make sure it doesn't go past list
+            if (i >= list.size()) {
+                break;
+            }
+
+            Updatable updatable = list.get(i);
+            if (updatable.getName().contains(stringToLookFor)) {
+                list.remove(i);
+                i--;
+            }
+        } 
     }
 
     private static boolean canPrintUpdatable(Updatable updatable) {

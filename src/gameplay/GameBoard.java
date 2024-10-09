@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import gameplay.gameObjects.*;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
 import gameplay.mapLoading.*;
-import input.*;
+import utils.drawing.InfoBox;
+import utils.input.*;
 
 public class GameBoard {
 
@@ -29,6 +30,9 @@ public class GameBoard {
 
     // list of all game objects represented with a 2D grid
     private GameObject[][] board;
+
+    // the game board the next frame
+    private GameObject[][] nextBoard;
     // list of all game objects
     private ArrayList<GameObject> gameObjects;
     
@@ -37,11 +41,26 @@ public class GameBoard {
         this.gameManager = gameManager;
         this.keyInput = keyInput;
         this.mouseInput = mouseInput;
+
+        gameObjects = new ArrayList<>();
+        board = new GameObject[1][1];
+        nextBoard = new GameObject[1][1];
     }
 
     // get the size of the game board
     public int getBoardWidth() { return width; }
     public int getBoardHeight() { return height; }
+
+    public void showObjInfoBoxes() {
+        for (GameObject gameObject : gameObjects) {
+            gameObject.getInfoBox().show();
+        }
+    }
+    public void hideObjInfoBoxes() {
+        for (GameObject gameObject : gameObjects) {
+            gameObject.getInfoBox().hide();
+        }
+    }
 
     // check if a position is in the board boundaries
     public boolean inBounds(int boardx, int boardy) {
@@ -57,6 +76,15 @@ public class GameBoard {
         if (!inBounds(boardx, boardy)) { 
             throw new RuntimeException(boardx + ", " + boardy + " is out of bounds");
         }
+
+        // first check next board
+        if (nextBoard[boardy][boardx] != null) {
+            return nextBoard[boardy][boardx];
+        }
+        // empty cell or if the object at old board moved, cell must be empty
+        if (board[boardy][boardx] == null || board[boardy][boardx].movedThisFrame()) return null;
+        
+        // object at old board has not moved
         return board[boardy][boardx];
     }
 
@@ -83,10 +111,16 @@ public class GameBoard {
             gameManager.getHeight() * screenSizeRatio / height
         );
 
+        for (GameObject gameObject : gameObjects) {
+            InfoBox.removeInfoBox(gameObject.getInfoBox());
+        }
+
         // game objects
         gameObjects = levelInfo.getGameObjects();
         board = new GameObject[height][width];
+        nextBoard = new GameObject[height][width];
 
+        // set the board for the current frame
         for (int i=0; i<levelInfo.getGameObjects().size(); i++) {
             GameObject gameObject = levelInfo.getGameObjects().get(i);
             board[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
@@ -96,14 +130,21 @@ public class GameBoard {
     // update loop
     public void update(double dt) {
 
+        // clear the next board
+        nextBoard = createEmptyBoard(width, height);
+
+        // update current board
         for (int i=0; i<gameObjects.size(); i++) {
             GameObject gameObject = gameObjects.get(i);
             gameObject.resetMovedThisFrame();
+            gameObject.resetQueuedMovedThisFrame();
             gameObject.update(dt);
+
+            // put updated object into next board
+            nextBoard[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
         }
-        //printBoard(board);
+        // set the old board to the new board for next frame
         board = updateGameObjectPositions(board);
-        //printBoard(board);
     }
 
     private GameObject[][] updateGameObjectPositions(GameObject[][] board) {
@@ -131,18 +172,13 @@ public class GameBoard {
         return true;
     }
 
-    public void printBoard(GameObject[][] board) {
-        for (int y=0; y<board.length; y++) {
-            for (int x=0; x<board.length; x++) {
-                if (board[y][x] == null) { continue; }
-                System.out.println(board[y][x].toString());
-            }
-        }
-    }
-
     // drawing getters
-    public int getDrawX() { return (int) ((gameManager.getWidth() - getDrawWidth()) * 0.5); }
-    public int getDrawY() { return (int) ((gameManager.getHeight() - getDrawHeight()) * 0.5); }
+    public int getDrawX() { 
+        return (int) ((gameManager.getWidth() - getDrawWidth()) * 0.5); 
+    }
+    public int getDrawY() { 
+        return (int) ((gameManager.getHeight() - getDrawHeight()) * 0.5); 
+    }
     public int getDrawWidth() { return width * tileSize; }
     public int getDrawHeight() { return height * tileSize; }
     public int getDrawCenterX() { return getDrawX() + (int) (getDrawWidth() * 0.5); }
@@ -158,11 +194,19 @@ public class GameBoard {
             for (int x=0; x<width; x++) {
                 GameObject gameObject = board[y][x];
                 if (gameObject == null) { continue; }
-                //drawGameObject(g, gameObject);
+                
                 int drawx = getDrawX() + gameObject.getBoardX() * tileSize;
                 int drawy = getDrawY() + gameObject.getBoardY() * tileSize;
                 gameObject.draw(g, drawx, drawy);
-                gameObject.drawPosition(g, drawx + 4, drawy + (int) (tileSize * 0.5));
+                gameObject.updateInfoList(g, drawx + tileSize / 2, drawy - 10);
+                if (mouseInput.clicked()) {
+                    if (mouseInput.isOver(drawx, drawy, tileSize, tileSize)) {
+                        if (!gameObject.getInfoBox().isVisible()) gameObject.getInfoBox().show();
+                        else gameObject.getInfoBox().hide();
+                    }
+                }
+                g.setColor(Color.BLACK);
+                g.drawString("(" + x + ", " + y + ")", drawx + tileSize / 4, drawy + tileSize / 2);
             }
         }
     }

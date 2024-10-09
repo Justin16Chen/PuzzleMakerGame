@@ -17,6 +17,8 @@ import utils.Print;
 
 public class LevelLoader {
 
+    final public static boolean ALLOW_PRINT = false;
+
     final private static String ROOT_PATH = "res/levels";
 
     private static ArrayList<String> baseObjectData = new ArrayList<>();
@@ -31,17 +33,9 @@ public class LevelLoader {
         String objectName = jsonObject.getString("name");
         // keys of json object
         Object[] objectKeys = jsonObject.keySet().toArray();
-
-        System.out.println(objectName);
-
-        System.out.println("trying to get " + objectName + " in " + totalObjectData.get(objectName));
         ArrayList<String> requiredKeys = totalObjectData.get(objectName);
 
-        System.out.println("num required keys: " + requiredKeys.size() + " num keys provided: " + objectKeys.length);
-
-        for (int i=0; i<additionalObjectData.get(objectName).size(); i++) {
-            System.out.println(additionalObjectData.get(objectName).get(i));
-        }
+        if (ALLOW_PRINT) System.out.println("num required keys: " + requiredKeys.size() + " num keys provided: " + objectKeys.length);
         for (int i=0; i<requiredKeys.size(); i++) {
 
             // search for required key in json object's keys

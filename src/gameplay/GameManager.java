@@ -1,13 +1,16 @@
 package gameplay;
 
+import java.util.ArrayList;
+
 import java.awt.*;
 
 import javax.swing.JPanel;
 
 import gameplay.mapLoading.LevelLoader;
 import gameplay.mapLoading.LevelManager;
-import input.*;
+import utils.drawing.InfoBox;
 import utils.drawing.Sprite;
+import utils.input.*;
 import utils.tween.*;
 import window.ParentFrame;
 
@@ -15,6 +18,7 @@ public class GameManager extends JPanel {
     
     // window
     private ParentFrame window;
+    private Insets contentPaneInsets;
     
     // game loop
     private int fps;
@@ -30,6 +34,7 @@ public class GameManager extends JPanel {
 
     // debug
     private boolean showDebug;
+    private InfoBox debugInfoBox;
 
     // input
     KeyInput keyInput;
@@ -58,6 +63,12 @@ public class GameManager extends JPanel {
     public int getWindowHeight() {
         return window.getHeight();
     }
+    public Insets getContentPaneInsets() {
+        return contentPaneInsets;
+    }
+    public void setContentPaneInsets(Insets insets) {
+        contentPaneInsets = insets;
+    }
 
     // game board
     GameBoard gameBoard;
@@ -72,6 +83,14 @@ public class GameManager extends JPanel {
     // start the game
     public void startGame() {
 
+        // setup info boxes
+        InfoBox.setGameManager(this);
+
+        // debug info box drawer
+        debugInfoBox = InfoBox.createInfoBox();
+        debugInfoBox.setPos(0, 0);
+        debugInfoBox.setOffsets(0, 0);
+
         // create game board
         gameBoard = new GameBoard(this, keyInput, mouseInput);
 
@@ -80,7 +99,11 @@ public class GameManager extends JPanel {
         
         // load level
         levelManager = new LevelManager(this, gameBoard);
-        levelManager.transitionToLevel(0, false, true);
+        levelManager.transitionToLevel(1, false, true);
+
+        // hide info boxes to start
+        debugInfoBox.hide();
+        gameBoard.hideObjInfoBoxes();
         
         // create and start the game loop
         createGameLoop();
@@ -104,6 +127,7 @@ public class GameManager extends JPanel {
                     // update input
                     keyInput.update();
                     mouseInput.update();
+                    mouseInput.setInsets(window.getInsets());
 
                     // update background systems
                     Updatable.updateUpdatables(dt);
@@ -176,29 +200,43 @@ public class GameManager extends JPanel {
 
         if (keyInput.keyClicked("Q")) {
             showDebug = !showDebug;
+            if (showDebug) {
+                debugInfoBox.show();
+                gameBoard.showObjInfoBoxes();
+            }
+            else {
+                debugInfoBox.hide();
+                gameBoard.hideObjInfoBoxes();
+            }
         }
         if (showDebug) {
-            drawDebug(g2);
+            updateDebug(g2);
         }
+
+        InfoBox.drawInfoBoxes(g2);
     }
 
     public void drawGame(Graphics2D g) {
         gameBoard.draw(g);
     }
 
-    private void drawDebug(Graphics2D g) {
-        g.setColor(new Color(180, 180, 180, 140));
-        g.fillRect(0, 0, 200, 300);
-        g.setColor(Color.BLACK);
-        g.drawString("===GENERAL===", 20, 20);
-        g.drawString("dt: " + dt, 20, 40);
-        g.drawString("window size: (" + getWidth() + ", " + getHeight() + ")", 20, 55);
-        g.drawString("===LEVEL===", 20, 70);
-        g.drawString("Map Size: (" + gameBoard.getBoardWidth() + ", " + gameBoard.getBoardHeight() + ")", 20, 90);
-        g.drawString("level succeeded: " + gameBoard.allPuzzlePiecesConnected(), 20, 105);
-        g.drawString("transitioning: " + levelManager.transitioningBetweenLevels(), 20, 120);
-        for (int i=0; i<gameBoard.getGameObjects().size(); i++) {
+    private void updateDebug(Graphics2D g) {
+        ArrayList<String> drawList = new ArrayList<>();
+        drawList.add("===GENERAL===");
+        drawList.add("dt: " + dt);
+        drawList.add("window size: (" + getWidth() + ", " + getHeight() + ")");
+        drawList.add("mouse pos: (" + mouseInput.getX() + ", " + mouseInput.getY() + ")");
+        drawList.add("gameManager insets: " + getInsets().left + ", " + getInsets().top);
+        drawList.add("contentPane insets: " + getContentPaneInsets().left + ", " + getContentPaneInsets().top);
+        drawList.add("main insets: " + window.getInsets().left + ", " + window.getInsets().top);
+        drawList.add("===LEVEL===");
+        drawList.add("Map Size: (" + gameBoard.getBoardWidth() + ", " + gameBoard.getBoardHeight() + ")");
+        drawList.add("level succeeded: " + gameBoard.allPuzzlePiecesConnected());
+        drawList.add("transitioning: " + levelManager.transitioningBetweenLevels());
+        drawList.add("tile size: " + gameBoard.tileSize);
+        drawList.add("game board draw pos: (" + gameBoard.getDrawX() + ", " + gameBoard.getDrawY() + ")");
 
-        }
+        debugInfoBox.clearDrawList();
+        debugInfoBox.setDrawList(drawList);
     }
 }

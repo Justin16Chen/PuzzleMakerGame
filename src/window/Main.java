@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import gameplay.*;
-import input.*;
+import utils.input.*;
 
 public class Main extends ParentFrame {
 
@@ -13,7 +13,7 @@ public class Main extends ParentFrame {
     
     
     public Main(int framesPerSecond) {
-        super("puzzle game", 500, 500);
+        super("puzzle game", 600, 600);
         this.framesPerSecond = framesPerSecond;
     }
 
@@ -27,10 +27,10 @@ public class Main extends ParentFrame {
         setResizable(false);
         setTitle(title);                                                        // title of window
         setAlwaysOnTop(true);
-
+        
         // setup input
         KeyInput keyInput = new KeyInput();
-        MouseInput mouseInput = new MouseInput();
+        MouseInput mouseInput = new MouseInput(getInsets());
         this.addKeyListener(keyInput);
         this.addMouseListener(mouseInput);
         this.addMouseMotionListener(mouseInput);
@@ -38,6 +38,7 @@ public class Main extends ParentFrame {
         // setup and add the game manager (JPanel)
         gameManager = new GameManager(this, framesPerSecond, keyInput, mouseInput);
         contentPane.add(gameManager);
+        gameManager.setContentPaneInsets(contentPane.getInsets());
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);                    // setup how to close the window
         this.pack();                                                            //  make sure window size is valid

@@ -1,5 +1,7 @@
 package gameplay.gameObjects.puzzlePiece;
 
+import java.util.ArrayList;
+
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
 
@@ -21,9 +23,10 @@ public class PlayerPiece extends PuzzlePiece {
         if (hdir != 0 || vdir != 0) {
 
             // first check if movement is valid
-            MoveInfo moveInfo = getAllMoveInfo(hdir, vdir);
+            ArrayList<GameObject> selfList = new ArrayList<GameObject>();
+            MoveInfo moveInfo = getAllMoveInfo(selfList, hdir, vdir);
             if (moveInfo.canMove()) {
-                moveAllAttached(moveInfo);
+                move(moveInfo);
             }
         }
     }

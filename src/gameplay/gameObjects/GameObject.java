@@ -1,10 +1,13 @@
 package gameplay.gameObjects;
 
-import java.awt.Color;
+import java.util.ArrayList;
+
 import java.awt.Graphics2D;
+import java.awt.Font;
 
 import gameplay.GameBoard;
-import input.*;
+import utils.drawing.InfoBox;
+import utils.input.*;
 
 public abstract class GameObject {
     
@@ -58,7 +61,9 @@ public abstract class GameObject {
     private ObjectType objectType;
     private int boardx, boardy;
     private boolean movable;
+    private boolean queuedMoveThisFrame;
     private boolean movedThisFrame;
+    private InfoBox infoBox;
     
 
     public GameObject(GameBoard gameBoard, ObjectType objectType, int boardx, int boardy) {
@@ -69,14 +74,27 @@ public abstract class GameObject {
         this.boardx = boardx;
         this.boardy = boardy;
 
+        this.movedThisFrame = false;
+        this.queuedMoveThisFrame = false;
+
         this.name = GameObject.getObjectTypeName(objectType);
         this.movable = GameObject.getMovable(objectType);
+
+        this.infoBox = InfoBox.createInfoBox();
+        infoBox.hide();
+        infoBox.setFont(new Font("Arial", Font.PLAIN, 10));
     }
     public GameObject(ObjectType objectType) {
         this.objectType = objectType;
 
         this.name = GameObject.getObjectTypeName(objectType);
         this.movable = GameObject.getMovable(objectType);
+    }
+
+    public boolean equals(GameObject gameObject) {
+        return getBoardX() == gameObject.getBoardX() && 
+            getBoardY() == gameObject.getBoardY() && 
+            getObjectType() == gameObject.getObjectType();
     }
 
     // getters
@@ -86,10 +104,16 @@ public abstract class GameObject {
     public int getBoardY() { return boardy; }
     public boolean isMovable() { return movable; }
     public boolean movedThisFrame() { return movedThisFrame; }
+    public boolean queuedMovedThisFrame() { return queuedMoveThisFrame; }
+    public void setQueuedMovedThisFrame(boolean bool) { queuedMoveThisFrame = bool; }
+    public InfoBox getInfoBox() { return infoBox; }
 
     // can only move once a frame - this is function to reset to allow new movement
     public void resetMovedThisFrame() {
         movedThisFrame = false;
+    }
+    public void resetQueuedMovedThisFrame() {
+        queuedMoveThisFrame = false;
     }
     // move the game object and also move any subsequent game objects
     public void moveBoardX(int x) {
@@ -132,8 +156,14 @@ public abstract class GameObject {
         return MoveInfo.makeInvalidMove();
     }
 
-    // move the game object and any subsequent objects
+    // meant to be overridden by any moving objects
     public void move(MoveInfo moveInfo) {
+        queuedMoveThisFrame = true;
+        moveSelf(moveInfo);
+    }
+
+    // move the game object and any subsequent objects
+    public void moveSelf(MoveInfo moveInfo) {
         //Print.println("GAME OBJECT MOVE FUNCTION", Print.RED);
         //System.out.println("for: " + this);
 
@@ -165,14 +195,16 @@ public abstract class GameObject {
     public abstract void update(double dt);
     public abstract void draw(Graphics2D g, int drawx, int drawy);
 
-    public void drawName(Graphics2D g, int x, int y) {
-        g.setColor(Color.WHITE);
-        g.drawString(getName(), x, y);
+    public void updateInfoList(Graphics2D g, int drawcx, int drawbottomy) {
+        ArrayList<String> drawList = new ArrayList<String>();
+        drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
+        updateInfoList(g, drawcx, drawbottomy, drawList);
     }
-
-    public void drawPosition(Graphics2D g, int drawx, int drawy) {
-        g.setColor(Color.WHITE);
-        g.drawString(getBoardX() + ", " + getBoardY(), drawx, drawy);
+    public void updateInfoList(Graphics2D g, int drawcx, int drawbottomy, ArrayList<String> drawList) {
+        infoBox.clearDrawList();
+        infoBox.setDrawList(drawList);
+        infoBox.setPos(drawcx, drawbottomy);
+        infoBox.setOffsets(0.5, 1);
     }
 
     @Override

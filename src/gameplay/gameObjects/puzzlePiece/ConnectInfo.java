@@ -55,8 +55,8 @@ public class ConnectInfo {
     @Override
     public String toString() {
         if (canConnect()) {
-            return "ConnectInfo(canConnect: true | p1: " + piece1 + " | p2: " + piece2 + ")";
+            return "ConnectInfo(dir:" + getPiece1Direction() + "|p1:" + piece1 + "|s1:" + getPiece1Side() + "|p2:" + piece2 + "|s2" + getPiece2Side() + ")";
         }
-        return "ConnectInfo(canConnect: false | reason: " + invalidMessage + ")";
+        return "ConnectInfo(" + invalidMessage + ")";
     }
 }
