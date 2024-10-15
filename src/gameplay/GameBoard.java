@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import gameplay.gameObjects.*;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
 import gameplay.mapLoading.*;
+import utils.Print;
 import utils.drawing.InfoBox;
 import utils.input.*;
 
@@ -45,6 +46,20 @@ public class GameBoard {
         gameObjects = new ArrayList<>();
         board = new GameObject[1][1];
         nextBoard = new GameObject[1][1];
+    }
+
+    public void printBoard() {
+        System.out.print("GAME BOARD");
+        for (int y=0; y<board.length; y++) {
+            System.out.println();
+            for (int x=0; x<board[0].length; x++) {
+                if (board[y][x] == null)
+                    System.out.print("0 ");
+                else
+                    Print.print(board[y][x].getObjectIndex() + " ", Print.BLUE);
+            }
+        }
+        System.out.println();
     }
 
     // get the size of the game board

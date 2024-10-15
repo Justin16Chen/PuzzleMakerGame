@@ -4,22 +4,22 @@ import java.awt.*;
 
 public class SimpleSprite extends Sprite {
 
-    public static SimpleSprite createSimpleSprite(int x, int y, int width, int height) {
-        SimpleSprite simpleSprite = new SimpleSprite(x, y, width, height, Color.BLACK);
+    public static SimpleSprite createSimpleSprite(String name, int x, int y, int width, int height) {
+        SimpleSprite simpleSprite = new SimpleSprite(name, x, y, width, height, Color.BLACK);
         Sprite.addSprite(simpleSprite);
         return simpleSprite;
     }
 
-    public static SimpleSprite createSimpleSprite(int x, int y, int width, int height, Color color) {
-        SimpleSprite simpleSprite = new SimpleSprite(x, y, width, height, color);
+    public static SimpleSprite createSimpleSprite(String name, int x, int y, int width, int height, Color color) {
+        SimpleSprite simpleSprite = new SimpleSprite(name, x, y, width, height, color);
         Sprite.addSprite(simpleSprite);
         return simpleSprite;
     }
 
     private Color color;
 
-    private SimpleSprite(int x, int y, int width, int height, Color color) {
-        super(x, y, width, height);
+    private SimpleSprite(String name, int x, int y, int width, int height, Color color) {
+        super(name, x, y, width, height);
         this.color = color;
     }
 

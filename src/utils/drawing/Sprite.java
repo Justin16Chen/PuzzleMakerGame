@@ -4,14 +4,21 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import utils.tween.Updatable;
-
 public abstract class Sprite {
 
     private static ArrayList<Sprite> list = new ArrayList<Sprite>();
 
     public static void addSprite(Sprite sprite) {
         list.add(sprite);
+    }
+
+    public static void deleteSprite(String name) {
+        for (Sprite sprite : list) {
+            if (sprite.getName().equals(name)) {
+                list.remove(sprite);
+                return;
+            }
+        }
     }
 
     public static void drawSprites(Graphics2D g) {
@@ -25,21 +32,20 @@ public abstract class Sprite {
         }
     }
 
-    public static void clearUpdatables() {
-        list.clear();
-    }
-
+    private String name;
     private int x, y, width, height;
     private boolean visible;
     private boolean destroy;
 
-    public Sprite(int x, int y, int width, int height) {
+    public Sprite(String name, int x, int y, int width, int height) {
+        this.name = name;
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
     }
 
+    public String getName() { return name; }
     public int getX() { return x; }
     public int getY() { return y; }
     public int getWidth() { return width; }

@@ -42,11 +42,26 @@ public class Side {
             !side1.isConnected() && !side2.isConnected();
     }
 
+    // if two puzzle pieces are connected
+    public static boolean isConnected(PuzzlePiece p1, PuzzlePiece p2) {
+        int xOffset = p2.getBoardX() - p1.getBoardX(), yOffset = p2.getBoardY() - p1.getBoardY();
+        if (xOffset * xOffset + yOffset * yOffset != 1) return false;
+        Direction.Type oneToTwo = Direction.getDirection(xOffset, yOffset);
+        Direction.Type twoToOne = Direction.getOppositeDirection(oneToTwo);
+        return p1.getSide(oneToTwo).isConnected() && p2.getSide(twoToOne).isConnected();
+    }
     // get the connection baseStrength given the baseStrength of two puzzle pieces
     // connection is strong if both sides are strong
     // otherwise considered weak
     public static Strength getConnectionStrength(Strength baseStrength1, Strength baseStrength2) {
         return baseStrength1 == Strength.STRONG && baseStrength2 == Strength.STRONG ? Strength.STRONG : Strength.WEAK;
+    }
+    public static Strength getConnectionStrength (PuzzlePiece p1, PuzzlePiece p2) {
+        int xOffset = p2.getBoardX() - p1.getBoardX(), yOffset = p2.getBoardY() - p1.getBoardY();
+        Direction.Type oneToTwo = Direction.getDirection(xOffset, yOffset);
+        Direction.Type twoToOne = Direction.getOppositeDirection(oneToTwo);
+
+        return p1.getSide(oneToTwo).getStrength() == Strength.STRONG && p2.getSide(twoToOne).getStrength() == Strength.STRONG ? Strength.STRONG : Strength.WEAK;
     }
 
     private Direction.Type direction;

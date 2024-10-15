@@ -31,7 +31,7 @@ public class Direction {
     }
     
     // gets the index based on the side
-    public static int getIndex(Type direction) {
+    public static int getMoveIndex(Type direction) {
         switch (direction) {
             case UP: return 0;
             case LEFT: return 1;

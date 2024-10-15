@@ -21,9 +21,9 @@ public class LevelLoader {
 
     final private static String ROOT_PATH = "res/levels";
 
-    private static ArrayList<String> baseObjectData = new ArrayList<>();
-    private static HashMap<String, ArrayList<String>> additionalObjectData = new HashMap<>();
-    private static HashMap<String, ArrayList<String>> totalObjectData = new HashMap<>();
+    private static HashMap<String, ArrayList<String>> requiredObjectData = new HashMap<>();
+    private static HashMap<String, ArrayList<String>> optionalObjectData = new HashMap<>();
+    private static HashMap<String, ArrayList<String>> totalObjectData    = new HashMap<>();
 
     public static boolean isObjectDataValid(JSONObject jsonObject) {
         if (!(jsonObject.has("name") && jsonObject.has("x") && jsonObject.has("y"))) {
@@ -33,12 +33,10 @@ public class LevelLoader {
         String objectName = jsonObject.getString("name");
         // keys of json object
         Object[] objectKeys = jsonObject.keySet().toArray();
-        ArrayList<String> requiredKeys = totalObjectData.get(objectName);
+        ArrayList<String> requiredKeys = requiredObjectData.get(objectName);
 
-        if (ALLOW_PRINT) System.out.println("num required keys: " + requiredKeys.size() + " num keys provided: " + objectKeys.length);
+        // make sure object has all required keys
         for (int i=0; i<requiredKeys.size(); i++) {
-
-            // search for required key in json object's keys
             boolean foundKey = false;
             for (int j=0; j<objectKeys.length; j++) {
                 String objectKey = (String) objectKeys[j];
@@ -54,48 +52,67 @@ public class LevelLoader {
                 return false;
             }
         }
-        
+
+        // make sure object doesn't have any unknown keys
+        ArrayList<String> allKnownKeys = totalObjectData.get(objectName);
+        for (int i=0; i<objectKeys.length; i++) {
+            boolean foundKey = false;
+            for (String key : allKnownKeys) {
+                if (objectKeys[i].equals(key)) {
+                    foundKey = true;
+                    break;
+                }
+            }
+            if (!foundKey) {
+                Print.println(objectKeys[i] + " is an unknown key", Print.RED);
+                return false;
+            }
+        }
         return true;
     }
 
     // gets the required object data
-    public static void getRequiredObjectData(String fileName) {
-        baseObjectData.clear();
-        additionalObjectData.clear();
+    public static void getObjectData(String fileName) {
+        System.out.println("GETTING OBJECT DATA");
+        requiredObjectData.clear();
+        optionalObjectData.clear();
+        totalObjectData.clear();
 
         File file = new File(ROOT_PATH + "/" + fileName);
         try {
             String content = new String(Files.readAllBytes(Paths.get(file.toURI())));
             JSONObject objectData = new JSONObject(content);
-
-            JSONArray baseObjectArray = objectData.getJSONArray("gameObject");
+            JSONObject requiredData = objectData.getJSONObject("required"), optionalData = objectData.getJSONObject("optional");
 
             // get data required for all game objects
-            ArrayList<String> baseKeys = JSONArrayToStringArrayList(baseObjectArray);
-            baseObjectData = baseKeys;
+            ArrayList<String> baseObjectData = JSONArrayToStringArrayList(requiredData.getJSONArray("gameObject"));
+            HashMap<String, ArrayList<String>> uniqueObjectData = new HashMap<>();
 
             // get game object specific requirements
             GameObject.ObjectType[] objectTypes = GameObject.ObjectType.values();
             for (int i=0; i<objectTypes.length; i++) {
                 String name = GameObject.getObjectTypeName(objectTypes[i]);
-                ArrayList<String> additionalKeys = JSONArrayToStringArrayList(objectData.getJSONArray(name));
-                additionalObjectData.put(name, additionalKeys);
+                ArrayList<String> uniqueRequiredKeys = JSONArrayToStringArrayList(requiredData.getJSONArray(name));
+                ArrayList<String> uniqueOptionalKeys = JSONArrayToStringArrayList(optionalData.getJSONArray(name));
+                uniqueObjectData.put(name, uniqueRequiredKeys);
 
-                // put base object data into total data
+                // put base object data and unique object data into required data
+                requiredObjectData.put(name, new ArrayList<String>());
+                for (String key : baseObjectData) requiredObjectData.get(name).add(key);
+                for (String key : uniqueRequiredKeys) requiredObjectData.get(name).add(key);
+                
+                // put optional object data into optional data
+                optionalObjectData.put(name, uniqueOptionalKeys);
+
+                // combine to make total object data
                 totalObjectData.put(name, new ArrayList<String>());
-                for (String key : baseKeys) {
-                    totalObjectData.get(name).add(key);
-                }
-
-                // put additional object data into total data
-                ArrayList<String> objKeys = totalObjectData.get(name);
-                for (String additionalKey : additionalKeys) {
-                    objKeys.add(additionalKey);
-                }
+                for (String key : requiredObjectData.get(name)) totalObjectData.get(name).add(key);
+                for (String key : optionalObjectData.get(name)) totalObjectData.get(name).add(key);
             }
             
         } catch (JSONException e) {
             Print.println("INVALID JSON FILE", Print.RED);
+            e.printStackTrace();
         } catch (IOException e) {
             Print.println("COULD NOT FIND FILE", Print.RED);
             
@@ -106,23 +123,8 @@ public class LevelLoader {
     public static ArrayList<String> JSONArrayToStringArrayList(JSONArray jsonArray) {
         ArrayList<String> list = new ArrayList<>();
         
-        for (int i=0; i<jsonArray.length(); i++) {
-            list.add(jsonArray.getString(i));
-        }
-
+        for (int i=0; i<jsonArray.length(); i++) list.add(jsonArray.getString(i));
         return list;
-    }
-    // create a game object given the primitive data
-    public static GameObject createGameObject(JSONObject jsonObject, GameBoard gameBoard) {
-        ObjectType objectType = GameObject.getObjectType(jsonObject.getString("name"));
-        switch (objectType) {
-            case PUZZLE_PIECE: return new PuzzlePiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData"), jsonObject.getString("strengthData"));
-            case PLAYER_PIECE: return new PlayerPiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData"), jsonObject.getString("strengthData"));
-            case WALL: return new Wall(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"));
-            case EMPTY: return null;
-            case OUT_OF_BOUNDS: return null;
-            default: return null;
-        }
     }
 
     // gets the general info about the levels
@@ -130,16 +132,17 @@ public class LevelLoader {
 
         File file = new File(ROOT_PATH + "/" + fileName);
         try {
-            int lastLevel;
+            int startLevel, lastLevel;
             double transitionTime;
 
             String content = new String(Files.readAllBytes(Paths.get(file.toURI())));
             JSONObject levelObject = new JSONObject(content);
 
+            startLevel = levelObject.getInt("startLevel");
             lastLevel = levelObject.getInt("lastLevel");
             transitionTime = levelObject.getDouble("transitionTime");
 
-            return new GeneralLevelInfo(lastLevel, transitionTime);
+            return new GeneralLevelInfo(startLevel, lastLevel, transitionTime);
         } catch (JSONException e) {
             Print.println(fileName + " is not formatted correctly", Print.RED);
         } catch (IOException e) {
@@ -171,7 +174,8 @@ public class LevelLoader {
                 if (!isObjectDataValid(jsonObject)) {
                     throw new JSONException("object at index " + i + " is invalid");
                 }
-                gameObjects.add(createGameObject(jsonObject, gameBoard));
+                ArrayList<GameObject> gms = createGameObjects(jsonObject, gameBoard);
+                for (GameObject gameObject : gms) gameObjects.add(gameObject);
             }
 
             for (int i=0; i<gameObjects.size(); i++) {
@@ -194,5 +198,32 @@ public class LevelLoader {
         }
         Print.println("RETURNING NULL FOR LEVEL INFO", Print.RED);
         return null;
+    }
+
+    // create a game object given the primitive data
+    public static ArrayList<GameObject> createGameObjects(JSONObject jsonObject, GameBoard gameBoard) {
+        ArrayList<GameObject> gameObjects = new ArrayList<>();
+        ObjectType objectType = GameObject.getObjectType(jsonObject.getString("name"));
+        switch (objectType) {
+            case PUZZLE_PIECE: 
+                String strengths = jsonObject.has("strengthData") ? jsonObject.getString("strengthData") : "ssss";
+                gameObjects.add(new PuzzlePiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData"), strengths)); 
+                break;
+            case PLAYER_PIECE: 
+                strengths = jsonObject.has("strengthData") ? jsonObject.getString("strengthData") : "ssss";
+                gameObjects.add(new PlayerPiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData"), strengths));
+                break;
+            case WALL:
+                int width = jsonObject.has("width") ? jsonObject.getInt("width") : 1;
+                int height = jsonObject.has("height") ? jsonObject.getInt("height") : 1;
+                for (int y=0; y<height; y++) {
+                    for (int x=0; x<width; x++) {
+                        gameObjects.add(new Wall(gameBoard, jsonObject.getInt("x") + x, jsonObject.getInt("y") + y));
+                    }
+                }
+                break;
+            default: break;
+        }
+        return gameObjects;
     }
 }

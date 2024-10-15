@@ -7,15 +7,13 @@
             "name": "playerPiece",
             "x": 1,
             "y": 2,
-            "sideData": "nnn+",
-            "strengthData": "ssss"
+            "sideData": "nnn+"
         },
         {
             "name": "puzzlePiece",
             "x": 5,
             "y": 2,
-            "sideData": "n-nn",
-            "strengthData": "ssss"
+            "sideData": "n-nn"
         }
     ]
 }

@@ -1,11 +1,13 @@
 package gameplay.gameObjects;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import java.awt.Graphics2D;
 import java.awt.Font;
 
 import gameplay.GameBoard;
+import utils.Direction;
 import utils.drawing.InfoBox;
 import utils.input.*;
 
@@ -13,9 +15,9 @@ public abstract class GameObject {
     
     // game object enum types
     public static enum ObjectType {
-        PUZZLE_PIECE,
-        PLAYER_PIECE,
         WALL,
+        PLAYER_PIECE,
+        PUZZLE_PIECE,
         OUT_OF_BOUNDS,
         EMPTY
     }
@@ -41,6 +43,14 @@ public abstract class GameObject {
             default: return ObjectType.EMPTY;
         }
     }
+    // get the identifierIndex of an object given the object type
+    public static int getObjectIndex(ObjectType objectType) {
+        for (int i=0; i<ObjectType.values().length; i++) {
+            if (objectType == ObjectType.values()[i])
+                return i + 1;
+        }
+        return -1;
+    }
     
     // whether or not a game object is movable
     public static boolean getMovable(ObjectType objectType) {
@@ -59,10 +69,15 @@ public abstract class GameObject {
     protected MouseInput mouseInput;
     private String name;
     private ObjectType objectType;
+    private int objectIndex;
     private int boardx, boardy;
     private boolean movable;
     private boolean queuedMoveThisFrame;
     private boolean movedThisFrame;
+    private int moveIndex = 0;
+    private boolean mustCheck = false;
+    private boolean[] checkedSides;
+    private ArrayList<GameObject> parents;
     private InfoBox infoBox;
     
 
@@ -71,6 +86,7 @@ public abstract class GameObject {
         this.keyInput = gameBoard.getKeyInput();
         this.mouseInput = gameBoard.getMouseInput();
         this.objectType = objectType;
+        this.objectIndex = GameObject.getObjectIndex(objectType);
         this.boardx = boardx;
         this.boardy = boardy;
 
@@ -79,16 +95,12 @@ public abstract class GameObject {
 
         this.name = GameObject.getObjectTypeName(objectType);
         this.movable = GameObject.getMovable(objectType);
+        this.checkedSides = new boolean[4];
+        this.parents = new ArrayList<>();
 
         this.infoBox = InfoBox.createInfoBox();
         infoBox.hide();
         infoBox.setFont(new Font("Arial", Font.PLAIN, 10));
-    }
-    public GameObject(ObjectType objectType) {
-        this.objectType = objectType;
-
-        this.name = GameObject.getObjectTypeName(objectType);
-        this.movable = GameObject.getMovable(objectType);
     }
 
     public boolean equals(GameObject gameObject) {
@@ -100,6 +112,7 @@ public abstract class GameObject {
     // getters
     public String getName() { return name; }
     public ObjectType getObjectType() { return objectType; }
+    public int getObjectIndex() { return objectIndex; }
     public int getBoardX() { return boardx; }
     public int getBoardY() { return boardy; }
     public boolean isMovable() { return movable; }
@@ -107,6 +120,33 @@ public abstract class GameObject {
     public boolean queuedMovedThisFrame() { return queuedMoveThisFrame; }
     public void setQueuedMovedThisFrame(boolean bool) { queuedMoveThisFrame = bool; }
     public InfoBox getInfoBox() { return infoBox; }
+
+    // whether or not the puzzle piece is the mover (initiates the motion)
+    public boolean isMover() { return moveIndex == 0; }
+    
+    // get the index of the puzzle piece in relation to the mover
+    public int getMoveIndex() { return moveIndex; }
+    public void setMoveIndex(int moveIndex) { this.moveIndex = moveIndex; }
+
+    // if the game object must move
+    public boolean mustCheck() { return mustCheck; }
+    public void setMustCheck(boolean mustCheck) { this.mustCheck = mustCheck; }
+
+    // get if MoveLogic has checked the side yet
+    public boolean[] getCheckedSides() { return checkedSides; }
+    public boolean getCheckedSide(int i) { return checkedSides[i]; }
+    public boolean getCheckedSide(Direction.Type direction) { return checkedSides[Direction.getMoveIndex(direction)]; }
+    public void clearCheckedSides() {
+        for (int i=0; i<4; i++)
+            checkedSides[i] = false;
+    }
+    public void checkSide(int i) { checkedSides[i] = true; }
+    public void checkSide(Direction.Type direction) {checkedSides[Direction.getMoveIndex(direction)] = true; }
+
+    // add a parent
+    public void addParent(GameObject gameObject) { parents.add(gameObject); }
+    public void clearParents() { parents.clear(); }
+    public ArrayList<GameObject> getParents() { return parents; }
 
     // can only move once a frame - this is function to reset to allow new movement
     public void resetMovedThisFrame() {
@@ -157,7 +197,7 @@ public abstract class GameObject {
     }
 
     // meant to be overridden by any moving objects
-    public void move(MoveInfo moveInfo) {
+    public void move(MoveInfo moveInfo, boolean isMover) {
         queuedMoveThisFrame = true;
         moveSelf(moveInfo);
     }
@@ -185,11 +225,41 @@ public abstract class GameObject {
 
         // move game object current object is moving into
         if (gameObject != null) {
-            gameObject.move(moveInfo);
+            gameObject.move(moveInfo, false);
         }
         // move self
         moveBoardX(moveInfo.getHdir());
         moveBoardY(moveInfo.getVdir());
+    }
+
+    public HashMap<Direction.Type, GameObject> getAdjacentGameObjects() {
+        HashMap<Direction.Type, GameObject> adjacentGameObjects = new HashMap<>();
+        for (int i=0; i<4; i++) {
+            Direction.Type direction = Direction.getDirection(i);
+            int dx = Direction.getDirectionX(direction), dy = Direction.getDirectionY(direction);
+            int x = getBoardX() + dx, y = getBoardY() + dy;
+            if (!gameBoard.inBounds(x, y) || gameBoard.getGameObject(x, y) == null) continue;
+            adjacentGameObjects.put(direction, gameBoard.getGameObject(x, y));
+        }
+        return adjacentGameObjects;
+    }
+    public HashMap<Direction.Type, GameObject> getAdjacentGameObjects(ObjectType[] types) {
+        HashMap<Direction.Type, GameObject> adjacentGameObjects = new HashMap<>();
+        for (int i=0; i<4; i++) {
+            Direction.Type direction = Direction.getDirection(i);
+            int dx = Direction.getDirectionX(direction), dy = Direction.getDirectionY(direction);
+            int x = getBoardX() + dx, y = getBoardY() + dy;
+            if (!gameBoard.inBounds(x, y) || gameBoard.getGameObject(x, y) == null) continue;
+            GameObject gameObject = gameBoard.getGameObject(x, y);
+            boolean inTypes = false;
+            for (ObjectType type : types)
+                if (gameObject.getObjectType() == type) {
+                    inTypes = true;
+                    break;
+                }
+            adjacentGameObjects.put(direction, inTypes ? gameObject : null);
+        }
+        return adjacentGameObjects;
     }
 
     public abstract void update(double dt);
@@ -198,9 +268,9 @@ public abstract class GameObject {
     public void updateInfoList(Graphics2D g, int drawcx, int drawbottomy) {
         ArrayList<String> drawList = new ArrayList<String>();
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
-        updateInfoList(g, drawcx, drawbottomy, drawList);
+        setInfoList(g, drawcx, drawbottomy, drawList);
     }
-    public void updateInfoList(Graphics2D g, int drawcx, int drawbottomy, ArrayList<String> drawList) {
+    public void setInfoList(Graphics2D g, int drawcx, int drawbottomy, ArrayList<String> drawList) {
         infoBox.clearDrawList();
         infoBox.setDrawList(drawList);
         infoBox.setPos(drawcx, drawbottomy);
@@ -209,6 +279,6 @@ public abstract class GameObject {
 
     @Override
     public String toString() {
-        return "GameObject(name: " + name + " | x: " + boardx + " | y: " + boardy + ")";
+        return "GameObject(name:" + name + "|pos:" + boardx + "," + boardy + ",index:" + moveIndex + ")";
     }
 }

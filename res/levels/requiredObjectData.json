@@ -1,6 +1,14 @@
 {
-    "gameObject": ["name", "x", "y"],
-    "puzzlePiece": ["sideData", "strengthData"],
-    "playerPiece": ["sideData", "strengthData"],
-    "wall": []
+    "required": {
+        "gameObject": ["name", "x", "y"],
+        "puzzlePiece": ["sideData"],
+        "playerPiece": ["sideData"],
+        "wall": []
+    },
+    "optional": {
+        "gameObject": [],
+        "puzzlePiece": ["strengthData"],
+        "playerPiece": ["strengthData"],
+        "wall": ["width", "height"]
+    }
 }

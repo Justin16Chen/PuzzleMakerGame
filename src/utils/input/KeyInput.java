@@ -34,6 +34,9 @@ public class KeyInput extends KeyAdapter {
     }
 
     // key input getters
+    public HashMap<String, Key> getKeyMap() {
+        return keyMap;
+    }
     public boolean keyDown(String keyName) {
         return keyMap.get(keyName).down();
     }
@@ -51,6 +54,16 @@ public class KeyInput extends KeyAdapter {
     }
     public int keyReleasedInt(String keyName) {
         return keyReleased(keyName) ? 1 : 0;
+    }
+    public ArrayList<String> getAllKeys(InputBase.State keyState) {
+        ArrayList<String> keyNames = new ArrayList<>();
+
+        for (String keyName : keyList) {
+            Key key = keyMap.get(keyName);
+
+            if (key.getState() == keyState) keyNames.add(keyName);
+        }
+        return keyNames;
     }
 
     public String parseKeyEvent(KeyEvent e) {

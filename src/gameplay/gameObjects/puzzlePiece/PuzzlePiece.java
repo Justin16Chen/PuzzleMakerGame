@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.BasicStroke;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
@@ -51,19 +52,20 @@ public class PuzzlePiece extends GameObject {
         piece2.getSide(disconnectInfo.getPiece2Direction()).setConnected(false);
     }
 
-    private boolean isMover = false;
-    private boolean connectedToMover = false;
-    private int index = 0;
+    
     private boolean hasStrongConnection = false;
     private Side[] sides;
+    private Color color;
 
     public PuzzlePiece(GameBoard gameBoard, int boardx, int boardy, String sideString, String baseStrengthString) {
         super(gameBoard, GameObject.ObjectType.PUZZLE_PIECE, boardx, boardy);
         this.sides = Side.getSideData(this, sideString, baseStrengthString);
+        this.color = Color.GRAY;
     }
     public PuzzlePiece(GameBoard gameBoard, GameObject.ObjectType objectType, int boardx, int boardy, String sideString, String baseStrengthString) {
         super(gameBoard, objectType, boardx, boardy);
         this.sides = Side.getSideData(this, sideString, baseStrengthString);
+        this.color = Color.GRAY;
     }
 
     public boolean equals(GameObject gameObject) {
@@ -82,19 +84,9 @@ public class PuzzlePiece extends GameObject {
         return super.equals(puzzlePiece) && hasSameSides;
     }
 
-    // get the index of the puzzle piece in relation to the mover
-    public int getIndex() { return index; }
-
-    // whether or not the puzzle piece is the mover (initiates the motion)
-    public boolean isMover() { return isMover; }
-    public void setMover(boolean isMover) { this.isMover = isMover; }
-    
-    // whether the puzzle piece has a strong connection path to the mover
-    public boolean connectedToMover() { return connectedToMover; }
-
     // gets the type of side based on a direction
     public Side getSide(Direction.Type direction) {
-        return sides[Direction.getIndex(direction)];
+        return sides[Direction.getMoveIndex(direction)];
     }
     // all of the sides are connected
     public boolean hasConnectedSide() {
@@ -213,80 +205,6 @@ public class PuzzlePiece extends GameObject {
         return ConnectInfo.makeInvalidConnection("incompatible puzzle pieces");
     }
 
-    // gets all of the connected puzzle pieces
-    public ArrayList<PuzzlePiece> getAdjacentConnectedPieces(Side.Strength[] connectionStrengths) {
-        ArrayList <PuzzlePiece> list = new ArrayList<>();
-
-        //System.out.println("GETTING ADJACENT CONNECTIONS FROM " + this);
-        //System.out.println("connection types to look for: ");
-        //System.out.println("self has to be " + ownHierarchy);
-        //System.out.println("other has to be " + otherHierarchy);
-
-        for (Direction.Type direction : Direction.DirectionList) {
-
-            // skip non-connected sides
-            if (!getSide(direction).isConnected()) {
-                continue;
-            }
-
-            // find adjacent cell location
-            int hdir = Direction.getDirectionX(direction);
-            int vdir = Direction.getDirectionY(direction);
-            int targetx = getBoardX() + hdir;
-            int targety = getBoardY() + vdir;
-
-            // game object at target cell location (cannot be null or out of bounds b/c side is connected)
-            GameObject gameObject = gameBoard.getGameObject(targetx, targety);
-            //System.out.println("targeted cell: " + targetx + ", " + targety + ", " + gameObject);
-
-            // skip if already in caller list
-            boolean inCallerList = false;
-            for (PuzzlePiece caller : list) {
-                if (caller.equals(gameObject)) {
-                    inCallerList = true;
-                    break;
-                }
-            }
-            if (inCallerList) continue;
-
-            // puzzle piece
-            if (isPuzzlePiece(gameObject)) {
-                PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
-
-                Direction.Type oppositeDirection = Direction.getOppositeDirection(direction);
-
-                //System.out.println(puzzlePiece + " is to the " + direction);
-                //System.out.println(direction + " side of self: " + getSideType(direction));
-                //System.out.println(oppositeDirection + " side of other: " + getSideType(oppositeDirection));
-                //System.out.println("connection type of self: " + getSideConnectionType(direction));
-                //System.out.println("connection type of other: " + puzzlePiece.getSideConnectionType(oppositeDirection));
-
-
-                // if connection strength param is null, accept all connection strengths
-                boolean hasConnectionStrength = connectionStrengths == null;
-
-                if (!hasConnectionStrength) {
-                    // only allow puzzle pieces with connection types according to the Side.Strength[] param
-                    Side.Strength connectionStrength = Side.getConnectionStrength(getSide(direction).getStrength(), getSide(oppositeDirection).getStrength());
-                    // else, only allow connection strengths in list
-                    for (Side.Strength baseStrength : connectionStrengths) {
-                        if (baseStrength == connectionStrength) {
-                            hasConnectionStrength = true;
-                            break;
-                        }
-                    }
-                }
-
-                // only add sides that are specified in parameter
-                if (hasConnectionStrength) {
-                    list.add(puzzlePiece);
-                }
-
-            }
-        }
-        return list;
-    }
-    
     // gets the moveinfo based on all of the attached puzzle pieces
     // that are in the direction of movement
     // or only checks puzzle pieces that have strong connections and that have the correct hierarchy structure
@@ -311,7 +229,7 @@ public class PuzzlePiece extends GameObject {
             //      the side is connected to a puzzle piece and it is a PARENT-CHILD relationship
             //      the side is not in the opposite direction of the current movement (that will cause a logical error)
             //      the connection type is STRONG (weak connection types can be broken, do not need to consider when computing valid move data)
-            if (selfToPiece == Direction.getDirection(-hdir, -vdir)) continue;
+            //if (selfToPiece == Direction.getDirection(-hdir, -vdir)) continue;
             
             int offsetx = Direction.getDirectionX(selfToPiece);
             int offsety = Direction.getDirectionY(selfToPiece);
@@ -375,7 +293,7 @@ public class PuzzlePiece extends GameObject {
     // moves itself and any attached puzzle pieces
     // also look for any new connections to attach puzzle pieces
     @Override
-    public void move(MoveInfo moveInfo) {
+    public void move(MoveInfo moveInfo, boolean isMover) {
         if(movedThisFrame() || queuedMovedThisFrame()) return;
         setQueuedMovedThisFrame(true);
         Print.println("MOVE ALL ATTACHED", Print.BLUE);
@@ -395,23 +313,19 @@ public class PuzzlePiece extends GameObject {
         // only one of the connections has to be strong for the puzzle piece to have to move
         Side.Strength strong[] = { Side.Strength.STRONG };
         hasStrongConnection = hasConnectedSide(strong, strong);
-        
-        System.out.println("has strong connection: " + hasStrongConnection);
 
-        ArrayList<PuzzlePiece> adjacentConnections = getAdjacentConnectedPieces(Side.Strength.values());
-        for (PuzzlePiece puzzlePiece : adjacentConnections) {
-            // move puzzle piece
-            puzzlePiece.move(moveInfo);
+        // move connected puzzle pieces
+        for (int i=0; i<4; i++) {
+            Direction.Type direction = Direction.getDirection(i);
+            if (getSide(direction).isConnected()) 
+                getSide(direction).getPiece2().move(moveInfo, false);
         }
-        System.out.println(this + " finished moving " + adjacentConnections.size() + " attached");
-
-        System.out.println("can move: " + canMove);
         
         if (canMove) {
             moveSelf(moveInfo);
         }
         else {
-            if (!hasStrongConnection) {
+            /*if (!hasStrongConnection) {
                 // disconnect the sides perpendicular to the direction of motion
                 int[] xOffList = {moveInfo.getVdir(), -moveInfo.getVdir()};
                 int[] yOffList = {moveInfo.getHdir(), -moveInfo.getHdir()};
@@ -435,7 +349,7 @@ public class PuzzlePiece extends GameObject {
 
                     disconnect(new DisconnectInfo(this, puzzlePiece, direction));
                 }
-            }
+            }*/
         }
     }
     // move first, then check for connections
@@ -473,12 +387,24 @@ public class PuzzlePiece extends GameObject {
     }
     @Override
     public void update(double dt) {}
+
+    public Color getColor() { return color; }
+    public Color getHighlightedColor() {
+        int highlightAmount = 60;
+        return new Color(
+            Math.min(255, getColor().getRed() + highlightAmount), 
+            Math.min(255, getColor().getGreen() + highlightAmount), 
+            Math.min(255, getColor().getBlue() + highlightAmount)
+        );
+    }
+    public void setColor(Color color) { this.color = color; }
+
     @Override
     public void draw(Graphics2D g, int drawx, int drawy) {
 
-        g.setColor(Color.GRAY);
+        g.setColor(getColor());
         if (hasConnectedSide()) {
-            g.setColor(Color.LIGHT_GRAY);
+            g.setColor(getHighlightedColor());
         }
         g.fillRect(drawx, drawy, gameBoard.tileSize, gameBoard.tileSize);
 
@@ -514,7 +440,11 @@ public class PuzzlePiece extends GameObject {
             int x1 = x1List[i], y1 = y1List[i], x2 = x2List[i], y2 = y2List[i];
 
             g.setColor(colorList[i]);
-            g.setStroke(new BasicStroke(getSide(Direction.getDirection(i)).getStrength() == Side.Strength.STRONG ? strongLineWidth : weakLineWidth));
+            Side side = getSide(Direction.getDirection(i));
+            if (side.isConnected())
+                g.setStroke(new BasicStroke(Side.getConnectionStrength(side.getStrength(), side.getPiece2Side().getStrength()) == Side.Strength.STRONG ? strongLineWidth : weakLineWidth));
+            else
+                g.setStroke(new BasicStroke(side.getStrength() == Side.Strength.STRONG? strongLineWidth : weakLineWidth));
             g.drawLine(x1, y1, x2, y2);
         }
     }
@@ -524,13 +454,18 @@ public class PuzzlePiece extends GameObject {
         ArrayList<String> drawList = new ArrayList<String>();
 
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
-        drawList.add("hasStrongConnection: " + hasStrongConnection);
+        drawList.add("index: " + getMoveIndex());
+        drawList.add("must move: " + mustCheck());
         drawList.add("sides: ");
         for (int i=0; i<4; i++) {
             Direction.Type direction = Direction.getDirection(i);
             drawList.add(direction + ": " + getSide(direction));
         }
+        drawList.add("parents: ");
+        for (GameObject parent: getParents()) {
+            drawList.add(parent.toString());
+        }
 
-        updateInfoList(g, drawcx, drawbottomy, drawList);
+        setInfoList(g, drawcx, drawbottomy, drawList);
     }
 }

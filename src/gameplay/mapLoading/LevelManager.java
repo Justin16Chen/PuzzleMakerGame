@@ -12,6 +12,7 @@ public class LevelManager {
     private GameBoard gameBoard;
 
     private int currentLevel;
+    public int startLevel;
     public int lastLevel;
     private boolean transitioning;
     private double totalTransitionTime;
@@ -24,19 +25,20 @@ public class LevelManager {
     public LevelManager(GameManager gameManager, GameBoard gameBoard) {
         this.gameManager = gameManager;
         this.gameBoard = gameBoard;
-        this.transitionSprite = SimpleSprite.createSimpleSprite(0, 0, gameManager.getWidth(), gameManager.getHeight());
+        this.transitionSprite = SimpleSprite.createSimpleSprite("transitionSprite", 0, 0, gameManager.getWidth(), gameManager.getHeight());
         this.currentLevel = 1;
         updateGeneralLevelInfo();
     }
 
     public int getCurrentLevel() { return currentLevel; }
     public boolean transitioningBetweenLevels() { return transitioning; }
-    public boolean hasLevel(int level) { return level <= lastLevel && level >= 0; }
+    public boolean hasLevel(int level) { return level <= lastLevel && level >= startLevel; }
 
     // sets the general level info
     public void updateGeneralLevelInfo() {
         System.out.println("UPDATING GENERAL LEVEL INFO");
         GeneralLevelInfo generalLevelInfo = LevelLoader.getGeneralLevelInfo("levelInfo.json");
+        startLevel = generalLevelInfo.getStartLevel();
         lastLevel = generalLevelInfo.getLastLevel();
         totalTransitionTime = generalLevelInfo.getTransitionTime();
         transitionTime = totalTransitionTime * 0.4;

@@ -6,8 +6,14 @@ import java.awt.*;
 
 import javax.swing.JPanel;
 
+import gameplay.gameObjects.GameObject;
+import gameplay.gameObjects.MoveLogic;
+import gameplay.gameObjects.puzzlePiece.ConnectionLogic;
+import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
+import gameplay.gameObjects.puzzlePiece.Side;
 import gameplay.mapLoading.LevelLoader;
 import gameplay.mapLoading.LevelManager;
+import utils.Print;
 import utils.drawing.InfoBox;
 import utils.drawing.Sprite;
 import utils.input.*;
@@ -45,6 +51,11 @@ public class GameManager extends JPanel {
     final String PREV_LEVEL_KEY = "2";
     final String NEXT_LEVEL_KEY = "3";
     final String ALLOW_TRANSITION_KEY = "Space";
+
+    // debug MoveLogic.java IN PROGRESS
+    private int hdir = 0, vdir = 0;
+    private ArrayList<GameObject> breakpointBoundaries = new ArrayList<>();
+    private ArrayList<Side> breakpoints = new ArrayList<>();
 
     // get the FPS and delay based off of FPS
     public int getFPS() { return fps; }
@@ -95,11 +106,11 @@ public class GameManager extends JPanel {
         gameBoard = new GameBoard(this, keyInput, mouseInput);
 
         // setup base level properties
-        LevelLoader.getRequiredObjectData("requiredObjectData.json");
+        LevelLoader.getObjectData("requiredObjectData.json");
         
         // load level
         levelManager = new LevelManager(this, gameBoard);
-        levelManager.transitionToLevel(1, false, true);
+        levelManager.transitionToLevel(0, false, true);
 
         // hide info boxes to start
         debugInfoBox.hide();
@@ -160,6 +171,27 @@ public class GameManager extends JPanel {
     }
 
     public void updateGame(double dt) {
+
+        // IN PROGRESS: this should be happening in player update function before movement
+        int playerx = 0, playery = 0;
+        for (GameObject gameObject : gameBoard.getGameObjects()) 
+            if (gameObject.getObjectType() == GameObject.ObjectType.PLAYER_PIECE) {
+                playerx = gameObject.getBoardX();
+                playery = gameObject.getBoardY();
+            }
+        
+        // update game object indecies
+        MoveLogic.updateMoveIndecies(gameBoard, playerx, playery);
+        if (keyInput.keyClicked("B")) {
+            // find any potential breakpoint boundaries for movement
+            breakpointBoundaries = MoveLogic.findBreakpointBoundaries(gameBoard, playerx, playery, hdir, vdir);
+            System.out.println("amount of breakpoint boundaries: " + breakpointBoundaries.size());
+    
+            // IN PROGRESS: find breakpoints given the breakpoint boundaries
+            breakpoints = ConnectionLogic.findBreakpoints(gameBoard, breakpointBoundaries, hdir, vdir);
+            // TO DO: disconnect breakpoints before movement
+        }
+
         gameBoard.update(dt);
 
         // go to next level
@@ -172,6 +204,17 @@ public class GameManager extends JPanel {
             }
         }
 
+        // IN PROGRESS: testing MoveLogic.java
+        if (keyInput.keyClicked("Minus")) {
+            if (++hdir == 2) hdir = -1;
+        }
+        if (keyInput.keyClicked("Equals")) {
+            if (++vdir == 2) vdir = -1;
+        }
+        if (keyInput.keyClicked("P")) {
+            boolean canMove = MoveLogic.canObjectsMove(gameBoard, gameBoard.getGameObjects(), hdir, vdir);
+            Print.println("can all game objects move: " + canMove, Print.YELLOW);
+        }
         // refresh map data from json files
         if (keyInput.keyClicked(RELOAD_LEVEL_KEY)) {
             levelManager.updateGeneralLevelInfo();
@@ -202,11 +245,9 @@ public class GameManager extends JPanel {
             showDebug = !showDebug;
             if (showDebug) {
                 debugInfoBox.show();
-                gameBoard.showObjInfoBoxes();
             }
             else {
                 debugInfoBox.hide();
-                gameBoard.hideObjInfoBoxes();
             }
         }
         if (showDebug) {
@@ -229,14 +270,48 @@ public class GameManager extends JPanel {
         drawList.add("gameManager insets: " + getInsets().left + ", " + getInsets().top);
         drawList.add("contentPane insets: " + getContentPaneInsets().left + ", " + getContentPaneInsets().top);
         drawList.add("main insets: " + window.getInsets().left + ", " + window.getInsets().top);
+        addDebugInput(drawList);
         drawList.add("===LEVEL===");
         drawList.add("Map Size: (" + gameBoard.getBoardWidth() + ", " + gameBoard.getBoardHeight() + ")");
         drawList.add("level succeeded: " + gameBoard.allPuzzlePiecesConnected());
         drawList.add("transitioning: " + levelManager.transitioningBetweenLevels());
         drawList.add("tile size: " + gameBoard.tileSize);
         drawList.add("game board draw pos: (" + gameBoard.getDrawX() + ", " + gameBoard.getDrawY() + ")");
+        drawList.add("===MOVEMENT===");
+        drawList.add("dir to check: (" + hdir + ", " + vdir + ")");
+        drawList.add("breakpoint boundaries: ");
+        for (GameObject gameObject : breakpointBoundaries)
+            drawList.add("index: " + gameObject.getMoveIndex() + " | game object: " + gameObject);
+        if (breakpoints != null) {
+            drawList.add("breakpoints: ");
+            for (Side side : breakpoints)
+                drawList.add("breakpoint side: " + side);
+        }
+        else {
+            drawList.add("breakpoints: none - invalid movement");
+        }
 
         debugInfoBox.clearDrawList();
         debugInfoBox.setDrawList(drawList);
+    }
+
+    private void addDebugInput(ArrayList<String> drawList) {
+        drawList.add("===INPUT===");
+        InputBase.State[] states = { 
+            InputBase.State.DOWN, 
+            InputBase.State.CLICKED, 
+            InputBase.State.RELEASED 
+        };
+        for (InputBase.State state : states) {
+            ArrayList<String> keyList = keyInput.getAllKeys(state);
+            if (keyList.size() > 0) {
+                String keyString = "";
+                for (String keyName : keyList) keyString += keyName + ", ";
+                keyString = keyString.substring(0, keyString.length() - 2);
+                drawList.add("keys " + state.toString().toLowerCase() + ": " + keyString);
+            } else {
+                drawList.add("keys " + state.toString().toLowerCase() + ": none");
+            }
+        }
     }
 }

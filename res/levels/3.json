@@ -1,6 +1,6 @@
 {
     "mapWidth": 10,
-    "mapHeight": 6,
+    "mapHeight": 5,
 
     "gameObjects": [
         {
@@ -28,12 +28,6 @@
             "x": 8, "y": 3,
             "sideData": "-nnn", "strengthData": "ssss"
         },
-        { "name": "wall", "x": 0, "y": 2},
-        { "name": "wall", "x": 1, "y": 2},
-        { "name": "wall", "x": 2, "y": 2},
-        { "name": "wall", "x": 3, "y": 2},
-        { "name": "wall", "x": 4, "y": 2},
-        { "name": "wall", "x": 5, "y": 2},
-        { "name": "wall", "x": 6, "y": 2}
+        { "name": "wall", "x": 0, "y": 2, "width": 7, "height": 3}
     ]
 }
