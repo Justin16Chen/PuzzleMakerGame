@@ -2,7 +2,6 @@ package gameplay.gameObjects.puzzlePiece;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.BasicStroke;
 import java.util.ArrayList;
 
 import gameplay.GameBoard;
@@ -297,25 +296,25 @@ public class PuzzlePiece extends GameObject {
         System.out.println("for " + this);
         System.out.println("direction: " + moveInfo.getHdir() + " " + moveInfo.getVdir());
 
+        // check if this puzzle piece can move
         boolean canMove = getMoveInfo(moveInfo.getHdir(), moveInfo.getVdir()).canMove();
-
-        // find strong connection perpendicular to direction of motion
-        int[] xOffset = new int[2];
-        int[] yOffset = new int[2];
-        xOffset[0] =  moveInfo.getVdir();
-        xOffset[1] = -moveInfo.getVdir();
-        yOffset[0] =  moveInfo.getHdir();
-        yOffset[1] = -moveInfo.getHdir();
-
-        // move connected puzzle pieces
-        for (int i=0; i<4; i++) {
-            Direction.Type direction = Direction.getDirection(i);
-            if (getSide(direction).isConnected()) 
-                getSide(direction).getPiece2().move(moveInfo, false);
-        }
         
-        if (canMove)
+        if (canMove) {
+            // move connected puzzle pieces or disconnect them
+            for (int i=0; i<4; i++) {
+                Direction.Type direction = Direction.getDirection(i);
+                Side side = getSide(direction);
+                
+                if (side.isConnected()) 
+                    if (side.getPiece2().getMoveInfo(moveInfo.getHdir(), moveInfo.getVdir()).canMove())
+                        side.getPiece2().move(moveInfo, false);
+                    else 
+                        PuzzlePiece.disconnect(new DisconnectInfo(this, side.getPiece2(), direction));
+            }
+
+            // move self
             moveSelf(moveInfo);
+        }
     }
     // move first, then check for connections
     @Override

@@ -262,6 +262,17 @@ public class GameManager extends JPanel {
 
     private void updateDebug(Graphics2D g) {
         ArrayList<String> drawList = new ArrayList<>();
+        addDebugGeneral(drawList);
+        //addDebugInput(drawList); // more advanced stuff, separated
+        addDebugControls(drawList);
+        //addDebugLevel(drawList);
+        addDebugMovement(drawList);
+
+        debugInfoBox.clearDrawList();
+        debugInfoBox.setDrawList(drawList);
+    }
+
+    private void addDebugGeneral(ArrayList<String> drawList) {
         drawList.add("===GENERAL===");
         drawList.add("dt: " + dt);
         drawList.add("window size: (" + getWidth() + ", " + getHeight() + ")");
@@ -269,31 +280,7 @@ public class GameManager extends JPanel {
         drawList.add("gameManager insets: " + getInsets().left + ", " + getInsets().top);
         drawList.add("contentPane insets: " + getContentPaneInsets().left + ", " + getContentPaneInsets().top);
         drawList.add("main insets: " + window.getInsets().left + ", " + window.getInsets().top);
-        addDebugInput(drawList);
-        drawList.add("===LEVEL===");
-        drawList.add("Map Size: (" + gameBoard.getBoardWidth() + ", " + gameBoard.getBoardHeight() + ")");
-        drawList.add("level succeeded: " + gameBoard.allPuzzlePiecesConnected());
-        drawList.add("transitioning: " + levelManager.transitioningBetweenLevels());
-        drawList.add("tile size: " + gameBoard.tileSize);
-        drawList.add("game board draw pos: (" + gameBoard.getDrawX() + ", " + gameBoard.getDrawY() + ")");
-        drawList.add("===MOVEMENT===");
-        drawList.add("dir to check: (" + hdir + ", " + vdir + ")");
-        drawList.add("breakpoint boundaries: ");
-        for (GameObject gameObject : breakpointBoundaries)
-            drawList.add("index: " + gameObject.getMoveIndex() + " | game object: " + gameObject);
-        if (breakpoints != null) {
-            drawList.add("breakpoints: ");
-            for (Side side : breakpoints)
-                drawList.add("breakpoint side: " + side);
-        }
-        else {
-            drawList.add("breakpoints: none - invalid movement");
-        }
-
-        debugInfoBox.clearDrawList();
-        debugInfoBox.setDrawList(drawList);
     }
-
     private void addDebugInput(ArrayList<String> drawList) {
         drawList.add("===INPUT===");
         InputBase.State[] states = { 
@@ -312,5 +299,33 @@ public class GameManager extends JPanel {
                 drawList.add("keys " + state.toString().toLowerCase() + ": none");
             }
         }
+    }
+    private void addDebugControls(ArrayList<String> drawList) {
+        drawList.add("===CONTROLS===");
+        drawList.add("1: refresh level json file");
+        drawList.add("2: go to prev lvl");
+        drawList.add("3: go to next lvl");
+    }
+    private void addDebugLevel(ArrayList<String> drawList) {
+        drawList.add("===LEVEL===");
+        drawList.add("Map Size: (" + gameBoard.getBoardWidth() + ", " + gameBoard.getBoardHeight() + ")");
+        drawList.add("level succeeded: " + gameBoard.allPuzzlePiecesConnected());
+        drawList.add("transitioning: " + levelManager.transitioningBetweenLevels());
+        drawList.add("tile size: " + gameBoard.tileSize);
+        drawList.add("game board draw pos: (" + gameBoard.getDrawX() + ", " + gameBoard.getDrawY() + ")");
+    }
+    private void addDebugMovement(ArrayList<String> drawList) {
+        drawList.add("===MOVEMENT===");
+        drawList.add("dir to check: (" + hdir + ", " + vdir + ")");
+        drawList.add("breakpoint boundaries: ");
+        for (GameObject gameObject : breakpointBoundaries)
+            drawList.add("index: " + gameObject.getMoveIndex() + " | game object: " + gameObject);
+        if (breakpoints != null) {
+            drawList.add("breakpoints: ");
+            for (Side side : breakpoints)
+                drawList.add("breakpoint side: " + side);
+        }
+        else 
+            drawList.add("breakpoints: none - invalid movement");
     }
 }
