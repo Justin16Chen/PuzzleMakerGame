@@ -168,26 +168,26 @@ public class LevelLoader {
             mapHeight = mapObject.getInt("mapHeight");
 
             JSONArray gameObjectsData = mapObject.getJSONArray("gameObjects");
+            boolean[][] filledPositions = new boolean[mapHeight][mapWidth];
             
+            // add gameobjects from json file to array
             for (int i=0; i<gameObjectsData.length(); i++) {
                 JSONObject jsonObject = gameObjectsData.getJSONObject(i);
-                if (!isObjectDataValid(jsonObject)) {
-                    throw new JSONException("object at index " + i + " is invalid");
-                }
-                ArrayList<GameObject> gms = createGameObjects(jsonObject, gameBoard);
-                for (GameObject gameObject : gms) gameObjects.add(gameObject);
-            }
 
-            for (int i=0; i<gameObjects.size(); i++) {
-                for (int j=0; j<gameObjects.size(); j++) {
-                    if (i == j) continue;
-                    GameObject gameObject = gameObjects.get(i);
-                    GameObject gameObject2 = gameObjects.get(j);
-                    if (gameObject.getBoardX() == gameObject2.getBoardX() && gameObject.getBoardY() == gameObject2.getBoardY()) {
-                        throw new RuntimeException(gameObject + " has the same position as " + gameObject2);
-                    }
+                // make sure all gameobjects have the required keys
+                if (!isObjectDataValid(jsonObject)) 
+                    throw new JSONException("object at index " + i + " is invalid");
+                
+                // json gameobject data creates a list of game objects
+                for (GameObject gameObject : createGameObjects(jsonObject, gameBoard)) {
+                    // only 1 gameobject can be on a position
+                    if (filledPositions[gameObject.getBoardY()][gameObject.getBoardX()])
+                        throw new RuntimeException(gameObject + " tried to be instantiated on a position that was already filled");
+                    filledPositions[gameObject.getBoardY()][gameObject.getBoardX()] = true;
+
+                    gameObjects.add(gameObject);
                 }
-            }   
+            }
             return new LevelInfo(mapWidth, mapHeight, gameObjects);
         } catch (IOException e) {
             Print.println("CANNOT FIND FILE " + fileName, Print.RED);

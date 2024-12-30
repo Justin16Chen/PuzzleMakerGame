@@ -31,7 +31,7 @@ public class ConnectInfo {
         this.piece1Side = piece1.getSide(piece1Direction);
         this.piece2Side = piece2.getSide(piece2Direction);
 
-        connectStrength = Side.getConnectionStrength(piece1Side.getStrength(), piece2Side.getStrength());
+        connectStrength = Side.getConnectionStrength(piece1Side.getType(), piece2Side.getType());
     }
     private ConnectInfo(String invalidMessage) {
         this.valid = false;

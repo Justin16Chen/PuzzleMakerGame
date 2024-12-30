@@ -10,6 +10,7 @@ import gameplay.GameBoard;
 import utils.Direction;
 import utils.drawing.InfoBox;
 import utils.input.*;
+import utils.tween.Tween;
 
 public abstract class GameObject {
     
@@ -17,9 +18,7 @@ public abstract class GameObject {
     public static enum ObjectType {
         WALL,
         PLAYER_PIECE,
-        PUZZLE_PIECE,
-        OUT_OF_BOUNDS,
-        EMPTY
+        PUZZLE_PIECE
     }
     // get the string name of of the game object type
     public static String getObjectTypeName(ObjectType objectType) {
@@ -27,9 +26,7 @@ public abstract class GameObject {
             case PUZZLE_PIECE: return "puzzlePiece";
             case PLAYER_PIECE: return "playerPiece";
             case WALL: return "wall";
-            case OUT_OF_BOUNDS: return "outOfBounds";
-            case EMPTY: return "empty";
-            default: return "empty";
+            default: throw new IllegalArgumentException(objectType + " is not valid");
         }
     }
     // get the enum given the string name of the object type
@@ -38,9 +35,7 @@ public abstract class GameObject {
             case "puzzlePiece": return ObjectType.PUZZLE_PIECE;
             case "playerPiece": return ObjectType.PLAYER_PIECE;
             case "wall": return ObjectType.WALL;
-            case "outOfBounds": return ObjectType.OUT_OF_BOUNDS;
-            case "empty": return ObjectType.EMPTY;
-            default: return ObjectType.EMPTY;
+            default: throw new IllegalArgumentException(objectTypeName + " is not valid");
         }
     }
     // get the identifierIndex of an object given the object type
@@ -58,11 +53,12 @@ public abstract class GameObject {
             case PUZZLE_PIECE: return true;
             case PLAYER_PIECE: return true;
             case WALL: return false;
-            case OUT_OF_BOUNDS: return false;
-            case EMPTY: return true;
             default: return false;
         }
     }
+
+    // rate that gameobjects move between cells at
+    final public static double MOVE_RATE = 0.4;
 
     protected GameBoard gameBoard;
     protected KeyInput keyInput;
@@ -79,7 +75,8 @@ public abstract class GameObject {
     private boolean[] checkedSides;
     private ArrayList<GameObject> parents;
     private InfoBox infoBox;
-    
+    private double currentDrawx, currentDrawy;
+    private int targetDrawx, targetDrawy;
 
     public GameObject(GameBoard gameBoard, ObjectType objectType, int boardx, int boardy) {
         this.gameBoard = gameBoard;
@@ -103,6 +100,12 @@ public abstract class GameObject {
         infoBox.setFont(new Font("Arial", Font.PLAIN, 10));
     }
 
+    // gameboard decides when to do this - only after it is properly setup
+    public void updateVisualsAtStart() {
+        updateTargetDrawPos();
+        forceToTargetDrawPos();
+    }
+
     public boolean equals(GameObject gameObject) {
         return getBoardX() == gameObject.getBoardX() && 
             getBoardY() == gameObject.getBoardY() && 
@@ -120,6 +123,10 @@ public abstract class GameObject {
     public boolean queuedMovedThisFrame() { return queuedMoveThisFrame; }
     public void setQueuedMovedThisFrame(boolean bool) { queuedMoveThisFrame = bool; }
     public InfoBox getInfoBox() { return infoBox; }
+    public int getCurrentDrawx() { return (int) currentDrawx; }
+    public int getCurrentDrawy() { return (int) currentDrawy; }
+    public int getTargetDrawx() { return targetDrawx; }
+    public int getTargetDrawy() { return targetDrawy; }
 
     // whether or not the puzzle piece is the mover (initiates the motion)
     public boolean isMover() { return moveIndex == 0; }
@@ -197,6 +204,7 @@ public abstract class GameObject {
     }
 
     // meant to be overridden by any moving objects
+    // other gameobjects can create more complex movement behaviors
     public void move(MoveInfo moveInfo, boolean isMover) {
         queuedMoveThisFrame = true;
         moveSelf(moveInfo);
@@ -230,6 +238,10 @@ public abstract class GameObject {
         // move self
         moveBoardX(moveInfo.getHdir());
         moveBoardY(moveInfo.getVdir());
+
+        // force previous movement tween to be done before starting the next one
+        forceToTargetDrawPos();
+        updateTargetDrawPos();
     }
 
     public HashMap<Direction.Type, GameObject> getAdjacentGameObjects() {
@@ -263,7 +275,22 @@ public abstract class GameObject {
     }
 
     public abstract void update(double dt);
-    public abstract void draw(Graphics2D g, int drawx, int drawy);
+    public abstract void draw(Graphics2D g);
+
+    private void updateTargetDrawPos() {
+        this.targetDrawx = gameBoard.findGameObjectDrawX(this);
+        this.targetDrawy = gameBoard.findGameObjectDrawY(this);
+    }
+    private void forceToTargetDrawPos() {
+        currentDrawx = targetDrawx;
+        currentDrawy = targetDrawy;
+    }
+    public void updateCurrentDrawPosToTarget() {
+        int xDist = (int) (targetDrawx - currentDrawx);
+        int yDist = (int) (targetDrawy - currentDrawy);
+        currentDrawx += xDist * MOVE_RATE;
+        currentDrawy += yDist * MOVE_RATE;
+    }
 
     public void updateInfoList(Graphics2D g, int drawcx, int drawbottomy) {
         ArrayList<String> drawList = new ArrayList<String>();
@@ -279,6 +306,6 @@ public abstract class GameObject {
 
     @Override
     public String toString() {
-        return "GameObject(name:" + name + "|pos:" + boardx + "," + boardy + ",index:" + moveIndex + ")";
+        return "GameObject(" + name + "|(" + boardx + "," + boardy + ")|moveIdx:" + moveIndex + ")";
     }
 }

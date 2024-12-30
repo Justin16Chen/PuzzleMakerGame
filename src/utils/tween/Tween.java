@@ -19,6 +19,9 @@ public class Tween extends Updatable {
         this.endValue = endValue;
     }
 
+    public Number getStartValue() { return startValue; }
+    public Number getEndValue() { return endValue;}
+
     @Override
     public String toString() {
         return "Tween(" + getName() + " | target: " + getTarget() + " | property name: " + getPropertyName() + " | start val: " + startValue + " | end val: " + endValue + " | current value: " + currentValue + " | duration: " + getDuration() + ")";

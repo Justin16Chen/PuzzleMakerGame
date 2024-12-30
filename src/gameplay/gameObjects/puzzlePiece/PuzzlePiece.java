@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.BasicStroke;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
@@ -52,8 +51,6 @@ public class PuzzlePiece extends GameObject {
         piece2.getSide(disconnectInfo.getPiece2Direction()).setConnected(false);
     }
 
-    
-    private boolean hasStrongConnection = false;
     private Side[] sides;
     private Color color;
 
@@ -262,7 +259,7 @@ public class PuzzlePiece extends GameObject {
                 PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
                 Side selfSide = getSide(selfToPiece), otherSide = puzzlePiece.getSide(pieceToSelf);
 
-                if (selfSide.isConnected() && Side.getConnectionStrength(selfSide.getStrength(), otherSide.getStrength()) == Side.Strength.STRONG) {
+                if (selfSide.isConnected() && Side.getConnectionStrength(selfSide.getType(), otherSide.getType()) == Side.Strength.STRONG) {
                     moveInfoList[i] = puzzlePiece.getAllMoveInfo(callerList, hdir, vdir);
                 }
             }
@@ -298,7 +295,7 @@ public class PuzzlePiece extends GameObject {
         setQueuedMovedThisFrame(true);
         Print.println("MOVE ALL ATTACHED", Print.BLUE);
         System.out.println("for " + this);
-        System.err.println("direction: " + moveInfo.getHdir() + " " + moveInfo.getVdir());
+        System.out.println("direction: " + moveInfo.getHdir() + " " + moveInfo.getVdir());
 
         boolean canMove = getMoveInfo(moveInfo.getHdir(), moveInfo.getVdir()).canMove();
 
@@ -310,10 +307,6 @@ public class PuzzlePiece extends GameObject {
         yOffset[0] =  moveInfo.getHdir();
         yOffset[1] = -moveInfo.getHdir();
 
-        // only one of the connections has to be strong for the puzzle piece to have to move
-        Side.Strength strong[] = { Side.Strength.STRONG };
-        hasStrongConnection = hasConnectedSide(strong, strong);
-
         // move connected puzzle pieces
         for (int i=0; i<4; i++) {
             Direction.Type direction = Direction.getDirection(i);
@@ -321,36 +314,8 @@ public class PuzzlePiece extends GameObject {
                 getSide(direction).getPiece2().move(moveInfo, false);
         }
         
-        if (canMove) {
+        if (canMove)
             moveSelf(moveInfo);
-        }
-        else {
-            /*if (!hasStrongConnection) {
-                // disconnect the sides perpendicular to the direction of motion
-                int[] xOffList = {moveInfo.getVdir(), -moveInfo.getVdir()};
-                int[] yOffList = {moveInfo.getHdir(), -moveInfo.getHdir()};
-
-                for (int i=0; i<xOffList.length; i++) {
-                    int xOff = xOffList[i], yOff = yOffList[i];
-                    Direction.Type direction = Direction.getDirection(xOff, yOff);
-                    if (!getSide(direction).isConnected()) continue;
-
-                    Print.println("DISCONNECTING ", Print.RED);
-                    System.out.println("look dir: " + xOff + " " + yOff);
-                    System.out.println("target pos: " + (getBoardX() + xOff) + ", " + (getBoardY() + yOff));
-
-                    //PROBLEM
-                    // the position looks at the new board and then the old board
-                    // returns null b/c obj at old board position has already moved
-                    // prob need to change moving, connecting, and disconnecting order
-
-                    PuzzlePiece puzzlePiece = (PuzzlePiece) gameBoard.getGameObject(getBoardX() + xOff, getBoardY() + yOff);
-                    System.out.println(puzzlePiece);
-
-                    disconnect(new DisconnectInfo(this, puzzlePiece, direction));
-                }
-            }*/
-        }
     }
     // move first, then check for connections
     @Override
@@ -400,53 +365,14 @@ public class PuzzlePiece extends GameObject {
     public void setColor(Color color) { this.color = color; }
 
     @Override
-    public void draw(Graphics2D g, int drawx, int drawy) {
+    public void draw(Graphics2D g) {
+        updateCurrentDrawPosToTarget(); // allow for smooth movement
 
-        g.setColor(getColor());
-        if (hasConnectedSide()) {
-            g.setColor(getHighlightedColor());
-        }
-        g.fillRect(drawx, drawy, gameBoard.tileSize, gameBoard.tileSize);
+        g.setColor(hasConnectedSide() ? getHighlightedColor() : getColor());
+        g.fillRect((int) getCurrentDrawx(), (int) getCurrentDrawy(), gameBoard.tileSize - 1, gameBoard.tileSize - 1);
 
-        Color negColor = Color.RED;
-        Color posColor = Color.BLUE;
-        Color connectedColor = Color.GREEN;
-        int strongLineWidth = 7;
-        int weakLineWidth = 3;
-
-        int right = drawx + gameBoard.tileSize;
-        int bottom = drawy + gameBoard.tileSize;
-
-        Color[] colorList = new Color[4];
-
-        for (int i=0; i<sides.length; i++) {
-            Direction.Type direction = Direction.getDirection(i);
-            if (getSide(direction).isConnected()) {
-                colorList[i] = connectedColor;
-                continue;
-            }
-            switch (getSide(direction).getType()) {
-                case POSITIVE: colorList[i] = posColor; break;
-                case NEGATIVE: colorList[i] = negColor; break;
-                default: break;
-            }
-        }
-        int[] x1List = {drawx, drawx, drawx, right};
-        int[] x2List = {right, drawx, right, right};
-        int[] y1List = {drawy, drawy, bottom, drawy};
-        int[] y2List = {drawy, bottom, bottom, bottom};
-        for (int i=0; i<4; i++) {
-            if (colorList[i] == null) continue;
-            int x1 = x1List[i], y1 = y1List[i], x2 = x2List[i], y2 = y2List[i];
-
-            g.setColor(colorList[i]);
-            Side side = getSide(Direction.getDirection(i));
-            if (side.isConnected())
-                g.setStroke(new BasicStroke(Side.getConnectionStrength(side.getStrength(), side.getPiece2Side().getStrength()) == Side.Strength.STRONG ? strongLineWidth : weakLineWidth));
-            else
-                g.setStroke(new BasicStroke(side.getStrength() == Side.Strength.STRONG? strongLineWidth : weakLineWidth));
-            g.drawLine(x1, y1, x2, y2);
-        }
+        for (int i=0; i<4; i++)
+            getSide(Direction.getDirection(i)).draw(g, getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize);
     }
 
     @Override
@@ -454,6 +380,8 @@ public class PuzzlePiece extends GameObject {
         ArrayList<String> drawList = new ArrayList<String>();
 
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
+        drawList.add("current draw pos: (" + getCurrentDrawx() + "," + getCurrentDrawy() + ")");
+        drawList.add("target draw pos: (" + getTargetDrawx() + "," + getTargetDrawy() + ")");
         drawList.add("index: " + getMoveIndex());
         drawList.add("must move: " + mustCheck());
         drawList.add("sides: ");

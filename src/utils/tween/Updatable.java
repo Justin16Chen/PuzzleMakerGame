@@ -106,9 +106,9 @@ public abstract class Updatable {
         return start.doubleValue() + t.doubleValue() * (end.doubleValue() - start.doubleValue());
     }
 
-    public static boolean hasProperty(Object target, String propertyName) {
+    public static boolean hasProperty(Object targetObject, String propertyName) {
         Field field = null;
-        Class<?> clazz = target.getClass();
+        Class<?> clazz = targetObject.getClass();
 
         // Look for the field in the class hierarchy
         while (clazz != null) {
@@ -123,10 +123,10 @@ public abstract class Updatable {
         return field != null;
     }
 
-    public static void setProperty(Object target, String propertyName, Object value) {
+    public static void setProperty(Object targetObject, String propertyName, Object value) {
         try {
             Field field = null;
-            Class<?> clazz = target.getClass();
+            Class<?> clazz = targetObject.getClass();
     
             // Look for the field in the class hierarchy
             while (clazz != null) {
@@ -149,24 +149,24 @@ public abstract class Updatable {
     
             // Check for primitive types and their wrappers
             if (propertyType == float.class || propertyType == Float.class) {
-                field.setFloat(target, ((Number) value).floatValue());  // Set float value
+                field.setFloat(targetObject, ((Number) value).floatValue());  // Set float value
             } else if (propertyType == int.class || propertyType == Integer.class) {
-                field.setInt(target, ((Number) value).intValue());  // Set int value
+                field.setInt(targetObject, ((Number) value).intValue());  // Set int value
             } else if (propertyType == double.class || propertyType == Double.class) {
-                field.setDouble(target, ((Number) value).doubleValue());  // Set double value
+                field.setDouble(targetObject, ((Number) value).doubleValue());  // Set double value
             } else if (propertyType == long.class || propertyType == Long.class) {
-                field.setLong(target, ((Number) value).longValue());  // Set long value
+                field.setLong(targetObject, ((Number) value).longValue());  // Set long value
             } else if (propertyType == short.class || propertyType == Short.class) {
-                field.setShort(target, ((Number) value).shortValue());  // Set short value
+                field.setShort(targetObject, ((Number) value).shortValue());  // Set short value
             } else if (propertyType == byte.class || propertyType == Byte.class) {
-                field.setByte(target, ((Number) value).byteValue());  // Set byte value
+                field.setByte(targetObject, ((Number) value).byteValue());  // Set byte value
             } else if (propertyType == boolean.class || propertyType == Boolean.class) {
-                field.setBoolean(target, (Boolean) value);  // Set boolean value
+                field.setBoolean(targetObject, (Boolean) value);  // Set boolean value
             } else if (propertyType == char.class || propertyType == Character.class) {
-                field.setChar(target, (Character) value);  // Set char value
+                field.setChar(targetObject, (Character) value);  // Set char value
             } else {
                 // For other types or objects, use the general set method
-                field.set(target, value);  // Set the value of the field
+                field.set(targetObject, value);  // Set the value of the field
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
@@ -249,7 +249,7 @@ public abstract class Updatable {
 
     private String name;
     private String type;
-    private Object target;         // The object to be tweened
+    private Object targetObject;         // The object to be tweened
     private String propertyName;   // The name of the property to modify
     private String methodName;
     private Object[] methodArgs;
@@ -262,10 +262,10 @@ public abstract class Updatable {
     private boolean complete;         // if the updatable is fully complete
     private PrintType print;          // Print values for debugging
 
-    public Updatable(String name, Object target, String propertyName, double duration, int repeatCount) {
+    public Updatable(String name, Object targetObject, String propertyName, double duration, int repeatCount) {
         this.name = name;
         this.type = "set";
-        this.target = target;
+        this.targetObject = targetObject;
         this.propertyName = propertyName;
         this.duration = duration;
         this.repeatCount = repeatCount;
@@ -273,10 +273,10 @@ public abstract class Updatable {
         this.currentRepeat = 0;
         this.print = PrintType.NEVER;
     }
-    public Updatable(String name, Object target, String methodName, double duration, int repeatCount, Object...methodArgs) {
+    public Updatable(String name, Object targetObject, String methodName, double duration, int repeatCount, Object...methodArgs) {
         this.name = name;
         this.type = "call";
-        this.target = target;
+        this.targetObject = targetObject;
         this.methodName = methodName;
         this.duration = duration;
         this.repeatCount = repeatCount;
@@ -315,7 +315,7 @@ public abstract class Updatable {
 
     public String getName() { return name; }
     public String getType() { return type; }
-    public Object getTarget() { return target; }
+    public Object getTarget() { return targetObject; }
     public String getPropertyName() { return propertyName; }
     public String getMethodName() { return methodName; }
     public Object[] getMethodArgs() { return methodArgs; }

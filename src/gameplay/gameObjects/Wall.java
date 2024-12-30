@@ -16,9 +16,9 @@ public class Wall extends GameObject {
     }
 
     @Override
-    public void draw(Graphics2D g, int drawx, int drawy) {
+    public void draw(Graphics2D g) {
         g.setColor(new Color(100, 100, 100));
-        g.fillRect(drawx, drawy, gameBoard.tileSize, gameBoard.tileSize);
+        g.fillRect(getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize, gameBoard.tileSize);
     }
     
 }

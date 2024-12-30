@@ -39,7 +39,7 @@ public class GameManager extends JPanel {
     LevelManager levelManager;
 
     // debug
-    private boolean showDebug;
+    public boolean showDebug;
     private InfoBox debugInfoBox;
 
     // input
@@ -187,9 +187,8 @@ public class GameManager extends JPanel {
             breakpointBoundaries = MoveLogic.findBreakpointBoundaries(gameBoard, playerx, playery, hdir, vdir);
             System.out.println("amount of breakpoint boundaries: " + breakpointBoundaries.size());
     
-            // IN PROGRESS: find breakpoints given the breakpoint boundaries
+            // TESTING: find breakpoints given the breakpoint boundaries
             breakpoints = ConnectionLogic.findBreakpoints(gameBoard, breakpointBoundaries, hdir, vdir);
-            // TO DO: disconnect breakpoints before movement
         }
 
         gameBoard.update(dt);

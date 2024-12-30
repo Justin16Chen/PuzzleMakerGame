@@ -118,27 +118,26 @@ public class GameBoard {
     // create a new game board given the map info
     public void setCurrentBoard(LevelInfo levelInfo) {
         
-        // map size
+        // map size and board setup
         width = levelInfo.getMapWidth();
         height = levelInfo.getMapHeight();
         tileSize = (int) Math.min(
             gameManager.getWidth() * screenSizeRatio / width, 
             gameManager.getHeight() * screenSizeRatio / height
         );
-
-        for (GameObject gameObject : gameObjects) {
-            InfoBox.removeInfoBox(gameObject.getInfoBox());
-        }
-
-        // game objects
-        gameObjects = levelInfo.getGameObjects();
         board = new GameObject[height][width];
         nextBoard = new GameObject[height][width];
 
-        // set the board for the current frame
+        // clear any infoboxes
+        for (GameObject gameObject : gameObjects) 
+            InfoBox.removeInfoBox(gameObject.getInfoBox());
+        
+        // set the board for the current level
+        gameObjects = levelInfo.getGameObjects();
         for (int i=0; i<levelInfo.getGameObjects().size(); i++) {
             GameObject gameObject = levelInfo.getGameObjects().get(i);
             board[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
+            gameObject.updateVisualsAtStart(); // make sure gameobjects start in correct draw position
         }
     }
 
@@ -199,6 +198,13 @@ public class GameBoard {
     public int getDrawCenterX() { return getDrawX() + (int) (getDrawWidth() * 0.5); }
     public int getDrawCenterY() { return getDrawY() + (int) (getDrawHeight() * 0.5); }
 
+    public int findGameObjectDrawX(GameObject gameObject) {
+        return getDrawX() + gameObject.getBoardX() * tileSize;
+    }
+    public int findGameObjectDrawY(GameObject gameObject) {
+        return getDrawY() + gameObject.getBoardY() * tileSize;
+    }
+
     // draw the board and all of the game objects on the board
     public void draw(Graphics2D g) {
         // game board
@@ -210,18 +216,20 @@ public class GameBoard {
                 GameObject gameObject = board[y][x];
                 if (gameObject == null) { continue; }
                 
-                int drawx = getDrawX() + gameObject.getBoardX() * tileSize;
-                int drawy = getDrawY() + gameObject.getBoardY() * tileSize;
-                gameObject.draw(g, drawx, drawy);
-                gameObject.updateInfoList(g, drawx + tileSize / 2, drawy - 10);
+                int targetDrawx = findGameObjectDrawX(gameObject);
+                int targetDrawy = findGameObjectDrawY(gameObject);
+                gameObject.draw(g);
+                gameObject.updateInfoList(g, targetDrawx + tileSize / 2, targetDrawy - 10);
                 if (mouseInput.clicked()) {
-                    if (mouseInput.isOver(drawx, drawy, tileSize, tileSize)) {
+                    if (mouseInput.isOver(targetDrawx, targetDrawy, tileSize, tileSize)) {
                         if (!gameObject.getInfoBox().isVisible()) gameObject.getInfoBox().show();
                         else gameObject.getInfoBox().hide();
                     }
                 }
-                g.setColor(Color.BLACK);
-                g.drawString("(" + x + ", " + y + ")", drawx + tileSize / 4, drawy + tileSize / 2);
+                if (gameManager.showDebug) {
+                    g.setColor(Color.BLACK);
+                    g.drawString("(" + x + ", " + y + ")", targetDrawx + tileSize / 4, targetDrawy + tileSize / 2);
+                }
             }
         }
     }

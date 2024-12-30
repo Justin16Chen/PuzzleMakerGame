@@ -1,5 +1,6 @@
 package gameplay.mapLoading;
 
+// stores info about transitioning between levels
 public class GeneralLevelInfo {
     
     private int startLevel;
