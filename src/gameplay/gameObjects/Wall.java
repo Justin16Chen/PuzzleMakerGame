@@ -4,9 +4,11 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import gameplay.GameBoard;
+import gameplay.GameManager;
 
 public class Wall extends GameObject {
 
+    public static Color COLOR = GameManager.BG_COLOR;
     public Wall(GameBoard gameBoard, int boardx, int boardy) {
         super(gameBoard, GameObject.ObjectType.WALL, boardx, boardy);
     }
@@ -17,7 +19,7 @@ public class Wall extends GameObject {
 
     @Override
     public void draw(Graphics2D g) {
-        g.setColor(new Color(100, 100, 100));
+        g.setColor(COLOR);
         g.fillRect(getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize, gameBoard.tileSize);
     }
     

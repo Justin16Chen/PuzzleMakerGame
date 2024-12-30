@@ -21,6 +21,8 @@ import utils.tween.*;
 import window.ParentFrame;
 
 public class GameManager extends JPanel {
+
+    public static Color BG_COLOR = new Color(230, 230, 230);
     
     // window
     private ParentFrame window;
@@ -257,6 +259,8 @@ public class GameManager extends JPanel {
     }
 
     public void drawGame(Graphics2D g) {
+        g.setColor(BG_COLOR);
+        g.fillRect(0, 0, getWindowWidth(), getWindowHeight());
         gameBoard.draw(g);
     }
 

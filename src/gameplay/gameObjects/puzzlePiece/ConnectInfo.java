@@ -9,7 +9,7 @@ public class ConnectInfo {
     private Side piece1Side, piece2Side;
     private String invalidMessage;
     private boolean valid;
-    private Side.Strength connectStrength;
+    private Side.Type connectType;
 
     
     public static ConnectInfo makeValidConnection(PuzzlePiece piece1, PuzzlePiece piece2, Direction.Type piece1Direction) {
@@ -31,7 +31,7 @@ public class ConnectInfo {
         this.piece1Side = piece1.getSide(piece1Direction);
         this.piece2Side = piece2.getSide(piece2Direction);
 
-        connectStrength = Side.getConnectionStrength(piece1Side.getType(), piece2Side.getType());
+        connectType = Side.getConnectionType(piece1Side.getType(), piece2Side.getType());
     }
     private ConnectInfo(String invalidMessage) {
         this.valid = false;
@@ -47,7 +47,7 @@ public class ConnectInfo {
     public boolean canConnect() { return valid; }
     public boolean isStrong() { 
         if (valid) {
-            return connectStrength == Side.Strength.STRONG; 
+            return connectType == Side.Type.STRONG; 
         }
         return false;
     }

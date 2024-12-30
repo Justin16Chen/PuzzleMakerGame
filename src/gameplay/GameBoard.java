@@ -12,6 +12,8 @@ import utils.input.*;
 
 public class GameBoard {
 
+    public static Color BOARD_COLOR = new Color(20, 20, 20);
+
     // window
     private GameManager gameManager;
 
@@ -208,6 +210,7 @@ public class GameBoard {
     // draw the board and all of the game objects on the board
     public void draw(Graphics2D g) {
         // game board
+        g.setColor(BOARD_COLOR);
         g.fillRect(getDrawX(), getDrawY(), getDrawWidth(), getDrawHeight());
 
         // loop through game board and draw game objects

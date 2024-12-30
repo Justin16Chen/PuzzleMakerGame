@@ -13,18 +13,13 @@ public class Side {
         EMPTY
     }
     public enum Type {
-        RED,
-        BLUE,
-        NEUTRAL
-    }
-    public enum Strength {
         STRONG,
-        WEAK
+        WEAK,
+        NOTHING
     }
-    final public static Color RED_COL = new Color(200, 20, 20);
-    final public static Color BLUE_COL = new Color(20, 20, 200);
-    final public static Color CONNECTED_RED_COL = new Color(255, 120, 120);
-    final public static Color CONNECTED_BLUE_COL = new Color(120, 120, 255);
+    final public static Color STRONG_COLOR = new Color(200, 180, 20);
+    final public static Color WEAK_COLOR = new Color(30, 75, 220);
+    final public static Color COLLECTED_WEAK_COLOR = new Color(50, 120, 255);
     final public static double DRAW_WIDTH_PERCENT = 0.15;
     // draw offsets for x and y are the same b/c cos(45) = sin(45)
     final public static double DRAW_OFF = Math.cos(Math.toRadians(45));
@@ -34,21 +29,21 @@ public class Side {
         for (int i=0; i<4; i++) {
             Type type;
             switch (typeString.charAt(i)) {
-                case '+': type = Type.RED; break;
-                case '-': type = Type.BLUE; break;
-                case 'n': type = Type.NEUTRAL; break;
-                default: type = Type.NEUTRAL; break;
+                case '+': type = Type.STRONG; break;
+                case '-': type = Type.WEAK; break;
+                case 'n': type = Type.NOTHING; break;
+                default: type = Type.NOTHING; break;
             }
-            Strength baseStrength = baseStrengthString.charAt(i) == 's' ? Strength.STRONG : Strength.WEAK;
-            sideData[i] = new Side(parent, Direction.getDirection(i), type, baseStrength);
+            sideData[i] = new Side(parent, Direction.getDirection(i), type);
         }
         return sideData;
     }
 
     // whether the side types can connect to each other
     public static boolean isCompatible(Side side1, Side side2) {
-        return side1.getType() != Side.Type.NEUTRAL && side2.getType() != Side.Type.NEUTRAL &&
-            !side1.isConnected() && !side2.isConnected();
+        return side1.getType() != Side.Type.NOTHING && side2.getType() != Side.Type.NOTHING  // neither can be a nothing type
+            && !side1.isConnected() && !side2.isConnected() // both cannot already be connected
+            && side1.getType() == side2.getType(); // both have to be of same type
     }
 
     // if two puzzle pieces are connected
@@ -62,40 +57,39 @@ public class Side {
     // get the connection baseStrength given the baseStrength of two puzzle pieces
     // connection is strong if both sides are strong
     // otherwise considered weak
-    public static Strength getConnectionStrength(Type type1, Type type2) {
-        return type1 == type2 && type1 != Type.NEUTRAL && type2 != Type.NEUTRAL ? Strength.STRONG : Strength.WEAK;
+    public static Type getConnectionType(Type type1, Type type2) {
+        if (type1 != type2 || type1 == Type.NOTHING || type2 == Type.NOTHING)
+            return Type.NOTHING;
+        return type1;
     }
-    public static Strength getConnectionStrength (PuzzlePiece p1, PuzzlePiece p2) {
+    public static Type getConnectionType (PuzzlePiece p1, PuzzlePiece p2) {
         int xOffset = p2.getBoardX() - p1.getBoardX(), yOffset = p2.getBoardY() - p1.getBoardY();
         Direction.Type oneToTwo = Direction.getDirection(xOffset, yOffset);
         Direction.Type twoToOne = Direction.getOppositeDirection(oneToTwo);
 
-        return p1.getSide(oneToTwo).getType() == p2.getSide(twoToOne).getType() ? Strength.STRONG : Strength.WEAK;
+        return getConnectionType(p1.getSide(oneToTwo).getType(), p2.getSide(twoToOne).getType());
     }
 
     private Direction.Type direction;
     private Hierarchy hierarchy;
     private Type type;
-    private Strength baseStrength;
     private boolean connected;
     private ConnectInfo connectInfo;
     private PuzzlePiece parent;
     private PuzzlePiece piece2;
     private Side piece2Side;
 
-    public Side(PuzzlePiece parent, Direction.Type direction, Type type, Strength baseStrength) {
+    public Side(PuzzlePiece parent, Direction.Type direction, Type type) {
         this.parent = parent;
         this.direction = direction;
         this.hierarchy = Hierarchy.EMPTY;
         this.type = type;
-        this.baseStrength = baseStrength;
     }
 
     public boolean equals(Side side) {
         return getDirection() == side.getDirection()
             && getHierarchy() == side.getHierarchy()
-            && getType() == side.getType()
-            && getStrength() == side.getStrength();
+            && getType() == side.getType();
     }
 
     @Override
@@ -103,23 +97,22 @@ public class Side {
         return getString(0);
     }
     public String getString(int number) {
-        if (connected && number == 0) return "Side(" + direction + "|" + type + "|" + baseStrength + "|\n  p2 pos:(" + piece2.getBoardX() + "," + piece2.getBoardY() + ")\n  p2 side:" + piece2Side.getString(1) + ")";
-        return "Side(" + direction + "|" + type + "|" + baseStrength +"|" + hierarchy + ")";
+        if (connected && number == 0) return "Side(" + direction + "|" + type + "|\n  p2 pos:(" + piece2.getBoardX() + "," + piece2.getBoardY() + ")\n  p2 side:" + piece2Side.getString(1) + ")";
+        return "Side(" + direction + "|" + type + "|" + hierarchy + ")";
     }
 
     public Direction.Type getDirection() { return direction; }
     public Hierarchy getHierarchy() { return hierarchy; }
     public Type getType() { return type; }
-    public Strength getStrength() { return baseStrength; }
     public boolean isConnected() { return connected; }
-    public boolean canConnect() { return type != Type.NEUTRAL; }
+    public boolean canConnect() { return type != Type.NOTHING; }
     public ConnectInfo getConnectInfo() { return connectInfo; }
     public PuzzlePiece getParent() { return parent; }
     public PuzzlePiece getPiece2() { return piece2; }
     public Side getPiece2Side() { return piece2Side; }
 
     public void setConnected(boolean connected) { 
-        if (type != Side.Type.NEUTRAL) this.connected = connected; 
+        if (type != Side.Type.NOTHING) this.connected = connected; 
         else this.connected = false;
 
         if (!connected) {
@@ -144,14 +137,14 @@ public class Side {
     public void setHierarchy(Hierarchy hierarchy ) { this.hierarchy = hierarchy; }
 
     public void draw(Graphics2D g, int parentDrawx, int parentDrawy, int tileSize) {
-        if (getType() == Type.NEUTRAL)
+        if (getType() == Type.NOTHING || (getType() == Type.STRONG && isConnected()))
             return;
         int offset = (int) Math.ceil((DRAW_OFF * DRAW_WIDTH_PERCENT * tileSize));
         int[] xList = new int[4], yList = new int[4];
         if (!isConnected())
-            g.setColor(getType() == Type.RED ? RED_COL : BLUE_COL);
+            g.setColor(getType() == Type.STRONG ? STRONG_COLOR : WEAK_COLOR);
         else
-            g.setColor(getType() == Type.RED ? CONNECTED_RED_COL : CONNECTED_BLUE_COL);
+            g.setColor(COLLECTED_WEAK_COLOR);
         switch (getDirection()) {
             case UP: 
                 xList[0] = 0;                 yList[0] = 0;

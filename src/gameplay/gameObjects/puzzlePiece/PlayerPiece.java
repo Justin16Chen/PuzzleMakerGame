@@ -8,9 +8,11 @@ import gameplay.gameObjects.*;
 
 public class PlayerPiece extends PuzzlePiece {
 
+    public static Color COLOR = new Color(72, 72, 72);
+
     public PlayerPiece(GameBoard gameBoard, int boardx, int boardy, String sideData, String baseStrengthString) {
         super(gameBoard, GameObject.ObjectType.PLAYER_PIECE, boardx, boardy, sideData, baseStrengthString);
-        setColor(Color.LIGHT_GRAY);
+        setColor(COLOR);
     }
 
     // update the playerPiece

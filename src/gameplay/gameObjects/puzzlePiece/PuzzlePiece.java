@@ -10,6 +10,8 @@ import utils.*;
 
 public class PuzzlePiece extends GameObject {
 
+    public static Color COLOR = new Color(55, 55, 55);
+
     public static boolean isPuzzlePiece(GameObject gameObject) {
         if (gameObject == null) {
             return false;
@@ -59,12 +61,12 @@ public class PuzzlePiece extends GameObject {
     public PuzzlePiece(GameBoard gameBoard, int boardx, int boardy, String sideString, String baseStrengthString) {
         super(gameBoard, GameObject.ObjectType.PUZZLE_PIECE, boardx, boardy);
         this.sides = Side.getSideData(this, sideString, baseStrengthString);
-        this.color = Color.GRAY;
+        this.color = COLOR;
     }
     public PuzzlePiece(GameBoard gameBoard, GameObject.ObjectType objectType, int boardx, int boardy, String sideString, String baseStrengthString) {
         super(gameBoard, objectType, boardx, boardy);
         this.sides = Side.getSideData(this, sideString, baseStrengthString);
-        this.color = Color.GRAY;
+        this.color = COLOR;
     }
 
     public boolean equals(GameObject gameObject) {
@@ -89,45 +91,13 @@ public class PuzzlePiece extends GameObject {
     }
     // all of the sides are connected
     public boolean hasConnectedSide() {
-        Side.Strength[] baseStrengthList = {
-            Side.Strength.STRONG,
-            Side.Strength.WEAK
-        };
-        return hasConnectedSide(baseStrengthList, baseStrengthList);
-    }
-    // has a strong connected side
-    public boolean hasConnectedSide(Side.Strength[] strengths1, Side.Strength[] strengths2) {
         for (int i=0; i<4; i++) {
             Direction.Type direction = Direction.getDirection(i);
-            if (getSide(direction).isConnected()) {
-                boolean hasStrength1 = false, hasStrength2 = false; 
-                Side side2 = getSide(direction).getPiece2Side();
-                if (side2 == null) continue;
-                Side.Strength sideStrength1 = getSide(direction).getStrength(), sideStrength2 = side2.getStrength();
-                for (Side.Strength baseStrength : strengths1) {
-                    if (baseStrength == sideStrength1) hasStrength1 = true;
-                }
-                for (Side.Strength baseStrength : strengths2) {
-                    if (baseStrength == sideStrength2) hasStrength2 = true;
-                }
-                if (hasStrength1 && hasStrength2) return true;
-            }
+
+            if (getSide(direction).isConnected())
+                return true;
         }
         return false;
-    }
-    // get all sides that match the parameters
-    public ArrayList<Side> getSides(boolean connected, Side.Strength[] baseStrengths) {
-        ArrayList<Side> sides = new ArrayList<>();
-        for (int i=0; i<4; i++) {
-            Direction.Type direction = Direction.getDirection(i);
-            Side side = getSide(direction);
-            if (side.isConnected() == connected) {
-                for (Side.Strength baseStrength : baseStrengths) {
-                    if (side.getStrength() == baseStrength) sides.add(side);
-                }
-            }
-        }
-        return sides;
     }
     // connect a side
     public void connectSide(Direction.Type direction, Side.Hierarchy hierarchy, ConnectInfo connectInfo) {
@@ -261,7 +231,7 @@ public class PuzzlePiece extends GameObject {
                 PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
                 Side selfSide = getSide(selfToPiece), otherSide = puzzlePiece.getSide(pieceToSelf);
 
-                if (selfSide.isConnected() && Side.getConnectionStrength(selfSide.getType(), otherSide.getType()) == Side.Strength.STRONG) {
+                if (selfSide.isConnected() && Side.getConnectionType(selfSide.getType(), otherSide.getType()) == Side.Type.STRONG) {
                     moveInfoList[i] = puzzlePiece.getAllMoveInfo(callerList, hdir, vdir);
                 }
             }
@@ -371,7 +341,7 @@ public class PuzzlePiece extends GameObject {
         updateCurrentDrawPosToTarget(); // allow for smooth movement
 
         g.setColor(hasConnectedSide() ? getHighlightedColor() : getColor());
-        g.fillRect((int) getCurrentDrawx(), (int) getCurrentDrawy(), gameBoard.tileSize - 1, gameBoard.tileSize - 1);
+        g.fillRect((int) getCurrentDrawx(), (int) getCurrentDrawy(), gameBoard.tileSize, gameBoard.tileSize);
 
         for (int i=0; i<4; i++)
             getSide(Direction.getDirection(i)).draw(g, getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize);

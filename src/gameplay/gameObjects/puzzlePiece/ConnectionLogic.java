@@ -85,9 +85,9 @@ public class ConnectionLogic {
                         continue;
 
                     PuzzlePiece adjacentPuzzlePiece = (PuzzlePiece) adjacentGameObject;
-                    
+
                     if (adjacentPuzzlePiece.getMoveIndex() < puzzlePiece.getMoveIndex()) {
-                        if (adjacentPuzzlePiece.getMoveInfo(hdir, vdir).canMove() && Side.getConnectionStrength(puzzlePiece, adjacentPuzzlePiece) == Side.Strength.WEAK) {
+                        if (adjacentPuzzlePiece.getMoveInfo(hdir, vdir).canMove() && Side.getConnectionType(puzzlePiece, adjacentPuzzlePiece) == Side.Type.WEAK) {
                             breakpoints.add(puzzlePiece);
                             Direction.Type pToAdjDirection = Direction.getDirection(adjacentGameObject.getBoardX() - puzzlePiece.getBoardX(), adjacentGameObject.getBoardY() - puzzlePiece.getBoardY());
                             sidesToDisconnect.add(puzzlePiece.getSide(pToAdjDirection));

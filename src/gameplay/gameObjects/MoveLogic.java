@@ -173,7 +173,8 @@ public class MoveLogic {
                                 gameObject.setMustCheck(true);
                                 break;
                             }
-                            else if (PuzzlePiece.isPuzzlePiece(gameObject) && PuzzlePiece.isPuzzlePiece(parent) && Side.getConnectionStrength((PuzzlePiece) gameObject, (PuzzlePiece) parent) == Side.Strength.STRONG) {
+                            else if (PuzzlePiece.isPuzzlePiece(gameObject) && PuzzlePiece.isPuzzlePiece(parent)
+                                    && Side.getConnectionType((PuzzlePiece) gameObject, (PuzzlePiece) parent) == Side.Type.STRONG) {
                                 gameObject.setMustCheck(true);
                                 break;
                             }

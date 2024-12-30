@@ -59,7 +59,9 @@ public abstract class GameObject {
 
     // rate that gameobjects move between cells at
     final public static double MOVE_RATE = 0.4;
-
+    
+    public static final double FINISH_MOVE_THRESHOLD = 0.5;
+    
     protected GameBoard gameBoard;
     protected KeyInput keyInput;
     protected MouseInput mouseInput;
@@ -288,8 +290,12 @@ public abstract class GameObject {
     public void updateCurrentDrawPosToTarget() {
         int xDist = (int) (targetDrawx - currentDrawx);
         int yDist = (int) (targetDrawy - currentDrawy);
-        currentDrawx += xDist * MOVE_RATE;
-        currentDrawy += yDist * MOVE_RATE;
+        if (Math.abs(xDist) < FINISH_MOVE_THRESHOLD && Math.abs(yDist) < FINISH_MOVE_THRESHOLD)
+            forceToTargetDrawPos();
+        else
+            currentDrawx += xDist * MOVE_RATE;
+            currentDrawy += yDist * MOVE_RATE;
+
     }
 
     public void updateInfoList(Graphics2D g, int drawcx, int drawbottomy) {
