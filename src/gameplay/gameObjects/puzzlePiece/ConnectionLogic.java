@@ -85,13 +85,7 @@ public class ConnectionLogic {
                         continue;
 
                     PuzzlePiece adjacentPuzzlePiece = (PuzzlePiece) adjacentGameObject;
-                    /*
-                    if adj.moveIndex < p.index
-                        if adj.canMove(directionOfMovement) && hasWeakConnection(p, adj)
-                        addBreakpoint(p)
-                        addBreakpointSide(p.side(direction from p to adj))
-                        stop searching for breakpoint for bb
-                    */
+                    
                     if (adjacentPuzzlePiece.getMoveIndex() < puzzlePiece.getMoveIndex()) {
                         if (adjacentPuzzlePiece.getMoveInfo(hdir, vdir).canMove() && Side.getConnectionStrength(puzzlePiece, adjacentPuzzlePiece) == Side.Strength.WEAK) {
                             breakpoints.add(puzzlePiece);
@@ -132,9 +126,9 @@ public class ConnectionLogic {
                 }
 
                 // if there are no more unchecked puzzle pieces with a lower index, there is no breakpoint for the boundary and we can move on
-                if (!hasNewOption) {
+                if (!hasNewOption) 
                     break;
-                }
+                
 
             } while (puzzlePiece.getMoveIndex() > 0);
 
@@ -150,9 +144,7 @@ public class ConnectionLogic {
     // disconnect all breakpoints
     public static void disconnectBreakpoints(ArrayList<Side> breakpoints) {
         Print.println("DISCONNECTING BREAKPOINT SIDES", Print.YELLOW);
-        for (Side side : breakpoints) {
-            side.getPiece2Side().setConnected(false);
-            side.setConnected(false);
-        }
+        for (Side side : breakpoints) 
+            PuzzlePiece.disconnect(new DisconnectInfo(side.getParent(), side.getPiece2(), side.getDirection()));
     }
 }

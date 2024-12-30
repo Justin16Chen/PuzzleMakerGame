@@ -44,10 +44,13 @@ public class PuzzlePiece extends GameObject {
         //);
     }
     public static void disconnect(DisconnectInfo disconnectInfo) {
-        PuzzlePiece piece1 = disconnectInfo.getPiece1();
-        PuzzlePiece piece2 = disconnectInfo.getPiece2();
-        piece1.getSide(disconnectInfo.getPiece1Direction()).setConnected(false);
-        piece2.getSide(disconnectInfo.getPiece2Direction()).setConnected(false);
+        Side side1 = disconnectInfo.getPiece1().getSide(disconnectInfo.getPiece1Direction());
+        Side side2 = disconnectInfo.getPiece2().getSide(disconnectInfo.getPiece2Direction());
+
+        side1.setConnected(false);
+        side2.setConnected(false);
+        side1.setHierarchy(Side.Hierarchy.EMPTY);
+        side2.setHierarchy(Side.Hierarchy.EMPTY);
     }
 
     private Side[] sides;
