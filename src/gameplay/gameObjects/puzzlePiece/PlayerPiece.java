@@ -1,18 +1,29 @@
 package gameplay.gameObjects.puzzlePiece;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
+import utils.Direction;
+import utils.tween.Tween;
+import utils.tween.Updatable;
 
 public class PlayerPiece extends PuzzlePiece {
 
-    public static Color COLOR = new Color(72, 72, 72);
+    public static int BRIGHT_OUTLINE = 235, DIM_OUTLINE = 170;
+    public static double OCILLATION_TIME = 1.2;
+    public static int STROKE_WIDTH = 2, STROKE_INSET = -2;
+
+    private double outlineBrightness;
 
     public PlayerPiece(GameBoard gameBoard, int boardx, int boardy, String sideData, String baseStrengthString) {
         super(gameBoard, GameObject.ObjectType.PLAYER_PIECE, boardx, boardy, sideData, baseStrengthString);
-        setColor(COLOR);
+
+        Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME, -1, true).setPrint(Updatable.PrintType.ON_LOOP);
+
     }
 
     // update the playerPiece
@@ -44,5 +55,23 @@ public class PlayerPiece extends PuzzlePiece {
                 move(moveInfo, true);
             }
         }
+    }
+    
+    @Override
+    public void draw(Graphics2D g) {
+        updateCurrentDrawPosToTarget(); // allow for smooth movement
+
+        // draw fill
+        g.setColor(hasConnectedSide() ? getHighlightedColor() : getColor());
+        g.fillRect(getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize, gameBoard.tileSize);
+
+        // draw outline
+        int brightness = (int) outlineBrightness;
+        g.setColor(new Color(brightness, brightness, brightness));
+        g.setStroke(new BasicStroke(STROKE_WIDTH));
+        g.drawRect(getCurrentDrawx() + STROKE_INSET, getCurrentDrawy() + STROKE_INSET, gameBoard.tileSize - STROKE_INSET * 2, gameBoard.tileSize - STROKE_INSET * 2);
+
+        for (int i=0; i<4; i++)
+            getSide(Direction.getDirection(i)).draw(g, getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize);
     }
 }

@@ -269,6 +269,7 @@ public class GameManager extends JPanel {
         addDebugGeneral(drawList);
         //addDebugInput(drawList); // more advanced stuff, separated
         addDebugControls(drawList);
+        addDebugUpdatables(drawList);
         //addDebugLevel(drawList);
         addDebugMovement(drawList);
 
@@ -303,6 +304,10 @@ public class GameManager extends JPanel {
                 drawList.add("keys " + state.toString().toLowerCase() + ": none");
             }
         }
+    }
+    private void addDebugUpdatables(ArrayList<String> drawList) {
+        drawList.add("===UPDATABLES===");
+        drawList.add("amount of updatables: " + Updatable.getUpdatableAmount());
     }
     private void addDebugControls(ArrayList<String> drawList) {
         drawList.add("===CONTROLS===");

@@ -128,7 +128,7 @@ public class MoveLogic {
 
     }
     public static ArrayList<GameObject> findBreakpointBoundaries(GameBoard gameBoard, int moverx, int movery, int hdir, int vdir) {
-        Print.println("FIND BREAKPOINT BOUNDARIES", Print.YELLOW);
+        // Print.println("FIND BREAKPOINT BOUNDARIES", Print.YELLOW);
 
         // check preconditions
         if (!gameBoard.inBounds(moverx, movery)) throw new RuntimeException("start pos of (" + moverx + ", " + movery + ") is not in bounds of gameboard");
@@ -156,7 +156,7 @@ public class MoveLogic {
         mover.setMustCheck(true);
 
         do {
-            System.out.println("NEXT ITERATION");
+            // System.out.println("NEXT ITERATION");
             for (GameObject gameObject : goList) {
 
                 // set mustCheck
@@ -164,7 +164,7 @@ public class MoveLogic {
                 // it either is in direction of motion or is strong connected to parent
                 // but the parent must also be strong connected
                 if (!gameObject.mustCheck()) {
-                    System.out.println("checking game object: " + gameObject);
+                    // System.out.println("checking game object: " + gameObject);
                     for (GameObject parent : gameObject.getParents()) {
                         if (parent.mustCheck()) {
                             int dirx = gameObject.getBoardX() - parent.getBoardX();
@@ -180,7 +180,7 @@ public class MoveLogic {
                             }
                         }
                     }
-                    System.out.println("must check: " + gameObject.mustCheck());
+                    // System.out.println("must check: " + gameObject.mustCheck());
                 }
 
                 // if gameObject.canMove = false AND gameObject.mustCheck = true
@@ -196,18 +196,18 @@ public class MoveLogic {
                     }
                     if (!hasBreakpoint) {
                         breakpointBoundaries.add(gameObject);
-                        System.out.println("ADDING BREAKPOINT BOUNDARY: " + gameObject);
+                        // System.out.println("ADDING BREAKPOINT BOUNDARY: " + gameObject);
                     }
                 }
             }
 
-            System.out.println("ADDING ADJACENT GAME OBJECTS");
+            // System.out.println("ADDING ADJACENT GAME OBJECTS");
 
             // update the game object list
             ArrayList<GameObject> newGoList = new ArrayList<>();
             for (GameObject gameObject : goList) {
-                System.out.println("game object to find adjacent cells for: ");
-                System.out.println(gameObject);
+                // System.out.println("game object to find adjacent cells for: ");
+                // System.out.println(gameObject);
 
                 for (int i=0; i<4; i++) {
                     // find adjacent cell position
@@ -225,12 +225,12 @@ public class MoveLogic {
                         PuzzlePiece adjacentPuzzlePiece = (PuzzlePiece) adjacentGameObject;
 
                         // and if the game object does not have to check or has not been indexed yet or has an inaccurate index
-                        System.out.println("adjacent puzzle piece: " + adjacentPuzzlePiece);
+                        // System.out.println("adjacent puzzle piece: " + adjacentPuzzlePiece);
                         if (!adjacentPuzzlePiece.mustCheck() && !adjacentPuzzlePiece.getCheckedSide(oppositeDirection)) {
 
                             // add to next iteration's list
                             adjacentPuzzlePiece.checkSide(oppositeDirection);
-                            System.out.println("adding to list");
+                            // System.out.println("adding to list");
                             newGoList.add(adjacentGameObject);
 
                             // add parent 

@@ -4,53 +4,62 @@ import utils.Print;
 
 public class Timer extends Updatable {
 
-    public static Timer createSetTimer(String name, Object target, double duration, String propertyName, Object finalPropertyValue, int repeatCount) {
-        Timer timer = new Timer(name, target, duration, propertyName, finalPropertyValue, repeatCount);
+    public static Timer createSetTimer(String name, Object target, double duration, String propertyName, Object finalPropertyValue, int targetLoopCount) {
+        Timer timer = new Timer(name, target, duration, propertyName, finalPropertyValue, 0, targetLoopCount);
         Updatable.addUpdatable(timer);
         return timer;
     }
-    public static Timer createCallTimer(String name, Object target, double duration, String methodName, int repeatCount, Object... args) {
-        Timer timer = new Timer(name, target, duration, methodName, repeatCount, args);
+    public static Timer createCallTimer(String name, Object target, double duration, String methodName, int targetLoopCount, Object... args) {
+        Timer timer = new Timer(name, target, duration, methodName, 0, targetLoopCount, args);
+        Updatable.addUpdatable(timer);
+        return timer;
+    }
+    public static Timer resetSetTimerTo(String name, Object target, double duration, String propertyName, Object finalPropertyValue, int currentLoop, int targetLoopCount) {
+        Timer timer = new Timer(name, target, duration, propertyName, finalPropertyValue, currentLoop, targetLoopCount);
+        Updatable.addUpdatable(timer);
+        return timer;
+    }
+    public static Timer resetCallTimerTo(String name, Object target, double duration, String methodName, int currentLoop, int targetLoopCount, Object... args) {
+        Timer timer = new Timer(name, target, duration, methodName, currentLoop, targetLoopCount, args);
         Updatable.addUpdatable(timer);
         return timer;
     }
 
     private Object finalPropertyValue;
 
-    public Timer(String name, Object target, double duration, String propertyName, Object finalPropertyValue, int repeatCount) {
-        super(name, target, propertyName, duration, repeatCount);
+    public Timer(String name, Object target, double duration, String propertyName, Object finalPropertyValue, int currentLoopCount, int targetLoopCount) {
+        super(name, target, propertyName, duration, currentLoopCount, targetLoopCount, false);
         this.finalPropertyValue = finalPropertyValue;
     }
 
-    public Timer(String name, Object target, double duration, String methodName, int repeatCount, Object... args) {
-        super(name, target, methodName, duration, repeatCount, args);
+    public Timer(String name, Object target, double duration, String methodName, int currentLoopCount, int targetLoopCount, Object... args) {
+        super(name, target, methodName, duration, currentLoopCount, targetLoopCount, false, args);
     }
 
     @Override
     public String toString() {
-        if (getType().equals("set")) {
+        if (getType() == Type.SET) {
             return "Timer(name: " + getName() + " | set property: " + getPropertyName() + " to " + finalPropertyValue + " | duration: " + getDuration() + " | elapsed time: " + getElapsedTime() + ")";
         }
         return "Timer(name: " + getName() + " | call function " + getMethodName() + " with " + getParameterTypesString(getMethodArgs()) + " | elapsed time: " + getElapsedTime() + "/" + getDuration() + " | loop complete: " + isLoopComplete() + " | complete: " + isComplete() + ")";
     }
 
+    public Object getFinalPropertyValue() { return finalPropertyValue; }
+
+
     @Override
     public void update(double deltaTime) {
-        addToElapsedTime(deltaTime);
-
-        if (getRepeatCount() >= 0 && isComplete() || getRepeatCount() < 0 && isLoopComplete()) {
-            if (ALLOW_PRINT) Print.println(this.getName() + " is doing action", Print.BLUE);
-            doAction();
+        if (isComplete()) {
+            if (ALLOW_PRINT) 
+                Print.println(this.getName() + " is doing action", Print.BLUE);
+                
+            if (getType() == Type.SET) {
+                Updatable.setProperty(getTarget(), getPropertyName(), finalPropertyValue);
+            } 
+            else if (getType() == Type.CALL) {
+                Updatable.callMethodByName(getTarget(), getMethodName(), getMethodArgs());
+            }
         }
         
-    }
-
-    private void doAction() {
-        if (getType().equals("set")) {
-            Updatable.setProperty(getTarget(), getPropertyName(), finalPropertyValue);
-        } 
-        else if (getType().equals("call")) {
-            Updatable.callMethodByName(getTarget(), getMethodName(), getMethodArgs());
-        }
     }
 }

@@ -10,7 +10,8 @@ import utils.*;
 
 public class PuzzlePiece extends GameObject {
 
-    public static Color COLOR = new Color(55, 55, 55);
+    public static Color COLOR = new Color(72, 72, 72);
+    public static Color OUTLINE_COLOR = COLOR;
 
     public static boolean isPuzzlePiece(GameObject gameObject) {
         if (gameObject == null) {
@@ -104,21 +105,21 @@ public class PuzzlePiece extends GameObject {
         getSide(direction).setConnected(true); 
         getSide(direction).setHierarchy(hierarchy);
         getSide(direction).setConnectInfo(connectInfo);
-        System.out.println("CONNECTING SIDES");
-        System.out.println(connectInfo);
+        // System.out.println("CONNECTING SIDES");
+        // System.out.println(connectInfo);
     }
     
     // get the connection info between two puzzle pieces
     public ConnectInfo getConnectInfo(int movex, int movey, int hdir, int vdir) {
-        Print.println("GET CONNECT INFO", Print.RED);
-        System.out.println("for " + this);
+        // Print.println("GET CONNECT INFO", Print.RED);
+        // System.out.println("for " + this);
 
         int movePosx = getBoardX() + movex;
         int movePosy = getBoardY() + movey;
         int targetx = movePosx + hdir;
         int targety = movePosy + vdir;
 
-        System.out.println("look for connect pos: " + targetx + ", " + targety);
+        // System.out.println("look for connect pos: " + targetx + ", " + targety);
 
         // make sure it is in bounds
         if (!gameBoard.inBounds(targetx, targety) || !gameBoard.inBounds(movePosx, movePosy)) {
@@ -166,8 +167,8 @@ public class PuzzlePiece extends GameObject {
         if (Side.isCompatible(piece1Side, piece2Side) && !piece1Side.isConnected() && !piece2Side.isConnected()) {
             //System.out.println("compatible puzzle pieces, line 129");
             //System.out.println("puzzle piece sides: " + piece1Side.getType() + " " + piece2Side.getType());
-            System.out.println("piece1: " + this + " piece 2: " + piece2);
-            System.out.println("connect info" + ConnectInfo.makeValidConnection(this, piece2, directionToPiece));
+            // System.out.println("piece1: " + this + " piece 2: " + piece2);
+            // System.out.println("connect info" + ConnectInfo.makeValidConnection(this, piece2, directionToPiece));
             return ConnectInfo.makeValidConnection(this, piece2, directionToPiece);
         }
         //System.out.println("incompatible puzzle pieces, line 132");
@@ -179,9 +180,9 @@ public class PuzzlePiece extends GameObject {
     // or only checks puzzle pieces that have strong connections and that have the correct hierarchy structure
     public MoveInfo getAllMoveInfo(ArrayList<GameObject> callerList, int hdir, int vdir) {
         callerList.add(this);
-        Print.println("GET ALL MOVE INFO", Print.PURPLE);
-        System.out.println("for " + this);
-        System.out.println("dir of motion: " + hdir + ", " + vdir);
+        // Print.println("GET ALL MOVE INFO", Print.PURPLE);
+        // System.out.println("for " + this);
+        // System.out.println("dir of motion: " + hdir + ", " + vdir);
         //System.out.println(Print.PURPLE + "GET ALL MOVE INFO FOR " + this + Print.RESET);
         // make sure movement is in bounds and is valid
         // currently using base GameObject.getMoveInfo
@@ -237,7 +238,7 @@ public class PuzzlePiece extends GameObject {
             }
         }
 
-        System.out.println("finished checking");
+        // System.out.println("finished checking");
 
         /*
         [valid, valid, disconnect, valid]
@@ -265,9 +266,9 @@ public class PuzzlePiece extends GameObject {
     public void move(MoveInfo moveInfo, boolean isMover) {
         if(movedThisFrame() || queuedMovedThisFrame()) return;
         setQueuedMovedThisFrame(true);
-        Print.println("MOVE ALL ATTACHED", Print.BLUE);
-        System.out.println("for " + this);
-        System.out.println("direction: " + moveInfo.getHdir() + " " + moveInfo.getVdir());
+        // Print.println("MOVE ALL ATTACHED", Print.BLUE);
+        // System.out.println("for " + this);
+        // System.out.println("direction: " + moveInfo.getHdir() + " " + moveInfo.getVdir());
 
         // check if this puzzle piece can move
         boolean canMove = getMoveInfo(moveInfo.getHdir(), moveInfo.getVdir()).canMove();
@@ -294,11 +295,11 @@ public class PuzzlePiece extends GameObject {
     public void moveSelf(MoveInfo moveInfo) {
 
         if (movedThisFrame()) {
-            //System.out.println(getName() + " already moved, overriding movement");
+            // System.out.println(getName() + " already moved, overriding movement");
             return;
         }
 
-        Print.println("MOVING " + this, Print.BLUE);
+        // Print.println("MOVING " + this, Print.BLUE);
 
         // move
         super.moveSelf(moveInfo);
@@ -312,7 +313,7 @@ public class PuzzlePiece extends GameObject {
             int connectDirx = Direction.getDirectionX(direction), connectDiry = Direction.getDirectionY(direction);
             if (connectDirx == -moveInfo.getHdir() && connectDiry == -moveInfo.getVdir()) continue;
             connectInfoList[i] = getConnectInfo(0, 0, connectDirx, connectDiry);
-            System.out.println(connectInfoList[i]);
+            // System.out.println(connectInfoList[i]);
         }
         //Print.println(" PUZZLE PIECE MOVE FUNCTION: " + connectInfo, Print.PURPLE);
         for (ConnectInfo connectInfo : connectInfoList) {
@@ -325,22 +326,24 @@ public class PuzzlePiece extends GameObject {
     @Override
     public void update(double dt) {}
 
-    public Color getColor() { return color; }
     public Color getHighlightedColor() {
         int highlightAmount = 60;
         return new Color(
-            Math.min(255, getColor().getRed() + highlightAmount), 
-            Math.min(255, getColor().getGreen() + highlightAmount), 
-            Math.min(255, getColor().getBlue() + highlightAmount)
+            Math.min(255, color.getRed() + highlightAmount), 
+            Math.min(255, color.getGreen() + highlightAmount), 
+            Math.min(255, color.getBlue() + highlightAmount)
         );
     }
-    public void setColor(Color color) { this.color = color; }
+    public Color getColor() {
+        return color;
+    }
+
 
     @Override
     public void draw(Graphics2D g) {
         updateCurrentDrawPosToTarget(); // allow for smooth movement
 
-        g.setColor(hasConnectedSide() ? getHighlightedColor() : getColor());
+        g.setColor(hasConnectedSide() ? getHighlightedColor() : color);
         g.fillRect((int) getCurrentDrawx(), (int) getCurrentDrawy(), gameBoard.tileSize, gameBoard.tileSize);
 
         for (int i=0; i<4; i++)
