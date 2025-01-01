@@ -247,11 +247,6 @@ public class PuzzlePiece extends GameObject {
         // also always get move info for base piece with no side offsets
         moveInfoList[4] = getMoveInfo(hdir, vdir);
 
-        //System.out.println("move info list of player: ");
-        //for (int i=0; i<5; i++) {
-              //System.out.println("side " + i + ": " + moveInfoList[i]);
-        //}
-
         // can only move if all of the moveInfos are valid
         for (int i=0; i<5; i++) {
             if (moveInfoList[i] != null && !moveInfoList[i].canMove()) {

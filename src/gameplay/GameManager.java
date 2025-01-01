@@ -115,7 +115,6 @@ public class GameManager extends JPanel {
         levelManager.transitionToLevel(0, false, true);
 
         // hide info boxes to start
-        debugInfoBox.hide();
         gameBoard.hideObjInfoBoxes();
         
         // create and start the game loop
@@ -184,14 +183,6 @@ public class GameManager extends JPanel {
         
         // update game object indecies
         MoveLogic.updateMoveIndecies(gameBoard, playerx, playery);
-        if (keyInput.keyClicked("B")) {
-            // find any potential breakpoint boundaries for movement
-            breakpointBoundaries = MoveLogic.findBreakpointBoundaries(gameBoard, playerx, playery, hdir, vdir);
-            System.out.println("amount of breakpoint boundaries: " + breakpointBoundaries.size());
-    
-            // TESTING: find breakpoints given the breakpoint boundaries
-            breakpoints = ConnectionLogic.findBreakpoints(gameBoard, breakpointBoundaries, hdir, vdir);
-        }
 
         gameBoard.update(dt);
 
@@ -226,6 +217,14 @@ public class GameManager extends JPanel {
         if (keyInput.keyClicked(NEXT_LEVEL_KEY)) {
             levelManager.transitionToNextLevel(true, true);
         }
+
+        if (keyInput.keyClicked("Q")) {
+            showDebug = !showDebug;
+            if (showDebug) 
+                debugInfoBox.show();
+            else 
+                debugInfoBox.hide();
+        }
     }
 
     // swing's built in draw function for UI components
@@ -237,16 +236,6 @@ public class GameManager extends JPanel {
         if (createdGameLoop) {
             drawGame(g2);
             Sprite.drawSprites(g2);
-        }
-
-        if (keyInput.keyClicked("Q")) {
-            showDebug = !showDebug;
-            if (showDebug) {
-                debugInfoBox.show();
-            }
-            else {
-                debugInfoBox.hide();
-            }
         }
         if (showDebug) {
             updateDebug(g2);

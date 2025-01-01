@@ -117,10 +117,16 @@ public abstract class Updatable {
 
     public static void deleteUpdatables(String[] names) {
         ArrayList<Updatable> newList = new ArrayList<>();
-        for (Updatable updatable : new ArrayList<>(list))
+        for (Updatable updatable : new ArrayList<>(list)) {
+            boolean seenInList = false;
             for (String name : names)
-                if (!updatable.getName().equals(name))
-                    newList.add(updatable);
+                if (updatable.getName().equals(name)) {
+                    seenInList = true;
+                    break;
+                }
+            if (!seenInList)
+                newList.add(updatable);
+        }
         list = newList;
     }
 
@@ -129,8 +135,10 @@ public abstract class Updatable {
         ArrayList<Updatable> newList = new ArrayList<>();
         for (Updatable updatable : new ArrayList<>(list))
             for (String exception : exceptions) 
-                if (updatable.getName().equals(exception))
+                if (updatable.getName().equals(exception)) {
                     newList.add(updatable);
+                    break;
+                }
         list = newList;
     }
 
@@ -169,6 +177,35 @@ public abstract class Updatable {
             }
         }
         return field != null;
+    }
+
+    public static Object getProperty(Object targetObject, String propertyName) {
+        try {
+            Field field = null;
+            Class<?> clazz = targetObject.getClass();
+    
+            // Look for the field in the class hierarchy
+            while (clazz != null) {
+                try {
+                    field = clazz.getDeclaredField(propertyName);
+                    break;  // Field found, break out of the loop
+                } catch (NoSuchFieldException e) {
+                    // Field not found in this class, try the superclass
+                    clazz = clazz.getSuperclass();
+                }
+            }
+    
+            if (field == null) {
+                throw new NoSuchFieldException("Field " + propertyName + " not found in class hierarchy.");
+            }
+    
+            field.setAccessible(true);  // Make the field accessible if it's private
+    
+            return field.get(targetObject);  // Get the value of the field
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static void setProperty(Object targetObject, String propertyName, Object value) {

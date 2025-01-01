@@ -124,9 +124,8 @@ public class InfoBox {
     
         // Calculate maximum width of the list items, including padding
         int maxWidth = 0;
-        for (String string : drawList) {
+        for (String string : drawList) 
             maxWidth = Math.max(maxWidth, fontMetrics.stringWidth(string));
-        }
         maxWidth += borderSize * 2;  // Add padding on both sides
         width = maxWidth;
     }

@@ -102,6 +102,10 @@ public abstract class GameObject {
         infoBox.setFont(new Font("Arial", Font.PLAIN, 10));
     }
 
+    // setup function called after all game objects are created
+    // meant to be overridden by subclasses if needed
+    public void setup() {}
+
     // gameboard decides when to do this - only after it is properly setup
     public void updateVisualsAtStart() {
         updateTargetDrawPos();

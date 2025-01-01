@@ -139,6 +139,7 @@ public class GameBoard {
         for (int i=0; i<levelInfo.getGameObjects().size(); i++) {
             GameObject gameObject = levelInfo.getGameObjects().get(i);
             board[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
+            gameObject.setup();
             gameObject.updateVisualsAtStart(); // make sure gameobjects start in correct draw position
         }
     }

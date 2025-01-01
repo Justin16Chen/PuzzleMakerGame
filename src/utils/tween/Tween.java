@@ -26,7 +26,7 @@ public class Tween extends Updatable {
     public Number getEndValue() { return endValue;}
 
     public Tween setLoopCount(int loopCount) { targetLoopCount = loopCount; return this; }
-    public Tween pingPong() { pingPong = true; duration *= 0.5; return this; }
+    public Tween pingPong() { pingPong = true; return this; }
 
     @Override
     public String toString() {

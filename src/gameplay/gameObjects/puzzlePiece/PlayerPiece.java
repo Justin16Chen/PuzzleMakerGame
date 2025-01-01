@@ -13,17 +13,20 @@ import utils.tween.Updatable;
 
 public class PlayerPiece extends PuzzlePiece {
 
-    public static int BRIGHT_OUTLINE = 235, DIM_OUTLINE = 170;
-    public static double OCILLATION_TIME = 1.2;
+    public static int BRIGHT_OUTLINE = 200, DIM_OUTLINE = 100;
+    public static double OCILLATION_TIME = 1.8;
     public static int STROKE_WIDTH = 2, STROKE_INSET = -2;
 
     private double outlineBrightness;
 
     public PlayerPiece(GameBoard gameBoard, int boardx, int boardy, String sideData, String baseStrengthString) {
         super(gameBoard, GameObject.ObjectType.PLAYER_PIECE, boardx, boardy, sideData, baseStrengthString);
+    }
 
-        Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1);
-
+    @Override
+    public void setup() {
+        System.out.println("PLAYER SETUP CALLED");
+        Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1).setPrint(Updatable.PrintType.NEVER);
     }
 
     // update the playerPiece
@@ -73,5 +76,15 @@ public class PlayerPiece extends PuzzlePiece {
 
         for (int i=0; i<4; i++)
             getSide(Direction.getDirection(i)).draw(g, getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize);
+    }
+
+    @Override
+    public void updateInfoList(Graphics2D g, int drawcx, int drawbottomy) {
+        ArrayList<String> drawList = new ArrayList<String>();
+
+        drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
+        drawList.add("outline brightness: " + outlineBrightness);
+
+        setInfoList(g, drawcx, drawbottomy, drawList);
     }
 }
