@@ -54,12 +54,12 @@ public class LevelManager {
 
         transitioning = true;
 
-        //Updatable.deleteUpdatables(new String[]{"moveTransitionSpriteTween", "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween", "finishTransition", "updateGameToNewLevel"}); // clear any updatables from previous transitions
+        Updatable.deleteUpdatables(new String[]{"moveTransitionSpriteTween", "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween", "finishTransition", "updateGameToNewLevel"}); // clear any updatables from previous transitions
 
         // sprite transition animation
         transitionSprite.setVisible(true);
         if (intro && outro)
-            Tween.createTween("moveTransitionSpriteTween", transitionSprite, "height", 1, gameManager.getHeight(), transitionTime).pingPong().setPrint(Updatable.PrintType.ALWAYS);
+            Tween.createTween("moveTransitionSpriteTween", transitionSprite, "height", 1, gameManager.getHeight(), transitionTime).pingPong();
         else if (intro)
             Tween.createTween("moveTransitionSpriteDownTween", transitionSprite, "height", 1, gameManager.getHeight(), transitionTime);
         else if (outro)
@@ -98,7 +98,7 @@ public class LevelManager {
         LevelInfo levelInfo = LevelLoader.getLevelInfo(level + ".json", gameBoard);
         if (levelInfo != null) {
             currentLevel = level;
-            //Updatable.deleteAllUpdatablesExcept(new String[]{"finishTransition"});
+            Updatable.deleteAllUpdatablesExcept(new String[]{"finishTransition"});
             gameBoard.setCurrentBoard(levelInfo);
             return true;
         }

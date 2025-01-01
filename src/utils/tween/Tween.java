@@ -24,6 +24,7 @@ public class Tween extends Updatable {
 
     public Tween setLoopCount(int loopCount) { targetLoopCount = loopCount; return this; }
     public Tween pingPong() { pingPong = true; return this; }
+    public Tween setPrint(PrintType print) { this.print = print; return this; }
 
     @Override
     public String toString() {
@@ -36,6 +37,9 @@ public class Tween extends Updatable {
     public void update(double deltaTime) {
         double t = Math.min(1, getElapsedTime() / getDuration());
         updateProperty(t);
+
+        //if (name.equals("playerOutline"))
+        //    System.out.println("target: " + getTarget());
     }
 
     // sets the property of the target object based on a normalized time (0 to 1)

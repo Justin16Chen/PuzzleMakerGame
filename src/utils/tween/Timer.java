@@ -35,6 +35,7 @@ public class Timer extends Updatable {
     }
 
     public Timer setLoopCount(int loopCount) { targetLoopCount = loopCount; return this; }
+    public Timer setPrint(PrintType print) { this.print = print; return this; }
 
     @Override
     public String toString() {

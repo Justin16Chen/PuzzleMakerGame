@@ -62,7 +62,7 @@ public abstract class Updatable {
 
             // print updatable
             if (canPrintUpdatable(updatable)) 
-                System.out.println(updatable.getPrint() + " idx " + i + ": " + updatable);
+                System.out.println(updatable.getPrint() + " idx " + i + " target: " + updatable.getTarget());
             
 
             // loop updatable
@@ -120,6 +120,7 @@ public abstract class Updatable {
             for (String exception : exceptions) 
                 if (updatable.getName().equals(exception)) {
                     newList.add(updatable);
+                    System.out.println(updatable.getName() + " was spared from death");
                     break;
                 }
         list = newList;
@@ -388,7 +389,7 @@ public abstract class Updatable {
     public boolean getPingPong() { return pingPong; }
     public PrintType getPrint() { return print; }
     public boolean isComplete() { return currentLoop >= targetLoopCount && elapsedTime >= duration && targetLoopCount >= 0 && !pingPong; }
-    public void setPrint(PrintType print) { this.print = print; }
+    
     public abstract void loop();
 
 }
