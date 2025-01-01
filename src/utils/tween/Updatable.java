@@ -3,12 +3,13 @@ package utils.tween;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import utils.Print;
 
 public abstract class Updatable {
 
-    public static boolean ALLOW_PRINT = false;
+    public static boolean ALLOW_PRINT = true;
 
     public enum PrintType {
         ALWAYS,
@@ -24,6 +25,8 @@ public abstract class Updatable {
     private static ArrayList<Updatable> list = new ArrayList<>();
 
     public static int getUpdatableAmount() { return list.size(); }
+
+    public static ArrayList<Updatable> getUpdatables() { return list; }
 
     public static void addUpdatable(Updatable updatable) {
         boolean valid = true;
@@ -41,7 +44,8 @@ public abstract class Updatable {
         }
 
         if (valid) {
-            if (ALLOW_PRINT) Print.println("VALID: " + updatable, Print.GREEN);
+            if (ALLOW_PRINT) 
+                Print.println("VALID: " + updatable, Print.GREEN);
             list.add(updatable);
         } else {
             Print.println("INVALID: " + updatable, Print.RED);
@@ -49,72 +53,90 @@ public abstract class Updatable {
     }
 
     public static void updateUpdatables(double dt) {
-        for (int i=0; i<list.size(); i++) {
-
-            // make sure it doesn't go past list
-            if (i >= list.size()) {
-                break;
-            }
-
-            Updatable updatable = list.get(i);
+        ArrayList<Updatable> newList = new ArrayList<>();
+        ArrayList<Updatable> copyList = new ArrayList<>(list);
+        for (int i=0; i<copyList.size(); i++) {
+            Updatable updatable = copyList.get(i);
 
             // update updatable
             updatable.step(dt);
 
             // print updatable
-            if (ALLOW_PRINT && canPrintUpdatable(updatable)) {
-                System.out.println("PRINTING UPDATABLE: " + updatable);
-            }
+            if (canPrintUpdatable(updatable)) 
+                System.out.println(updatable.getPrint() + " idx " + i + ": " + updatable);
+            
 
             // loop updatable
             if (updatable.isLoopComplete() && !updatable.isComplete()) {
-                list.remove(i);
                 int newLoopCount = updatable.getTargetLoopCount() > 0 ? updatable.getCurrentLoop() + 1 : updatable.getCurrentLoop();
+                PrintType printType = updatable.getPrint();
+
+                if (canPrintUpdatable(updatable)) 
+                    Print.println("refreshing " + updatable, Print.GREEN);
+                
                 if (updatable.getClass() == Tween.class) {
-                    if (updatable.getPingPong())
-                        updatable = Tween.resetTweenTo(updatable.getName(), updatable.getTarget(), updatable.getPropertyName(), ((Tween) updatable).getEndValue(), ((Tween) updatable).getStartValue(), updatable.getDuration(), newLoopCount, updatable.getTargetLoopCount(), true);
-                    else
-                    updatable = Tween.resetTweenTo(updatable.getName(), updatable.getTarget(), updatable.getPropertyName(), ((Tween) updatable).getStartValue(), ((Tween) updatable).getEndValue(), updatable.getDuration(), newLoopCount, updatable.getTargetLoopCount(), false);
+                    Tween tween = (Tween) updatable;
+                    Number startValue = updatable.getPingPong() ? tween.getEndValue() : tween.getStartValue();
+                    Number endValue = updatable.getPingPong() ? tween.getStartValue() : tween.getEndValue();
+                    boolean pingPong = updatable.getPingPong() ? updatable.getTargetLoopCount() < 0 ? true : updatable.getCurrentLoop() < updatable.getTargetLoopCount() - 1 : false;
+                    updatable = Tween.resetTweenTo(updatable.getName(), updatable.getTarget(), updatable.getPropertyName(), startValue, endValue, updatable.getDuration(), newLoopCount, updatable.getTargetLoopCount(), pingPong);
                 }
-                else if (updatable.getClass() == Timer.class) {
+                else if (updatable.getClass() == Timer.class) 
                     if (updatable.getType() == Type.CALL)
                         updatable = Timer.resetCallTimerTo(updatable.getName(), updatable.getTarget(), updatable.getDuration(), updatable.getMethodName(), newLoopCount, updatable.getTargetLoopCount(), updatable.getMethodArgs());
                     else if (updatable.getType() == Type.SET)
                         updatable = Timer.resetSetTimerTo(updatable.getName(), updatable.getTarget(), updatable.getDuration(), updatable.getPropertyName(), ((Timer) updatable).getFinalPropertyValue(), newLoopCount, updatable.getTargetLoopCount());
-                }
-                list.add(updatable);
+                
+                updatable.setPrint(printType);
             }
-            //if (updatable.getName().equals("playerOutline"))
-            //    System.out.println(updatable);
-            // remove updatable
-            if (updatable.isComplete()) {
-                list.remove(i);
-                i--;
-            }
+            // only add updatable if it isn't complete
+            if (!updatable.isComplete()) 
+                newList.add(updatable);
+            else if (canPrintUpdatable(updatable))
+                Print.println(updatable.getName() + " is complete", Print.BLUE);
         }
+        list = newList;
     }
 
     public static void clearUpdatables() {
         list.clear();
     }
 
-    public static void deleteUpdatables(String stringToLookFor) {
-        for (int i=0; i<list.size(); i++) {
+    public static Updatable getUpdatable(String name) {
+        for (Updatable updatable : list)
+            if (updatable.getName().equals(name))
+                return updatable;
+        return null;
+    }
+    public static Updatable getUpdatable(ArrayList<Updatable> list, String name) {
+        for (Updatable updatable : list)
+            if (updatable.getName().equals(name))
+                return updatable;
+        return null;
+    }
 
-            // make sure it doesn't go past list
-            if (i >= list.size()) {
-                break;
-            }
+    public static void deleteUpdatables(String[] names) {
+        ArrayList<Updatable> newList = new ArrayList<>();
+        for (Updatable updatable : new ArrayList<>(list))
+            for (String name : names)
+                if (!updatable.getName().equals(name))
+                    newList.add(updatable);
+        list = newList;
+    }
 
-            Updatable updatable = list.get(i);
-            if (updatable.getName().contains(stringToLookFor)) {
-                list.remove(i);
-                i--;
-            }
-        } 
+    // removes all updatables except the one with a matching name
+    public static void deleteAllUpdatablesExcept(String[] exceptions) {
+        ArrayList<Updatable> newList = new ArrayList<>();
+        for (Updatable updatable : new ArrayList<>(list))
+            for (String exception : exceptions) 
+                if (updatable.getName().equals(exception))
+                    newList.add(updatable);
+        list = newList;
     }
 
     private static boolean canPrintUpdatable(Updatable updatable) {
+        if (!ALLOW_PRINT) 
+            return false;
         switch (updatable.getPrint()) {
             case ALWAYS:
                 return true;
@@ -339,14 +361,13 @@ public abstract class Updatable {
     public double getDuration() { return duration; }
     public double getElapsedTime() { return elapsedTime; }
     public boolean isPaused() { return paused; }
+    public void setPaused(boolean paused) { this.paused = paused; }
     public boolean isLoopComplete() { return elapsedTime >= duration; }
     public int getCurrentLoop() { return currentLoop; }
     public int getTargetLoopCount() { return targetLoopCount; }
     public boolean getPingPong() { return pingPong; }
     public PrintType getPrint() { return print; }
-    public boolean isComplete() { return currentLoop >= targetLoopCount && elapsedTime >= duration && targetLoopCount >= 0; }
-
-    public void setPaused(boolean paused) { this.paused = paused; }
+    public boolean isComplete() { return currentLoop >= targetLoopCount && elapsedTime >= duration && targetLoopCount >= 0 && !pingPong; }
     public void setPrint(PrintType print) { this.print = print; }
 
 }

@@ -7,37 +7,32 @@
             "name": "playerPiece",
             "x": 0,
             "y": 5,
-            "sideData": "-nnn",
-            "strengthData": "ssss"
+            "sideData": "wnnn"
         },
         {
             "name": "puzzlePiece",
             "x": 1,
             "y": 1,
-            "sideData": "nn+-",
-            "strengthData": "ssss"
+            "sideData": "nnsw"
         },
         {
             "name": "puzzlePiece",
             "x": 1,
             "y": 2,
-            "sideData": "n-+n",
-            "strengthData": "ssss"
+            "sideData": "nssn"
         },
         {
             "name": "puzzlePiece",
             "x": 1,
             "y": 3,
-            "sideData": "n+n+",
-            "strengthData": "ssss"
+            "sideData": "nsns"
         },
         {"name": "wall", "x": 1, "y": 4},
         {
             "name": "puzzlePiece",
             "x": 2,
             "y": 5,
-            "sideData": "-nnn",
-            "strengthData": "ssss"
+            "sideData": "snnn"
         }
     ]
 }

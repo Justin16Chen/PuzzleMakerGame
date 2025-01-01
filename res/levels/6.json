@@ -8,22 +8,19 @@
             "name": "playerPiece",
             "x": 0,
             "y": 4,
-            "sideData": "-n-n",
-            "strengthData": "wsss"
+            "sideData": "wnwn"
         },
         {
             "name": "puzzlePiece",
             "x": 1,
             "y": 3,
-            "sideData": "+n+n",
-            "strengthData": "ssss"
+            "sideData": "snsn"
         },
         {
             "name": "puzzlePiece",
             "x": 2,
             "y": 2,
-            "sideData": "nn-+",
-            "strengthData": "ssss"
+            "sideData": "nnss"
         }
     ]
 }

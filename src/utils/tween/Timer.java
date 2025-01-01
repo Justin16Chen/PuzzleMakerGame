@@ -1,16 +1,14 @@
 package utils.tween;
 
-import utils.Print;
-
 public class Timer extends Updatable {
 
-    public static Timer createSetTimer(String name, Object target, double duration, String propertyName, Object finalPropertyValue, int targetLoopCount) {
-        Timer timer = new Timer(name, target, duration, propertyName, finalPropertyValue, 0, targetLoopCount);
+    public static Timer createSetTimer(String name, Object target, double duration, String propertyName, Object finalPropertyValue) {
+        Timer timer = new Timer(name, target, duration, propertyName, finalPropertyValue, 0, 0);
         Updatable.addUpdatable(timer);
         return timer;
     }
-    public static Timer createCallTimer(String name, Object target, double duration, String methodName, int targetLoopCount, Object... args) {
-        Timer timer = new Timer(name, target, duration, methodName, 0, targetLoopCount, args);
+    public static Timer createCallTimer(String name, Object target, double duration, String methodName, Object... args) {
+        Timer timer = new Timer(name, target, duration, methodName, 0, 0, args);
         Updatable.addUpdatable(timer);
         return timer;
     }
@@ -36,6 +34,8 @@ public class Timer extends Updatable {
         super(name, target, methodName, duration, currentLoopCount, targetLoopCount, false, args);
     }
 
+    public Timer setLoopCount(int loopCount) { targetLoopCount = loopCount; return this; }
+
     @Override
     public String toString() {
         if (getType() == Type.SET) {
@@ -49,17 +49,10 @@ public class Timer extends Updatable {
 
     @Override
     public void update(double deltaTime) {
-        if (isComplete()) {
-            if (ALLOW_PRINT) 
-                Print.println(this.getName() + " is doing action", Print.BLUE);
-                
-            if (getType() == Type.SET) {
+        if (isComplete())   
+            if (getType() == Type.SET) 
                 Updatable.setProperty(getTarget(), getPropertyName(), finalPropertyValue);
-            } 
-            else if (getType() == Type.CALL) {
+            else if (getType() == Type.CALL) 
                 Updatable.callMethodByName(getTarget(), getMethodName(), getMethodArgs());
-            }
-        }
-        
     }
 }

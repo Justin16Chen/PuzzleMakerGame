@@ -34,7 +34,7 @@ public class ConnectionLogic {
             movement = invalid, throw error/print something out
     */
     public static ArrayList<Side> findBreakpoints(GameBoard gameBoard, ArrayList<GameObject> breakpointBoundaries, int hdir, int vdir) {
-        Print.println("FINDING BREAKPOINTS", Print.YELLOW);
+        // Print.println("FINDING BREAKPOINTS", Print.YELLOW);
         ArrayList<PuzzlePiece> breakpoints = new ArrayList<>();
         ArrayList<Side> sidesToDisconnect = new ArrayList<>();
         ArrayList<int[]> checkedPositions = new ArrayList<>();
@@ -57,11 +57,11 @@ public class ConnectionLogic {
             
             PuzzlePiece puzzlePiece = (PuzzlePiece) breakpointBoundary;
             puzzlePiece.clearParents();
-            System.out.println("BOUNDARY: " + breakpointBoundary);
+            // System.out.println("BOUNDARY: " + breakpointBoundary);
             do {
                 int[] pos = { puzzlePiece.getBoardX(), puzzlePiece.getBoardY() };
                 checkedPositions.add(pos);
-                System.out.println("puzzle piece to find adjacent cells for: " + puzzlePiece);
+                // System.out.println("puzzle piece to find adjacent cells for: " + puzzlePiece);
                 boolean foundBreakpoint = false;
                 ArrayList<PuzzlePiece> lowerIndexPuzzlePieces = new ArrayList<>();
 
@@ -78,7 +78,7 @@ public class ConnectionLogic {
                     if (!gameBoard.inBounds(x, y) || gameBoard.getGameObject(x, y) == null) continue;
                     
                     GameObject adjacentGameObject = gameBoard.getGameObject(x, y);
-                    System.out.println("adjacent game object: " + adjacentGameObject);
+                    // System.out.println("adjacent game object: " + adjacentGameObject);
 
                     // only puzzle pieces have connections
                     if (!PuzzlePiece.isPuzzlePiece(adjacentGameObject))
@@ -133,7 +133,7 @@ public class ConnectionLogic {
             } while (puzzlePiece.getMoveIndex() > 0);
 
             if (puzzlePiece.getMoveIndex() == 0) {
-                Print.println("ERROR, BREAKPOINT NOT FOUND FOR BREAKPOINT BOUNDARY " + breakpointBoundary);
+                Print.println("ERROR, BREAKPOINT NOT FOUND FOR BREAKPOINT  " + breakpointBoundary);
                 return null;
             }
         }
@@ -143,7 +143,7 @@ public class ConnectionLogic {
 
     // disconnect all breakpoints
     public static void disconnectBreakpoints(ArrayList<Side> breakpoints) {
-        Print.println("DISCONNECTING BREAKPOINT SIDES", Print.YELLOW);
+        // Print.println("DISCONNECTING BREAKPOINT SIDES", Print.YELLOW);
         for (Side side : breakpoints) 
             PuzzlePiece.disconnect(new DisconnectInfo(side.getParent(), side.getPiece2(), side.getDirection()));
     }

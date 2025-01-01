@@ -7,8 +7,8 @@
     },
     "optional": {
         "gameObject": [],
-        "puzzlePiece": ["strengthData"],
-        "playerPiece": ["strengthData"],
+        "puzzlePiece": [],
+        "playerPiece": [],
         "wall": ["width", "height"]
     }
 }

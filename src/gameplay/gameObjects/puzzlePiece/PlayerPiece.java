@@ -22,7 +22,7 @@ public class PlayerPiece extends PuzzlePiece {
     public PlayerPiece(GameBoard gameBoard, int boardx, int boardy, String sideData, String baseStrengthString) {
         super(gameBoard, GameObject.ObjectType.PLAYER_PIECE, boardx, boardy, sideData, baseStrengthString);
 
-        Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME, -1, true).setPrint(Updatable.PrintType.ON_LOOP);
+        Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1);
 
     }
 

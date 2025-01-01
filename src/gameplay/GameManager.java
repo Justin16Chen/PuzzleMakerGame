@@ -197,12 +197,9 @@ public class GameManager extends JPanel {
 
         // go to next level
         if (keyInput.keyClicked(ALLOW_TRANSITION_KEY) && gameBoard.allPuzzlePiecesConnected() && !levelManager.transitioningBetweenLevels()) {
-            if (levelManager.hasLevel(levelManager.getCurrentLevel() + 1)) {
+            if (levelManager.hasLevel(levelManager.getCurrentLevel() + 1)) 
                 levelManager.transitionToNextLevel(true, true);
-            }
-            else {
-                levelManager.transitionToLevel(levelManager.getCurrentLevel(), true, true);
-            }
+            
         }
 
         // IN PROGRESS: testing MoveLogic.java
@@ -265,13 +262,15 @@ public class GameManager extends JPanel {
     }
 
     private void updateDebug(Graphics2D g) {
-        ArrayList<String> drawList = new ArrayList<>();
+
+    ArrayList<String> drawList = new ArrayList<>();
         addDebugGeneral(drawList);
         //addDebugInput(drawList); // more advanced stuff, separated
-        addDebugControls(drawList);
+        //addDebugControls(drawList);
         addDebugUpdatables(drawList);
-        //addDebugLevel(drawList);
-        addDebugMovement(drawList);
+        addDebugLevel(drawList);
+        //addDebugGameObjects(drawList);
+        //addDebugMovement(drawList);
 
         debugInfoBox.clearDrawList();
         debugInfoBox.setDrawList(drawList);
@@ -281,7 +280,7 @@ public class GameManager extends JPanel {
         drawList.add("===GENERAL===");
         drawList.add("dt: " + dt);
         drawList.add("window size: (" + getWidth() + ", " + getHeight() + ")");
-        drawList.add("mouse pos: (" + mouseInput.getX() + ", " + mouseInput.getY() + ")");
+         drawList.add("mouse pos: (" + mouseInput.getX() + ", " + mouseInput.getY() + ")");
         drawList.add("gameManager insets: " + getInsets().left + ", " + getInsets().top);
         drawList.add("contentPane insets: " + getContentPaneInsets().left + ", " + getContentPaneInsets().top);
         drawList.add("main insets: " + window.getInsets().left + ", " + window.getInsets().top);
@@ -308,6 +307,9 @@ public class GameManager extends JPanel {
     private void addDebugUpdatables(ArrayList<String> drawList) {
         drawList.add("===UPDATABLES===");
         drawList.add("amount of updatables: " + Updatable.getUpdatableAmount());
+        for (Updatable updatable : Updatable.getUpdatables()) 
+            drawList.add("" + updatable);
+        
     }
     private void addDebugControls(ArrayList<String> drawList) {
         drawList.add("===CONTROLS===");
@@ -317,11 +319,19 @@ public class GameManager extends JPanel {
     }
     private void addDebugLevel(ArrayList<String> drawList) {
         drawList.add("===LEVEL===");
+        drawList.add("current level: " + levelManager.getCurrentLevel());
         drawList.add("Map Size: (" + gameBoard.getBoardWidth() + ", " + gameBoard.getBoardHeight() + ")");
         drawList.add("level succeeded: " + gameBoard.allPuzzlePiecesConnected());
         drawList.add("transitioning: " + levelManager.transitioningBetweenLevels());
         drawList.add("tile size: " + gameBoard.tileSize);
         drawList.add("game board draw pos: (" + gameBoard.getDrawX() + ", " + gameBoard.getDrawY() + ")");
+    }
+    private void addDebugGameObjects(ArrayList<String> drawList) {
+        drawList.add("===GAME OBJECTS===");
+        drawList.add("number: " + gameBoard.getGameObjects().size());
+        for (GameObject gameObject : gameBoard.getGameObjects()) {
+            drawList.add("object: " + gameObject.getName() + " | pos: (" + gameObject.getBoardX() + ", " + gameObject.getBoardY() + ")");
+        }
     }
     private void addDebugMovement(ArrayList<String> drawList) {
         drawList.add("===MOVEMENT===");

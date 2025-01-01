@@ -19,7 +19,7 @@ public class Side {
     }
     final public static Color STRONG_COLOR = new Color(200, 180, 20);
     final public static Color WEAK_COLOR = new Color(30, 75, 220);
-    final public static Color COLLECTED_WEAK_COLOR = new Color(50, 120, 255);
+    final public static Color COLLECTED_WEAK_COLOR = new Color(30, 75, 255);
     final public static double DRAW_WIDTH_PERCENT = 0.15;
     // draw offsets for x and y are the same b/c cos(45) = sin(45)
     final public static double DRAW_OFF = Math.cos(Math.toRadians(45));
@@ -29,8 +29,8 @@ public class Side {
         for (int i=0; i<4; i++) {
             Type type;
             switch (typeString.charAt(i)) {
-                case '+': type = Type.STRONG; break;
-                case '-': type = Type.WEAK; break;
+                case 's': type = Type.STRONG; break;
+                case 'w': type = Type.WEAK; break;
                 case 'n': type = Type.NOTHING; break;
                 default: type = Type.NOTHING; break;
             }
@@ -123,7 +123,7 @@ public class Side {
     }
     public void setConnectInfo(ConnectInfo connectInfo) {
         this.connectInfo = connectInfo;
-        System.out.println("SETTING CONNECT INFO");
+        // System.out.println("SETTING CONNECT INFO");
         if (parent.equals(connectInfo.getPiece1())) {
             this.piece2 = connectInfo.getPiece2();
             this.piece2Side = connectInfo.getPiece2Side();

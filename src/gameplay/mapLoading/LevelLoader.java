@@ -73,7 +73,7 @@ public class LevelLoader {
 
     // gets the required object data
     public static void getObjectData(String fileName) {
-        System.out.println("GETTING OBJECT DATA");
+        //System.out.println("GETTING OBJECT DATA");
         requiredObjectData.clear();
         optionalObjectData.clear();
         totalObjectData.clear();
@@ -181,6 +181,8 @@ public class LevelLoader {
                 // json gameobject data creates a list of game objects
                 for (GameObject gameObject : createGameObjects(jsonObject, gameBoard)) {
                     // only 1 gameobject can be on a position
+                    if (gameObject.getBoardX() < 0 || gameObject.getBoardX() >= mapWidth || gameObject.getBoardY() < 0 || gameObject.getBoardY() >= mapHeight)
+                        throw new JSONException(gameObject + " tried to be instantiated out of bounds");
                     if (filledPositions[gameObject.getBoardY()][gameObject.getBoardX()])
                         throw new RuntimeException(gameObject + " tried to be instantiated on a position that was already filled");
                     filledPositions[gameObject.getBoardY()][gameObject.getBoardX()] = true;

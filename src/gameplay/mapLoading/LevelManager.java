@@ -17,7 +17,6 @@ public class LevelManager {
     private boolean transitioning;
     private double totalTransitionTime;
     private double transitionTime;
-    private double waitTime;
 
     private SimpleSprite transitionSprite;
 
@@ -36,50 +35,49 @@ public class LevelManager {
 
     // sets the general level info
     public void updateGeneralLevelInfo() {
-        System.out.println("UPDATING GENERAL LEVEL INFO");
+        // System.out.println("UPDATING GENERAL LEVEL INFO");
         GeneralLevelInfo generalLevelInfo = LevelLoader.getGeneralLevelInfo("levelInfo.json");
         startLevel = generalLevelInfo.getStartLevel();
         lastLevel = generalLevelInfo.getLastLevel();
         totalTransitionTime = generalLevelInfo.getTransitionTime();
-        transitionTime = totalTransitionTime * 0.4;
-        waitTime = totalTransitionTime * 0.2;
-    }
-    // play the intro/outro tweens for level transition
-    private void playIntro() {
-        transitioning = true;
-        transitionSprite.setVisible(true);
-        Tween.createTween("transitionIntro", transitionSprite, "height", 0, (int) gameManager.getHeight(), transitionTime, 0);
-    }
-    private void playOutro() {
-        transitionSprite.setVisible(true);
-        Tween.createTween("transitionOutro", transitionSprite, "height", (int) gameManager.getHeight(), 0, transitionTime, 0);
-        Timer.createSetTimer("transitionStop", this, transitionTime, "transitioning", false, 0);
+        transitionTime = totalTransitionTime * 0.5;
     }
 
     // transition to a specific level with optional intro/outro tweens
     public void transitionToLevel(Integer level, boolean intro, boolean outro) {
+        System.out.println("trying to go to level " + level);
         updateGeneralLevelInfo();
         if (!hasLevel(level)) {
             Print.println(level + " does not exist", Print.RED);
             return;
         }
-        currentLevel = level;
-        Updatable.deleteUpdatables("transition");
-        if (intro) {
-            playIntro();
-            Timer.createCallTimer("transitionSetLevelInfo", this, transitionTime + waitTime * 0.5, "setLevelInfo", 0, currentLevel);
-            if (outro) {
-                Timer.createCallTimer("transitionPlayOutro", this, transitionTime, "playOutro", 0).setPrint(Updatable.PrintType.ON_COMPLETE);
-            }
-        } else {
-            setLevelInfo(currentLevel);
-            if (outro) {
-                playOutro();
-            }
-            else {
-                transitioning = false;
-            }
-        }
+
+        transitioning = true;
+
+        Updatable.deleteUpdatables(new String[]{"moveTransitionSpriteTween", "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween", "finishTransition", "updateGameToNewLevel"}); // clear any updatables from previous transitions
+
+        // sprite transition animation
+        transitionSprite.setVisible(true);
+        if (intro && outro)
+            Tween.createTween("moveTransitionSpriteTween", transitionSprite, "height", 1, gameManager.getHeight(), totalTransitionTime).pingPong();
+        else if (intro)
+            Tween.createTween("moveTransitionSpriteDownTween", transitionSprite, "height", 1, gameManager.getHeight(), transitionTime);
+        else if (outro)
+            Tween.createTween("moveTransitionSpriteUpTween", transitionSprite, "height", gameManager.getHeight(), 1, transitionTime);
+
+        // load level
+        if (intro)
+            Timer.createCallTimer("updateGameToNewLevel", this, transitionTime, "setLevelInfo", level);
+        else
+            setLevelInfo(level);
+
+        // update transition variable
+        Timer.createCallTimer("finishTransition", this, intro && outro ? totalTransitionTime : transitionTime, "finishTransition");
+    }
+
+    private void finishTransition() {
+        transitionSprite.setVisible(false);
+        transitioning = false;
     }
     
     // transition to the next level with optional intro/outro tweens
@@ -93,21 +91,21 @@ public class LevelManager {
     }
 
     // sets the level info of the gameboard to a level
-    public void setLevelInfo(int level) {
-
+    // returns if it is successful or not
+    private boolean setLevelInfo(int level) {
         // load in the level
         LevelInfo levelInfo = LevelLoader.getLevelInfo(level + ".json", gameBoard);
         if (levelInfo != null) {
+            currentLevel = level;
+            //Updatable.deleteAllUpdatablesExcept(new String[]{"transitionIntro", "transitionSetLevelInfo", "transitionPlayOutro"});
             gameBoard.setCurrentBoard(levelInfo);
+            return true;
         }
+        return false;
     }
 
     // updates the map data to any changes in the json files
     public void updateLevelInfo() {
-        // load in the level
-        LevelInfo levelInfo = LevelLoader.getLevelInfo(currentLevel + ".json", gameBoard);
-        if (levelInfo != null) {
-            gameBoard.setCurrentBoard(levelInfo);
-        }
+        setLevelInfo(currentLevel);
     }
 }
