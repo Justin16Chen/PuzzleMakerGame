@@ -17,8 +17,6 @@ import utils.Print;
 
 public class LevelLoader {
 
-    final public static boolean ALLOW_PRINT = false;
-
     final private static String ROOT_PATH = "res/levels";
 
     private static HashMap<String, ArrayList<String>> requiredObjectData = new HashMap<>();

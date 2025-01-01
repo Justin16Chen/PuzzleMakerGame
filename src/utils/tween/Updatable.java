@@ -1,12 +1,5 @@
 package utils.tween;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import utils.Print;
-
 public abstract class Updatable {
 
     public enum PrintType {

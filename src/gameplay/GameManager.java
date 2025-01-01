@@ -51,6 +51,7 @@ public class GameManager extends JPanel {
     final String PREV_LEVEL_KEY = "2";
     final String NEXT_LEVEL_KEY = "3";
     final String ALLOW_TRANSITION_KEY = "Space";
+    final String PRINT_UPDATABLES_KEY = "U";
 
     // debug MoveLogic.java IN PROGRESS
     private int hdir = 0, vdir = 0;
@@ -223,6 +224,8 @@ public class GameManager extends JPanel {
             else 
                 debugInfoBox.hide();
         }
+
+        Updatables.setAllowPrint(keyInput.keyDown(PRINT_UPDATABLES_KEY));
     }
 
     // swing's built in draw function for UI components
@@ -253,7 +256,7 @@ public class GameManager extends JPanel {
     ArrayList<String> drawList = new ArrayList<>();
         addDebugGeneral(drawList);
         //addDebugInput(drawList); // more advanced stuff, separated
-        //addDebugControls(drawList);
+        addDebugControls(drawList);
         addDebugUpdatables(drawList);
         addDebugLevel(drawList);
         //addDebugGameObjects(drawList);
@@ -300,9 +303,12 @@ public class GameManager extends JPanel {
     }
     private void addDebugControls(ArrayList<String> drawList) {
         drawList.add("===CONTROLS===");
+        drawList.add("Q: toggle debug info");
+        drawList.add("U: print updatables");
         drawList.add("1: refresh level json file");
         drawList.add("2: go to prev lvl");
         drawList.add("3: go to next lvl");
+        drawList.add("Space: transition to next level once completed");
     }
     private void addDebugLevel(ArrayList<String> drawList) {
         drawList.add("===LEVEL===");

@@ -67,7 +67,7 @@ public class LevelManager {
 
         // load level
         if (intro)
-            Timer.createCallTimer("updateGameToNewLevel", this, transitionTime, "setLevelInfo", level);
+            Timer.createCallTimer("updateGameToNewLevel", this, transitionTime, "setLevelInfo", level); // this causes the bug
         else
             setLevelInfo(level);
 

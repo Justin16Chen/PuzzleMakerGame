@@ -29,7 +29,8 @@ public class PlayerPiece extends PuzzlePiece {
     @Override
     public void setup() {
         System.out.println("PLAYER SETUP CALLED");
-        outlineTween = Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1).setPrint(Updatable.PrintType.NEVER);
+        Updatables.deleteUpdatables(new String[]{"playerOutline"});
+        outlineTween = Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1).setPrint(Updatable.PrintType.ALWAYS);
         System.out.println("list so far: " + Arrays.toString(Updatables.getUpdatables().toArray()));
     }
 
@@ -88,7 +89,9 @@ public class PlayerPiece extends PuzzlePiece {
         ArrayList<String> drawList = new ArrayList<String>();
 
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
+        drawList.add("own outlineTween: " + outlineTween);
         drawList.add("updatables: " + Arrays.toString(Updatables.getUpdatables().toArray()));
+        drawList.add("outlineTween in list: " + Updatables.getUpdatable(outlineTween.getName()));
 
         setInfoList(g, drawcx, drawbottomy, drawList);
     }

@@ -9,7 +9,10 @@ import utils.Print;
 
 public class Updatables {
 
-    public static boolean ALLOW_PRINT = true;
+    private static boolean allowPrint = true;
+
+    public static boolean getAllowPrint() { return allowPrint; }
+    public static void setAllowPrint(boolean allowPrint) { Updatables.allowPrint = allowPrint; }
 
     private static ArrayList<Updatable> list = new ArrayList<>();
 
@@ -33,7 +36,7 @@ public class Updatables {
         }
 
         if (valid) {
-            if (ALLOW_PRINT) 
+            if (allowPrint) 
                 Print.println("VALID: " + updatable, Print.GREEN);
             
             list.add(updatable);
@@ -117,7 +120,7 @@ public class Updatables {
     }
 
     private static boolean canPrintUpdatable(Updatable updatable) {
-        if (!ALLOW_PRINT) 
+        if (!allowPrint) 
             return false;
         switch (updatable.getPrint()) {
             case ALWAYS:
