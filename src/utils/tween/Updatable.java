@@ -3,6 +3,7 @@ package utils.tween;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import utils.Print;
 
@@ -45,10 +46,10 @@ public abstract class Updatable {
         if (valid) {
             if (ALLOW_PRINT) 
                 Print.println("VALID: " + updatable, Print.GREEN);
+            
             list.add(updatable);
-        } else {
+        } else 
             Print.println("INVALID: " + updatable, Print.RED);
-        }
     }
 
     public static void updateUpdatables(double dt) {
@@ -62,7 +63,7 @@ public abstract class Updatable {
 
             // print updatable
             if (canPrintUpdatable(updatable)) 
-                System.out.println(updatable.getPrint() + " idx " + i + " target: " + updatable.getTarget());
+                System.out.println(updatable.getPrint() + " idx " + i + " target: " + updatable.getTarget() + " | old list: " + Arrays.toString(list.toArray()));
             
 
             // loop updatable
@@ -374,8 +375,10 @@ public abstract class Updatable {
     protected abstract void update(double deltaTime);
 
     public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
     public Type getType() { return type; }
     public Object getTarget() { return targetObject; }
+    public void setTarget(Object targetObject) { this.targetObject = targetObject; }
     public String getPropertyName() { return propertyName; }
     public String getMethodName() { return methodName; }
     public Object[] getMethodArgs() { return methodArgs; }

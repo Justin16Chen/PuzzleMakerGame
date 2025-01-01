@@ -123,10 +123,8 @@ public class GameBoard {
         // map size and board setup
         width = levelInfo.getMapWidth();
         height = levelInfo.getMapHeight();
-        tileSize = (int) Math.min(
-            gameManager.getWidth() * screenSizeRatio / width, 
-            gameManager.getHeight() * screenSizeRatio / height
-        );
+        tileSize = (int) Math.min(gameManager.getWidth() * screenSizeRatio / width, 
+                                  gameManager.getHeight() * screenSizeRatio / height);
         board = new GameObject[height][width];
         nextBoard = new GameObject[height][width];
 
@@ -139,6 +137,7 @@ public class GameBoard {
         for (int i=0; i<levelInfo.getGameObjects().size(); i++) {
             GameObject gameObject = levelInfo.getGameObjects().get(i);
             board[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
+            System.out.println("setting up " + gameObject);
             gameObject.setup();
             gameObject.updateVisualsAtStart(); // make sure gameobjects start in correct draw position
         }

@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
@@ -27,12 +28,14 @@ public class PlayerPiece extends PuzzlePiece {
     @Override
     public void setup() {
         System.out.println("PLAYER SETUP CALLED");
-        outlineTween = Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1).setPrint(Updatable.PrintType.ALWAYS);
+        outlineTween = Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1).setPrint(Updatable.PrintType.NEVER);
+        System.out.println("list so far: " + Arrays.toString(Updatable.getUpdatables().toArray()));
     }
 
     // update the playerPiece
     @Override
     public void update(double dt) {
+        outlineTween.setName("the gameboard is this wide: " + gameBoard.getBoardWidth());
 
         // get player input
         int hdir = keyInput.keyClickedInt("D") - keyInput.keyClickedInt("A");
