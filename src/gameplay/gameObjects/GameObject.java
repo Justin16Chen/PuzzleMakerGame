@@ -10,7 +10,6 @@ import gameplay.GameBoard;
 import utils.Direction;
 import utils.drawing.InfoBox;
 import utils.input.*;
-import utils.tween.Tween;
 
 public abstract class GameObject {
     

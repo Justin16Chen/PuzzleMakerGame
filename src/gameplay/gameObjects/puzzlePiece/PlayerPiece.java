@@ -9,7 +9,6 @@ import gameplay.GameBoard;
 import gameplay.gameObjects.*;
 import utils.Direction;
 import utils.tween.Tween;
-import utils.tween.Updatable;
 
 public class PlayerPiece extends PuzzlePiece {
 
@@ -18,6 +17,7 @@ public class PlayerPiece extends PuzzlePiece {
     public static int STROKE_WIDTH = 2, STROKE_INSET = -2;
 
     private double outlineBrightness;
+    private Tween outlineTween;
 
     public PlayerPiece(GameBoard gameBoard, int boardx, int boardy, String sideData, String baseStrengthString) {
         super(gameBoard, GameObject.ObjectType.PLAYER_PIECE, boardx, boardy, sideData, baseStrengthString);
@@ -26,7 +26,7 @@ public class PlayerPiece extends PuzzlePiece {
     @Override
     public void setup() {
         System.out.println("PLAYER SETUP CALLED");
-        Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1).setPrint(Updatable.PrintType.NEVER);
+        outlineTween = Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1);
     }
 
     // update the playerPiece
@@ -84,6 +84,7 @@ public class PlayerPiece extends PuzzlePiece {
 
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
         drawList.add("outline brightness: " + outlineBrightness);
+        drawList.add("outline tween: " + outlineTween);
 
         setInfoList(g, drawcx, drawbottomy, drawList);
     }

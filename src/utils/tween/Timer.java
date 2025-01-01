@@ -55,4 +55,10 @@ public class Timer extends Updatable {
             else if (getType() == Type.CALL) 
                 Updatable.callMethodByName(getTarget(), getMethodName(), getMethodArgs());
     }
+
+    @Override
+    public void loop() {
+        elapsedTime = 0;
+        currentLoop++;
+    }
 }

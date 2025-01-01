@@ -3,7 +3,6 @@ package utils.tween;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import utils.Print;
 
@@ -68,26 +67,10 @@ public abstract class Updatable {
 
             // loop updatable
             if (updatable.isLoopComplete() && !updatable.isComplete()) {
-                int newLoopCount = updatable.getTargetLoopCount() > 0 ? updatable.getCurrentLoop() + 1 : updatable.getCurrentLoop();
-                PrintType printType = updatable.getPrint();
-
                 if (canPrintUpdatable(updatable)) 
                     Print.println("refreshing " + updatable, Print.GREEN);
                 
-                if (updatable.getClass() == Tween.class) {
-                    Tween tween = (Tween) updatable;
-                    Number startValue = updatable.getPingPong() ? tween.getEndValue() : tween.getStartValue();
-                    Number endValue = updatable.getPingPong() ? tween.getStartValue() : tween.getEndValue();
-                    boolean pingPong = updatable.getPingPong() ? updatable.getTargetLoopCount() < 0 ? true : updatable.getCurrentLoop() < updatable.getTargetLoopCount() - 1 : false;
-                    updatable = Tween.resetTweenTo(updatable.getName(), updatable.getTarget(), updatable.getPropertyName(), startValue, endValue, updatable.getDuration(), newLoopCount, updatable.getTargetLoopCount(), pingPong);
-                }
-                else if (updatable.getClass() == Timer.class) 
-                    if (updatable.getType() == Type.CALL)
-                        updatable = Timer.resetCallTimerTo(updatable.getName(), updatable.getTarget(), updatable.getDuration(), updatable.getMethodName(), newLoopCount, updatable.getTargetLoopCount(), updatable.getMethodArgs());
-                    else if (updatable.getType() == Type.SET)
-                        updatable = Timer.resetSetTimerTo(updatable.getName(), updatable.getTarget(), updatable.getDuration(), updatable.getPropertyName(), ((Timer) updatable).getFinalPropertyValue(), newLoopCount, updatable.getTargetLoopCount());
-                
-                updatable.setPrint(printType);
+                updatable.loop();
             }
             // only add updatable if it isn't complete
             if (!updatable.isComplete()) 
@@ -406,5 +389,6 @@ public abstract class Updatable {
     public PrintType getPrint() { return print; }
     public boolean isComplete() { return currentLoop >= targetLoopCount && elapsedTime >= duration && targetLoopCount >= 0 && !pingPong; }
     public void setPrint(PrintType print) { this.print = print; }
+    public abstract void loop();
 
 }

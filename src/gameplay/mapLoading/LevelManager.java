@@ -59,7 +59,7 @@ public class LevelManager {
         // sprite transition animation
         transitionSprite.setVisible(true);
         if (intro && outro)
-            Tween.createTween("moveTransitionSpriteTween", transitionSprite, "height", 1, gameManager.getHeight(), transitionTime).pingPong();
+            Tween.createTween("moveTransitionSpriteTween", transitionSprite, "height", 1, gameManager.getHeight(), transitionTime).pingPong().setPrint(Updatable.PrintType.ALWAYS);
         else if (intro)
             Tween.createTween("moveTransitionSpriteDownTween", transitionSprite, "height", 1, gameManager.getHeight(), transitionTime);
         else if (outro)

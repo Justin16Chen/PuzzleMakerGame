@@ -8,8 +8,6 @@ import javax.swing.JPanel;
 
 import gameplay.gameObjects.GameObject;
 import gameplay.gameObjects.MoveLogic;
-import gameplay.gameObjects.puzzlePiece.ConnectionLogic;
-import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
 import gameplay.gameObjects.puzzlePiece.Side;
 import gameplay.mapLoading.LevelLoader;
 import gameplay.mapLoading.LevelManager;
@@ -297,7 +295,7 @@ public class GameManager extends JPanel {
         drawList.add("===UPDATABLES===");
         drawList.add("amount of updatables: " + Updatable.getUpdatableAmount());
         for (Updatable updatable : Updatable.getUpdatables()) 
-            drawList.add("" + updatable);
+            drawList.add("" + updatable.getName());
         
     }
     private void addDebugControls(ArrayList<String> drawList) {

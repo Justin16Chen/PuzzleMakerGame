@@ -7,9 +7,6 @@ public class Tween extends Updatable {
         Updatable.addUpdatable(tween);
         return tween;
     }
-    public static Tween resetTweenTo(String name, Object target, String propertyName, Number startValue, Number endValue, double duration, int currentLoopCount, int targetLoopCount, boolean pingPong) {
-        return new Tween(name, target, propertyName, startValue, endValue, duration, currentLoopCount, targetLoopCount, pingPong);
-    }
 
     private Number startValue;      // Starting value of the tween
     private Number endValue;        // Ending value of the tween
@@ -45,5 +42,17 @@ public class Tween extends Updatable {
     private void updateProperty(double t) {
         currentValue = lerp(startValue, endValue, t);
         Updatable.setProperty(getTarget(), getPropertyName(), currentValue);
+    }
+
+    @Override
+    public void loop() {
+        elapsedTime = 0;
+        currentLoop++;
+        if (pingPong) {
+            pingPong = targetLoopCount < 0 || currentLoop == targetLoopCount - 1;
+            Number temp = startValue;
+            startValue = endValue;
+            endValue = temp;
+        }
     }
 }
