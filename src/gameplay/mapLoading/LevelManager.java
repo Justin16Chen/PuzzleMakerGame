@@ -54,7 +54,7 @@ public class LevelManager {
 
         transitioning = true;
 
-        Updatable.deleteUpdatables(new String[]{"moveTransitionSpriteTween", "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween", "finishTransition", "updateGameToNewLevel"}); // clear any updatables from previous transitions
+        Updatables.deleteUpdatables(new String[]{"moveTransitionSpriteTween", "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween", "finishTransition", "updateGameToNewLevel"}); // clear any updatables from previous transitions
 
         // sprite transition animation
         transitionSprite.setVisible(true);
@@ -98,7 +98,7 @@ public class LevelManager {
         LevelInfo levelInfo = LevelLoader.getLevelInfo(level + ".json", gameBoard);
         if (levelInfo != null) {
             currentLevel = level;
-            Updatable.deleteAllUpdatablesExcept(new String[]{"finishTransition"});
+            Updatables.deleteAllUpdatablesExcept(new String[]{"finishTransition"});
             gameBoard.setCurrentBoard(levelInfo);
             return true;
         }

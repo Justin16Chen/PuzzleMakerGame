@@ -140,7 +140,7 @@ public class GameManager extends JPanel {
                     mouseInput.setInsets(window.getInsets());
 
                     // update background systems
-                    Updatable.updateUpdatables(dt);
+                    Updatables.updateUpdatables(dt);
 
                     updateGame(dt);                                             // update function
                     repaint();                                                // draw function
@@ -293,8 +293,8 @@ public class GameManager extends JPanel {
     }
     private void addDebugUpdatables(ArrayList<String> drawList) {
         drawList.add("===UPDATABLES===");
-        drawList.add("amount of updatables: " + Updatable.getUpdatableAmount());
-        for (Updatable updatable : Updatable.getUpdatables()) 
+        drawList.add("amount of updatables: " + Updatables.getUpdatableAmount());
+        for (Updatable updatable : Updatables.getUpdatables()) 
             drawList.add("" + updatable.getName());
         
     }

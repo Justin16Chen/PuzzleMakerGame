@@ -4,7 +4,7 @@ public class Tween extends Updatable {
 
     public static Tween createTween(String name, Object target, String propertyName, Number startValue, Number endValue, double duration) {
         Tween tween = new Tween(name, target, propertyName, startValue, endValue, duration, 0, 0, false);
-        Updatable.addUpdatable(tween);
+        Updatables.addUpdatable(tween);
         return tween;
     }
 
@@ -44,8 +44,8 @@ public class Tween extends Updatable {
 
     // sets the property of the target object based on a normalized time (0 to 1)
     private void updateProperty(double t) {
-        currentValue = lerp(startValue, endValue, t);
-        Updatable.setProperty(getTarget(), getPropertyName(), currentValue);
+        currentValue = Updatables.lerp(startValue, endValue, t);
+        Updatables.setProperty(getTarget(), getPropertyName(), currentValue);
     }
 
     @Override

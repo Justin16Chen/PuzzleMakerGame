@@ -4,22 +4,22 @@ public class Timer extends Updatable {
 
     public static Timer createSetTimer(String name, Object target, double duration, String propertyName, Object finalPropertyValue) {
         Timer timer = new Timer(name, target, duration, propertyName, finalPropertyValue, 0, 0);
-        Updatable.addUpdatable(timer);
+        Updatables.addUpdatable(timer);
         return timer;
     }
     public static Timer createCallTimer(String name, Object target, double duration, String methodName, Object... args) {
         Timer timer = new Timer(name, target, duration, methodName, 0, 0, args);
-        Updatable.addUpdatable(timer);
+        Updatables.addUpdatable(timer);
         return timer;
     }
     public static Timer resetSetTimerTo(String name, Object target, double duration, String propertyName, Object finalPropertyValue, int currentLoop, int targetLoopCount) {
         Timer timer = new Timer(name, target, duration, propertyName, finalPropertyValue, currentLoop, targetLoopCount);
-        Updatable.addUpdatable(timer);
+        Updatables.addUpdatable(timer);
         return timer;
     }
     public static Timer resetCallTimerTo(String name, Object target, double duration, String methodName, int currentLoop, int targetLoopCount, Object... args) {
         Timer timer = new Timer(name, target, duration, methodName, currentLoop, targetLoopCount, args);
-        Updatable.addUpdatable(timer);
+        Updatables.addUpdatable(timer);
         return timer;
     }
 
@@ -42,7 +42,7 @@ public class Timer extends Updatable {
         if (getType() == Type.SET) {
             return "Timer(name: " + getName() + " | set property: " + getPropertyName() + " to " + finalPropertyValue + " | duration: " + getDuration() + " | elapsed time: " + getElapsedTime() + ")";
         }
-        return "Timer(name: " + getName() + " | call function " + getMethodName() + " with " + getParameterTypesString(getMethodArgs()) + " | elapsed time: " + getElapsedTime() + "/" + getDuration() + " | loop complete: " + isLoopComplete() + " | complete: " + isComplete() + ")";
+        return "Timer(name: " + getName() + " | call function " + getMethodName() + " with " + Updatables.getParameterTypesString(getMethodArgs()) + " | elapsed time: " + getElapsedTime() + "/" + getDuration() + " | loop complete: " + isLoopComplete() + " | complete: " + isComplete() + ")";
     }
 
     public Object getFinalPropertyValue() { return finalPropertyValue; }
@@ -52,9 +52,9 @@ public class Timer extends Updatable {
     public void update(double deltaTime) {
         if (isComplete())   
             if (getType() == Type.SET) 
-                Updatable.setProperty(getTarget(), getPropertyName(), finalPropertyValue);
+                Updatables.setProperty(getTarget(), getPropertyName(), finalPropertyValue);
             else if (getType() == Type.CALL) 
-                Updatable.callMethodByName(getTarget(), getMethodName(), getMethodArgs());
+                Updatables.callMethodByName(getTarget(), getMethodName(), getMethodArgs());
     }
 
     @Override

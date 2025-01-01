@@ -11,6 +11,7 @@ import gameplay.gameObjects.*;
 import utils.Direction;
 import utils.tween.Tween;
 import utils.tween.Updatable;
+import utils.tween.Updatables;
 
 public class PlayerPiece extends PuzzlePiece {
 
@@ -29,7 +30,7 @@ public class PlayerPiece extends PuzzlePiece {
     public void setup() {
         System.out.println("PLAYER SETUP CALLED");
         outlineTween = Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1).setPrint(Updatable.PrintType.NEVER);
-        System.out.println("list so far: " + Arrays.toString(Updatable.getUpdatables().toArray()));
+        System.out.println("list so far: " + Arrays.toString(Updatables.getUpdatables().toArray()));
     }
 
     // update the playerPiece
@@ -87,8 +88,7 @@ public class PlayerPiece extends PuzzlePiece {
         ArrayList<String> drawList = new ArrayList<String>();
 
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
-        drawList.add("outline brightness: " + outlineBrightness);
-        drawList.add("outline tween target: " + outlineTween.getTarget());
+        drawList.add("updatables: " + Arrays.toString(Updatables.getUpdatables().toArray()));
 
         setInfoList(g, drawcx, drawbottomy, drawList);
     }
