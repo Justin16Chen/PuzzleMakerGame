@@ -30,7 +30,6 @@ public class PlayerPiece extends PuzzlePiece {
     @Override
     public void setup() {
         outlineTween = Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(5).setPrint(Updatable.PrintType.ON_LOOP);
-        System.out.println("updatables in player setup: \n" + Updatables.getUpdatablesToString(4));
     }
 
     // update the playerPiece

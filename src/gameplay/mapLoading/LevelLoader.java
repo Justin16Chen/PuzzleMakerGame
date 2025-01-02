@@ -191,12 +191,10 @@ public class LevelLoader {
             return new LevelInfo(mapWidth, mapHeight, gameObjects);
         } catch (IOException e) {
             Print.println("CANNOT FIND FILE " + fileName, Print.RED);
-            e.printStackTrace();
         } catch (JSONException e) {
             Print.println("INVALID JSON FILE", Print.RED);
             e.printStackTrace();
         }
-        Print.println("RETURNING NULL FOR LEVEL INFO", Print.RED);
         return null;
     }
 

@@ -15,6 +15,7 @@ import gameplay.mapLoading.LevelManager;
 import utils.Print;
 import utils.drawing.InfoBox;
 import utils.drawing.Sprite;
+import utils.drawing.Sprites;
 import utils.input.*;
 import utils.tween.*;
 import window.ParentFrame;
@@ -103,6 +104,8 @@ public class GameManager extends JPanel {
         // setup info boxes
         InfoBox.setGameManager(this);
 
+        setupLayers();
+
         // debug info box drawer
         debugInfoBox = InfoBox.createInfoBox();
         debugInfoBox.setPos(0, 0);
@@ -124,6 +127,15 @@ public class GameManager extends JPanel {
         // create and start the game loop
         createGameLoop();
         startGameLoop();
+    }
+
+    public void setupLayers() {
+        Sprites.addLayer("default", 0);
+        Sprites.addLayer("gameBoard", 1);
+        Sprites.addLayer("gameObjects", 2);
+        Sprites.addLayer("effects", 3);
+        Sprites.addLayer("transition", 4);
+        Sprites.addLayer("debug", 5);
     }
 
     // create the game loop
@@ -241,7 +253,7 @@ public class GameManager extends JPanel {
 
         if (createdGameLoop) {
             drawGame(g2);
-            Sprite.drawSprites(g2);
+            Sprites.drawSprites(g2);
         }
         if (showDebug) {
             updateDebug(g2);

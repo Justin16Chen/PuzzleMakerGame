@@ -1,5 +1,7 @@
 package gameplay.mapLoading;
 
+import java.awt.Color;
+
 import gameplay.GameBoard;
 import gameplay.GameManager;
 import utils.Print;
@@ -25,7 +27,7 @@ public class LevelManager {
     public LevelManager(GameManager gameManager, GameBoard gameBoard) {
         this.gameManager = gameManager;
         this.gameBoard = gameBoard;
-        this.transitionSprite = SimpleSprite.createSimpleSprite("transitionSprite", 0, 0, gameManager.getWidth(), gameManager.getHeight());
+        this.transitionSprite = new SimpleSprite("transitionSprite", 0, 0, gameManager.getWidth(), gameManager.getHeight(), Color.BLACK, "transition");
         this.currentLevel = 1;
         updateGeneralLevelInfo();
     }

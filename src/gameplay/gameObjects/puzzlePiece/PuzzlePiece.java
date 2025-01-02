@@ -49,7 +49,7 @@ public class PuzzlePiece extends GameObject {
         //);
     }
     public static void disconnect(DisconnectInfo disconnectInfo) {
-        Print.println("disconnecting " + disconnectInfo, Print.YELLOW);
+        //Print.println("disconnecting " + disconnectInfo, Print.YELLOW);
         Side side1 = disconnectInfo.getPiece1().getSide(disconnectInfo.getPiece1Direction());
         Side side2 = disconnectInfo.getPiece2().getSide(disconnectInfo.getPiece2Direction());
 
@@ -252,9 +252,9 @@ public class PuzzlePiece extends GameObject {
     public void move(MoveInfo moveInfo, boolean isMover) {
         if(movedThisFrame() || queuedMovedThisFrame()) return;
         setQueuedMovedThisFrame(true);
-        Print.println("MOVE ALL ATTACHED", Print.BLUE);
-        System.out.println("for " + this);
-        System.out.println("direction: (" + moveInfo.getHdir() + ", " + moveInfo.getVdir() + ")");
+        //Print.println("MOVE ALL ATTACHED", Print.BLUE);
+        //System.out.println("for " + this);
+        //System.out.println("direction: (" + moveInfo.getHdir() + ", " + moveInfo.getVdir() + ")");
 
         // check if this puzzle piece can move
         boolean canMove = getMoveInfo(moveInfo.getHdir(), moveInfo.getVdir()).canMove();
