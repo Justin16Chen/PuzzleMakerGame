@@ -53,7 +53,10 @@ public class Tween extends Updatable {
         elapsedTime = 0;
         currentLoop++;
         if (pingPong) {
-            pingPong = targetLoopCount < 0 || currentLoop == targetLoopCount - 1;
+            if (targetLoopCount < 0)
+                pingPong = true;
+            else
+                pingPong = currentLoop < targetLoopCount - 1;
             Number temp = startValue;
             startValue = endValue;
             endValue = temp;

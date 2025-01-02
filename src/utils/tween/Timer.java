@@ -57,16 +57,7 @@ public class Timer extends Updatable {
     public void performOnLoopComplete() {
         if (getType() == Type.SET) 
             Updatables.setProperty(getTarget(), getPropertyName(), finalPropertyValue);
-        else if (getType() == Type.CALL) {
-            if (name.equals("updateGameToNewLevel")) {
-                System.out.println("updating game to new level, updatables before function call: ");
-                System.out.println(Updatables.getUpdatablesToString(4));
-            }
+        else if (getType() == Type.CALL) 
             Updatables.callMethodByName(getTarget(), getMethodName(), getMethodArgs());
-            if (name.equals("updateGameToNewLevel")) {
-                System.out.println("updatables after function call: ");
-                System.out.println(Updatables.getUpdatablesToString(4));
-            }
-        }
     }
 }

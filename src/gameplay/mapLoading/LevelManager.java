@@ -46,15 +46,19 @@ public class LevelManager {
 
     // transition to a specific level with optional intro/outro tweens
     public void transitionToLevel(Integer level, boolean intro, boolean outro) {
-        System.out.println("trying to go to level " + level);
         updateGeneralLevelInfo();
         if (!hasLevel(level)) {
             Print.println(level + " does not exist", Print.RED);
             return;
         }
 
-        transitioning = true;
+        // simple transition
+        if (!intro && !outro) {
+            setLevelInfo(level);
+            return;
+        }
 
+        transitioning = true;
         Updatables.deleteUpdatables(new String[]{"moveTransitionSpriteTween", "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween", "finishTransition", "updateGameToNewLevel"}); // clear any updatables from previous transitions
 
         // sprite transition animation
@@ -66,13 +70,9 @@ public class LevelManager {
         else if (outro)
             Tween.createTween("moveTransitionSpriteUpTween", transitionSprite, "height", gameManager.getHeight(), 1, transitionTime);
         
-        System.out.println(Updatables.getUpdatables().size());
-
         // load level
-        if (intro) {
-            Print.println("CREATING CALL TIMER", Print.GREEN);
+        if (intro) 
             Timer.createCallTimer("updateGameToNewLevel", this, transitionTime, "setLevelInfo", level).setPrint(Updatable.PrintType.ON_COMPLETE); // this causes the bug
-        }
         else
             setLevelInfo(level);
 

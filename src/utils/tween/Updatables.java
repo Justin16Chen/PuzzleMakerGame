@@ -116,7 +116,6 @@ public class Updatables {
             for (String exception : exceptions) 
                 if (updatable.getName().equals(exception)) {
                     newList.add(updatable);
-                    System.out.println(updatable.getName() + " was spared from death");
                     break;
                 }
         list = newList;
