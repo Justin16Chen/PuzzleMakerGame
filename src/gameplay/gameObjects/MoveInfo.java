@@ -40,7 +40,7 @@ public class MoveInfo {
         //    return "MoveInfo(hdir: " + hdir + " | vdir: " + vdir + ", " + gameObject.toString() + ")";
         //}
         //return "MoveInfo(hdir: " + hdir + " | vdir: " + vdir + ", GameObject: null)";
-        if (type == Type.VALID) return "MoveInfo(VALID|dir:" + hdir + "|" + vdir + ")";
+        if (type == Type.VALID) return "MoveInfo(VALID|dir:" + hdir + "," + vdir + ")";
         return "MoveInfo(" + type + ")";
     }
 

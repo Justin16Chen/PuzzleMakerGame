@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 
 import gameplay.gameObjects.GameObject;
 import gameplay.gameObjects.MoveLogic;
+import gameplay.gameObjects.puzzlePiece.ConnectionLogic;
 import gameplay.gameObjects.puzzlePiece.Side;
 import gameplay.mapLoading.LevelLoader;
 import gameplay.mapLoading.LevelManager;
@@ -47,11 +48,15 @@ public class GameManager extends JPanel {
     MouseInput mouseInput;
 
     // refresh level from json keybind
+    final String TOGGLE_DEBUG_KEY = "Q";
     final String RELOAD_LEVEL_KEY = "1";
     final String PREV_LEVEL_KEY = "2";
     final String NEXT_LEVEL_KEY = "3";
     final String ALLOW_TRANSITION_KEY = "Space";
     final String PRINT_UPDATABLES_KEY = "U";
+    final String INCREMENT_HDIR_KEY = "Minus";
+    final String INCREMENT_VDIR_KEY = "Equals";
+    final String FIND_BREAKPOINT_KEY = "0";
 
     // debug MoveLogic.java IN PROGRESS
     private int hdir = 0, vdir = 0;
@@ -191,11 +196,14 @@ public class GameManager extends JPanel {
                 levelManager.transitionToNextLevel(true, true);
 
         // IN PROGRESS: testing MoveLogic.java
-        if (keyInput.keyClicked("Minus")) 
+        if (keyInput.keyClicked(INCREMENT_HDIR_KEY)) 
             if (++hdir == 2) hdir = -1;
-        if (keyInput.keyClicked("Equals")) 
+        if (keyInput.keyClicked(INCREMENT_VDIR_KEY)) 
             if (++vdir == 2) vdir = -1;
-        
+        if (keyInput.keyClicked(FIND_BREAKPOINT_KEY)) {
+            breakpointBoundaries = MoveLogic.findBreakpointBoundaries(gameBoard, gameBoard.getPlayerPiece().getBoardX(), gameBoard.getPlayerPiece().getBoardY(), hdir, vdir);
+            breakpoints = ConnectionLogic.findBreakpoints(gameBoard, breakpointBoundaries, hdir, vdir);
+        }
         if (keyInput.keyClicked("P")) {
             boolean canMove = MoveLogic.canObjectsMove(gameBoard, gameBoard.getGameObjects(), hdir, vdir);
             Print.println("can all game objects move: " + canMove, Print.YELLOW);
@@ -213,7 +221,7 @@ public class GameManager extends JPanel {
             levelManager.transitionToNextLevel(true, true);
         
 
-        if (keyInput.keyClicked("Q")) {
+        if (keyInput.keyClicked(TOGGLE_DEBUG_KEY)) {
             showDebug = !showDebug;
             if (showDebug) 
                 debugInfoBox.show();
@@ -254,10 +262,10 @@ public class GameManager extends JPanel {
         addDebugGeneral(drawList);
         //addDebugInput(drawList); // more advanced stuff, separated
         addDebugControls(drawList);
-        addDebugUpdatables(drawList);
+        //addDebugUpdatables(drawList);
         addDebugLevel(drawList);
         //addDebugGameObjects(drawList);
-        //addDebugMovement(drawList);
+        addDebugMovement(drawList);
 
         debugInfoBox.clearDrawList();
         debugInfoBox.setDrawList(drawList);
@@ -301,12 +309,15 @@ public class GameManager extends JPanel {
     }
     private void addDebugControls(ArrayList<String> drawList) {
         drawList.add("===CONTROLS===");
-        drawList.add("Q: toggle debug info");
-        drawList.add("U: print updatables");
-        drawList.add("1: refresh level json file");
-        drawList.add("2: go to prev lvl");
-        drawList.add("3: go to next lvl");
-        drawList.add("Space: transition to next level once completed");
+        drawList.add(TOGGLE_DEBUG_KEY + ": toggle debug info");
+        drawList.add(PRINT_UPDATABLES_KEY + ": print updatables");
+        drawList.add(RELOAD_LEVEL_KEY + ": refresh level json file");
+        drawList.add(PREV_LEVEL_KEY + ": go to prev lvl");
+        drawList.add(NEXT_LEVEL_KEY + ": go to next lvl");
+        drawList.add(ALLOW_TRANSITION_KEY + ": transition to next level once completed");
+        drawList.add(INCREMENT_HDIR_KEY + ": increment breakpoint hdir");
+        drawList.add(INCREMENT_VDIR_KEY + ": increment breakpoint vdir");
+        drawList.add(FIND_BREAKPOINT_KEY + ": find breakpoints from player pos, hdir, and vdir");
     }
     private void addDebugLevel(ArrayList<String> drawList) {
         drawList.add("===LEVEL===");

@@ -13,6 +13,10 @@ public class DisconnectInfo {
         this.p1dir = p1dir;
         this.p2dir = Direction.getOppositeDirection(p1dir);
     }
+    @Override
+    public String toString() {
+        return "DisconnectInfo(p1: (" + p1.getBoardX() + "," + p1.getBoardY() + "), " + p1dir + " | p2: (" + p2.getBoardX() + "," + p2.getBoardY() + "), " + p2dir + ")";
+    }
 
     public PuzzlePiece getPiece1() { return p1; }
     public PuzzlePiece getPiece2() { return p2; }

@@ -235,4 +235,10 @@ public class GameBoard {
             }
         }
     }
+    public GameObject getPlayerPiece() {
+        for (GameObject gameObject : gameObjects) 
+            if (gameObject.getObjectType() == GameObject.ObjectType.PLAYER_PIECE) 
+                return gameObject;
+        return null;
+    }
 }

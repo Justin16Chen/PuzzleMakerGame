@@ -7,11 +7,6 @@ import utils.Direction;
 import utils.Print;
 
 public class Side {
-    public enum Hierarchy {
-        PARENT,
-        CHILD,
-        EMPTY
-    }
     public enum Type {
         STRONG,
         WEAK,
@@ -71,7 +66,6 @@ public class Side {
     }
 
     private Direction.Type direction;
-    private Hierarchy hierarchy;
     private Type type;
     private boolean connected;
     private ConnectInfo connectInfo;
@@ -82,13 +76,11 @@ public class Side {
     public Side(PuzzlePiece parent, Direction.Type direction, Type type) {
         this.parent = parent;
         this.direction = direction;
-        this.hierarchy = Hierarchy.EMPTY;
         this.type = type;
     }
 
     public boolean equals(Side side) {
         return getDirection() == side.getDirection()
-            && getHierarchy() == side.getHierarchy()
             && getType() == side.getType();
     }
 
@@ -98,11 +90,10 @@ public class Side {
     }
     public String getString(int number) {
         if (connected && number == 0) return "Side(" + direction + "|" + type + "|\n  p2 pos:(" + piece2.getBoardX() + "," + piece2.getBoardY() + ")\n  p2 side:" + piece2Side.getString(1) + ")";
-        return "Side(" + direction + "|" + type + "|" + hierarchy + ")";
+        return "Side(" + direction + "|" + type + ")";
     }
 
     public Direction.Type getDirection() { return direction; }
-    public Hierarchy getHierarchy() { return hierarchy; }
     public Type getType() { return type; }
     public boolean isConnected() { return connected; }
     public boolean canConnect() { return type != Type.NOTHING; }
@@ -134,7 +125,6 @@ public class Side {
             Print.println("ERROR, PARENT OF " + this + " DOES NOT MATCH WITH ANY IN " + connectInfo);
         }
     }
-    public void setHierarchy(Hierarchy hierarchy ) { this.hierarchy = hierarchy; }
 
     public void draw(Graphics2D g, int parentDrawx, int parentDrawy, int tileSize) {
         if (getType() == Type.NOTHING || (getType() == Type.STRONG && isConnected()))

@@ -29,8 +29,8 @@ public class PuzzlePiece extends GameObject {
 
     // connect two puzzle pieces
     public static void connect(ConnectInfo connectInfo) {
-        connectInfo.getPiece1().connectSide(connectInfo.getPiece1Direction(), Side.Hierarchy.PARENT, connectInfo);
-        connectInfo.getPiece2().connectSide(connectInfo.getPiece2Direction(), Side.Hierarchy.CHILD, connectInfo);
+        connectInfo.getPiece1().connectSide(connectInfo.getPiece1Direction(), connectInfo);
+        connectInfo.getPiece2().connectSide(connectInfo.getPiece2Direction(), connectInfo);
 
         //System.out.println(Print.YELLOW + "CONNECTION DATA: " + Print.RESET);
         //System.out.println(
@@ -47,13 +47,12 @@ public class PuzzlePiece extends GameObject {
         //);
     }
     public static void disconnect(DisconnectInfo disconnectInfo) {
+        Print.println("disconnecting " + disconnectInfo, Print.YELLOW);
         Side side1 = disconnectInfo.getPiece1().getSide(disconnectInfo.getPiece1Direction());
         Side side2 = disconnectInfo.getPiece2().getSide(disconnectInfo.getPiece2Direction());
 
         side1.setConnected(false);
         side2.setConnected(false);
-        side1.setHierarchy(Side.Hierarchy.EMPTY);
-        side2.setHierarchy(Side.Hierarchy.EMPTY);
     }
 
     private Side[] sides;
@@ -101,9 +100,8 @@ public class PuzzlePiece extends GameObject {
         return false;
     }
     // connect a side
-    public void connectSide(Direction.Type direction, Side.Hierarchy hierarchy, ConnectInfo connectInfo) {
+    public void connectSide(Direction.Type direction, ConnectInfo connectInfo) {
         getSide(direction).setConnected(true); 
-        getSide(direction).setHierarchy(hierarchy);
         getSide(direction).setConnectInfo(connectInfo);
         // System.out.println("CONNECTING SIDES");
         // System.out.println(connectInfo);
@@ -261,9 +259,9 @@ public class PuzzlePiece extends GameObject {
     public void move(MoveInfo moveInfo, boolean isMover) {
         if(movedThisFrame() || queuedMovedThisFrame()) return;
         setQueuedMovedThisFrame(true);
-        // Print.println("MOVE ALL ATTACHED", Print.BLUE);
-        // System.out.println("for " + this);
-        // System.out.println("direction: " + moveInfo.getHdir() + " " + moveInfo.getVdir());
+        Print.println("MOVE ALL ATTACHED", Print.BLUE);
+        System.out.println("for " + this);
+        System.out.println("direction: (" + moveInfo.getHdir() + ", " + moveInfo.getVdir() + ")");
 
         // check if this puzzle piece can move
         boolean canMove = getMoveInfo(moveInfo.getHdir(), moveInfo.getVdir()).canMove();
@@ -274,11 +272,14 @@ public class PuzzlePiece extends GameObject {
                 Direction.Type direction = Direction.getDirection(i);
                 Side side = getSide(direction);
                 
-                if (side.isConnected()) 
+                if (side.isConnected())  {
+                    System.out.println("own move info: " + moveInfo);
+                    System.out.println("other move info: " + side.getPiece2().getMoveInfo(moveInfo.getHdir(), moveInfo.getVdir()));
                     if (side.getPiece2().getMoveInfo(moveInfo.getHdir(), moveInfo.getVdir()).canMove())
                         side.getPiece2().move(moveInfo, false);
                     else 
                         PuzzlePiece.disconnect(new DisconnectInfo(this, side.getPiece2(), direction));
+                }
             }
 
             // move self
