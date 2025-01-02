@@ -4,8 +4,9 @@ import java.util.ArrayList;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.GameObject;
-import utils.Direction;
 import utils.Print;
+import utils.direction.Direction;
+import utils.direction.Directions;
 
 public class ConnectionLogic {
     /*  pseudo code for finding breakpoints given breakpoint boundaries
@@ -66,11 +67,10 @@ public class ConnectionLogic {
                 ArrayList<PuzzlePiece> lowerIndexPuzzlePieces = new ArrayList<>();
 
                 // look at adjacent puzzle pieces to see if this is a breakpoint
-                for (int i=0; i<4; i++) {
+                for (Direction direction : Directions.getAllDirections()) {
                     // find adjacent cell position
-                    Direction.Type direction = Direction.getDirection(i);
-                    int dirx = Direction.getDirectionX(direction);
-                    int diry = Direction.getDirectionY(direction);
+                    int dirx = Directions.getDirectionX(direction);
+                    int diry = Directions.getDirectionY(direction);
                     int x = puzzlePiece.getBoardX() + dirx;
                     int y = puzzlePiece.getBoardY() + diry;
 
@@ -89,7 +89,7 @@ public class ConnectionLogic {
                     if (adjacentPuzzlePiece.getMoveIndex() < puzzlePiece.getMoveIndex()) {
                         if (adjacentPuzzlePiece.getMoveInfo(hdir, vdir).canMove() && Side.getConnectionType(puzzlePiece, adjacentPuzzlePiece) == Side.Type.WEAK) {
                             breakpoints.add(puzzlePiece);
-                            Direction.Type pToAdjDirection = Direction.getDirection(adjacentGameObject.getBoardX() - puzzlePiece.getBoardX(), adjacentGameObject.getBoardY() - puzzlePiece.getBoardY());
+                            Direction pToAdjDirection = Directions.getDirection(adjacentGameObject.getBoardX() - puzzlePiece.getBoardX(), adjacentGameObject.getBoardY() - puzzlePiece.getBoardY());
                             sidesToDisconnect.add(puzzlePiece.getSide(pToAdjDirection));
                             foundBreakpoint = true;
                             break;

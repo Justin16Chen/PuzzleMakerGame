@@ -3,8 +3,9 @@ package gameplay.gameObjects.puzzlePiece;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import utils.Direction;
 import utils.Print;
+import utils.direction.Direction;
+import utils.direction.Directions;
 
 public class Side {
     public enum Type {
@@ -29,7 +30,7 @@ public class Side {
                 case 'n': type = Type.NOTHING; break;
                 default: type = Type.NOTHING; break;
             }
-            sideData[i] = new Side(parent, Direction.getDirection(i), type);
+            sideData[i] = new Side(parent, Directions.getDirection(i), type);
         }
         return sideData;
     }
@@ -45,8 +46,8 @@ public class Side {
     public static boolean isConnected(PuzzlePiece p1, PuzzlePiece p2) {
         int xOffset = p2.getBoardX() - p1.getBoardX(), yOffset = p2.getBoardY() - p1.getBoardY();
         if (xOffset * xOffset + yOffset * yOffset != 1) return false;
-        Direction.Type oneToTwo = Direction.getDirection(xOffset, yOffset);
-        Direction.Type twoToOne = Direction.getOppositeDirection(oneToTwo);
+        Direction oneToTwo = Directions.getDirection(xOffset, yOffset);
+        Direction twoToOne = Directions.getOppositeDirection(oneToTwo);
         return p1.getSide(oneToTwo).isConnected() && p2.getSide(twoToOne).isConnected();
     }
     // get the connection baseStrength given the baseStrength of two puzzle pieces
@@ -59,13 +60,13 @@ public class Side {
     }
     public static Type getConnectionType (PuzzlePiece p1, PuzzlePiece p2) {
         int xOffset = p2.getBoardX() - p1.getBoardX(), yOffset = p2.getBoardY() - p1.getBoardY();
-        Direction.Type oneToTwo = Direction.getDirection(xOffset, yOffset);
-        Direction.Type twoToOne = Direction.getOppositeDirection(oneToTwo);
+        Direction oneToTwo = Directions.getDirection(xOffset, yOffset);
+        Direction twoToOne = Directions.getOppositeDirection(oneToTwo);
 
         return getConnectionType(p1.getSide(oneToTwo).getType(), p2.getSide(twoToOne).getType());
     }
 
-    private Direction.Type direction;
+    private Direction direction;
     private Type type;
     private boolean connected;
     private ConnectInfo connectInfo;
@@ -73,7 +74,7 @@ public class Side {
     private PuzzlePiece piece2;
     private Side piece2Side;
 
-    public Side(PuzzlePiece parent, Direction.Type direction, Type type) {
+    public Side(PuzzlePiece parent, Direction direction, Type type) {
         this.parent = parent;
         this.direction = direction;
         this.type = type;
@@ -93,7 +94,7 @@ public class Side {
         return "Side(" + direction + "|" + type + ")";
     }
 
-    public Direction.Type getDirection() { return direction; }
+    public Direction getDirection() { return direction; }
     public Type getType() { return type; }
     public boolean isConnected() { return connected; }
     public boolean canConnect() { return type != Type.NOTHING; }

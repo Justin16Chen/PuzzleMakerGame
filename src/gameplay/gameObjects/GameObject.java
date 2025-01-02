@@ -7,7 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.Font;
 
 import gameplay.GameBoard;
-import utils.Direction;
+import utils.direction.Direction;
+import utils.direction.Directions;
 import utils.drawing.InfoBox;
 import utils.input.*;
 
@@ -147,13 +148,13 @@ public abstract class GameObject {
     // get if MoveLogic has checked the side yet
     public boolean[] getCheckedSides() { return checkedSides; }
     public boolean getCheckedSide(int i) { return checkedSides[i]; }
-    public boolean getCheckedSide(Direction.Type direction) { return checkedSides[Direction.getMoveIndex(direction)]; }
+    public boolean getCheckedSide(Direction direction) { return checkedSides[Directions.getMoveIndex(direction)]; }
     public void clearCheckedSides() {
         for (int i=0; i<4; i++)
             checkedSides[i] = false;
     }
     public void checkSide(int i) { checkedSides[i] = true; }
-    public void checkSide(Direction.Type direction) {checkedSides[Direction.getMoveIndex(direction)] = true; }
+    public void checkSide(Direction direction) {checkedSides[Directions.getMoveIndex(direction)] = true; }
 
     // add a parent
     public void addParent(GameObject gameObject) { parents.add(gameObject); }
@@ -249,22 +250,20 @@ public abstract class GameObject {
         updateTargetDrawPos();
     }
 
-    public HashMap<Direction.Type, GameObject> getAdjacentGameObjects() {
-        HashMap<Direction.Type, GameObject> adjacentGameObjects = new HashMap<>();
-        for (int i=0; i<4; i++) {
-            Direction.Type direction = Direction.getDirection(i);
-            int dx = Direction.getDirectionX(direction), dy = Direction.getDirectionY(direction);
+    public HashMap<Direction, GameObject> getAdjacentGameObjects() {
+        HashMap<Direction, GameObject> adjacentGameObjects = new HashMap<>();
+        for (Direction direction : Directions.getAllDirections()) {
+            int dx = Directions.getDirectionX(direction), dy = Directions.getDirectionY(direction);
             int x = getBoardX() + dx, y = getBoardY() + dy;
             if (!gameBoard.inBounds(x, y) || gameBoard.getGameObject(x, y) == null) continue;
             adjacentGameObjects.put(direction, gameBoard.getGameObject(x, y));
         }
         return adjacentGameObjects;
     }
-    public HashMap<Direction.Type, GameObject> getAdjacentGameObjects(ObjectType[] types) {
-        HashMap<Direction.Type, GameObject> adjacentGameObjects = new HashMap<>();
-        for (int i=0; i<4; i++) {
-            Direction.Type direction = Direction.getDirection(i);
-            int dx = Direction.getDirectionX(direction), dy = Direction.getDirectionY(direction);
+    public HashMap<Direction, GameObject> getAdjacentGameObjects(ObjectType[] types) {
+        HashMap<Direction, GameObject> adjacentGameObjects = new HashMap<>();
+        for (Direction direction : Directions.getAllDirections()) {
+            int dx = Directions.getDirectionX(direction), dy = Directions.getDirectionY(direction);
             int x = getBoardX() + dx, y = getBoardY() + dy;
             if (!gameBoard.inBounds(x, y) || gameBoard.getGameObject(x, y) == null) continue;
             GameObject gameObject = gameBoard.getGameObject(x, y);

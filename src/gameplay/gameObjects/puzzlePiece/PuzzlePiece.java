@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
 import utils.*;
+import utils.direction.Direction;
+import utils.direction.Directions;
 
 public class PuzzlePiece extends GameObject {
 
@@ -75,8 +77,7 @@ public class PuzzlePiece extends GameObject {
         PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
 
         boolean hasSameSides = true;
-        for (int i=0; i<4; i++) {
-            Direction.Type direction = Direction.getDirection(i);
+        for (Direction direction : Directions.getAllDirections()) {
             if (!getSide(direction).equals(puzzlePiece.getSide(direction))) {
                 hasSameSides = false;
                 break;
@@ -86,21 +87,19 @@ public class PuzzlePiece extends GameObject {
     }
 
     // gets the type of side based on a direction
-    public Side getSide(Direction.Type direction) {
-        return sides[Direction.getMoveIndex(direction)];
+    public Side getSide(Direction direction) {
+        return sides[Directions.getMoveIndex(direction)];
     }
     // all of the sides are connected
     public boolean hasConnectedSide() {
-        for (int i=0; i<4; i++) {
-            Direction.Type direction = Direction.getDirection(i);
-
+        for (Direction direction : Directions.getAllDirections()) {
             if (getSide(direction).isConnected())
                 return true;
         }
         return false;
     }
     // connect a side
-    public void connectSide(Direction.Type direction, ConnectInfo connectInfo) {
+    public void connectSide(Direction direction, ConnectInfo connectInfo) {
         getSide(direction).setConnected(true); 
         getSide(direction).setConnectInfo(connectInfo);
         // System.out.println("CONNECTING SIDES");
@@ -153,8 +152,8 @@ public class PuzzlePiece extends GameObject {
         // out facing edges can only connect with in facing edges
         // flat edges cannot connect with anything
             // find the direction from self to piece and direction from piece to self
-        Direction.Type directionToPiece = Direction.getDirection(hdir, vdir);
-        Direction.Type directionToSelf = Direction.getDirection(-hdir, -vdir);
+        Direction directionToPiece = Directions.getDirection(hdir, vdir);
+        Direction directionToSelf = Directions.getDirection(-hdir, -vdir);
             // find the type of sides that correspond with directions
         Side piece1Side = getSide(directionToPiece);
         Side piece2Side = piece2.getSide(directionToSelf);
@@ -190,17 +189,11 @@ public class PuzzlePiece extends GameObject {
         MoveInfo[] moveInfoList = new MoveInfo[5];
 
         for (int i=0; i<4; i++) {
-            Direction.Type selfToPiece = Direction.getDirection(i);
-            Direction.Type pieceToSelf = Direction.getDirection(Direction.getOppositeDirectionIndex(i));
-
-            // only get the move info if 
-            //      the side is connected to a puzzle piece and it is a PARENT-CHILD relationship
-            //      the side is not in the opposite direction of the current movement (that will cause a logical error)
-            //      the connection type is STRONG (weak connection types can be broken, do not need to consider when computing valid move data)
-            //if (selfToPiece == Direction.getDirection(-hdir, -vdir)) continue;
+            Direction selfToPiece = Directions.getDirection(i);
+            Direction pieceToSelf = Directions.getDirection(Directions.getOppositeDirectionIndex(i));
             
-            int offsetx = Direction.getDirectionX(selfToPiece);
-            int offsety = Direction.getDirectionY(selfToPiece);
+            int offsetx = Directions.getDirectionX(selfToPiece);
+            int offsety = Directions.getDirectionY(selfToPiece);
 
             if (!gameBoard.inBounds(getBoardX() + offsetx, getBoardY() + offsety)) continue;
 
@@ -268,20 +261,11 @@ public class PuzzlePiece extends GameObject {
         
         if (canMove) {
             // move connected puzzle pieces or disconnect them
-            for (int i=0; i<4; i++) {
-                Direction.Type direction = Direction.getDirection(i);
+            for (Direction direction : Directions.getAllDirections()) {
                 Side side = getSide(direction);
-                
-                if (side.isConnected())  {
-                    System.out.println("own move info: " + moveInfo);
-                    System.out.println("other move info: " + side.getPiece2().getMoveInfo(moveInfo.getHdir(), moveInfo.getVdir()));
-                    if (side.getPiece2().getMoveInfo(moveInfo.getHdir(), moveInfo.getVdir()).canMove())
+                if (side.isConnected())
                         side.getPiece2().move(moveInfo, false);
-                    else 
-                        PuzzlePiece.disconnect(new DisconnectInfo(this, side.getPiece2(), direction));
-                }
             }
-
             // move self
             moveSelf(moveInfo);
         }
@@ -304,9 +288,9 @@ public class PuzzlePiece extends GameObject {
         ConnectInfo[] connectInfoList = new ConnectInfo[4];
 
         for (int i=0; i<4; i++) {
-            Direction.Type direction = Direction.getDirection(i);
+            Direction direction = Directions.getDirection(i);
             if (getSide(direction).isConnected() || !getSide(direction).canConnect()) continue;
-            int connectDirx = Direction.getDirectionX(direction), connectDiry = Direction.getDirectionY(direction);
+            int connectDirx = Directions.getDirectionX(direction), connectDiry = Directions.getDirectionY(direction);
             if (connectDirx == -moveInfo.getHdir() && connectDiry == -moveInfo.getVdir()) continue;
             connectInfoList[i] = getConnectInfo(0, 0, connectDirx, connectDiry);
             // System.out.println(connectInfoList[i]);
@@ -314,9 +298,8 @@ public class PuzzlePiece extends GameObject {
         //Print.println(" PUZZLE PIECE MOVE FUNCTION: " + connectInfo, Print.PURPLE);
         for (ConnectInfo connectInfo : connectInfoList) {
             if (connectInfo == null) continue;
-            if (connectInfo.canConnect()) {
+            if (connectInfo.canConnect()) 
                 PuzzlePiece.connect(connectInfo);
-            }
         }
     }
     @Override
@@ -343,7 +326,7 @@ public class PuzzlePiece extends GameObject {
         g.fillRect((int) getCurrentDrawx(), (int) getCurrentDrawy(), gameBoard.tileSize, gameBoard.tileSize);
 
         for (int i=0; i<4; i++)
-            getSide(Direction.getDirection(i)).draw(g, getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize);
+            getSide(Directions.getDirection(i)).draw(g, getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize);
     }
 
     @Override
@@ -357,7 +340,7 @@ public class PuzzlePiece extends GameObject {
         drawList.add("must move: " + mustCheck());
         drawList.add("sides: ");
         for (int i=0; i<4; i++) {
-            Direction.Type direction = Direction.getDirection(i);
+            Direction direction = Directions.getDirection(i);
             drawList.add(direction + ": " + getSide(direction));
         }
         drawList.add("parents: ");

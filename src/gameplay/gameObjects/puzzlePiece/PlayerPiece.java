@@ -8,7 +8,8 @@ import java.util.Arrays;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
-import utils.Direction;
+import utils.direction.Direction;
+import utils.direction.Directions;
 import utils.tween.Tween;
 import utils.tween.Updatable;
 import utils.tween.Updatables;
@@ -76,8 +77,8 @@ public class PlayerPiece extends PuzzlePiece {
         g.setStroke(new BasicStroke(STROKE_WIDTH));
         g.drawRect(getCurrentDrawx() + STROKE_INSET, getCurrentDrawy() + STROKE_INSET, gameBoard.tileSize - STROKE_INSET * 2, gameBoard.tileSize - STROKE_INSET * 2);
 
-        for (int i=0; i<4; i++)
-            getSide(Direction.getDirection(i)).draw(g, getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize);
+        for (Direction direction : Directions.getAllDirections())
+            getSide(direction).draw(g, getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize);
     }
 
     @Override

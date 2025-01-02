@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import gameplay.GameBoard;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
 import gameplay.gameObjects.puzzlePiece.Side;
-import utils.Direction;
 import utils.Print;
+import utils.direction.Direction;
+import utils.direction.Directions;
 
 public class MoveLogic {
     public static boolean canObjectsMove(GameBoard gameBoard, ArrayList<GameObject> gameObjects, int hdir, int vdir) {
@@ -104,11 +105,10 @@ public class MoveLogic {
             ArrayList<GameObject> newGoList = new ArrayList<>();
             for (GameObject gameObject : goList) {
 
-                for (int i=0; i<4; i++) {
+                for (Direction direction : Directions.getAllDirections()) {
                     // find adjacent cell position
-                    Direction.Type direction = Direction.getDirection(i);
-                    int dirx = Direction.getDirectionX(direction);
-                    int diry = Direction.getDirectionY(direction);
+                    int dirx = Directions.getDirectionX(direction);
+                    int diry = Directions.getDirectionY(direction);
                     int x = gameObject.getBoardX() + dirx;
                     int y = gameObject.getBoardY() + diry;
 
@@ -209,12 +209,11 @@ public class MoveLogic {
                 // System.out.println("game object to find adjacent cells for: ");
                 // System.out.println(gameObject);
 
-                for (int i=0; i<4; i++) {
+                for (Direction direction : Directions.getAllDirections()) {
                     // find adjacent cell position
-                    Direction.Type direction = Direction.getDirection(i);
-                    Direction.Type oppositeDirection = Direction.getOppositeDirection(direction);
-                    int dirx = Direction.getDirectionX(direction);
-                    int diry = Direction.getDirectionY(direction);
+                    Direction oppositeDirection = Directions.getOppositeDirection(direction);
+                    int dirx = Directions.getDirectionX(direction);
+                    int diry = Directions.getDirectionY(direction);
                     int x = gameObject.getBoardX() + dirx;
                     int y = gameObject.getBoardY() + diry;
 
