@@ -7,7 +7,6 @@ import gameplay.GameManager;
 import utils.Print;
 import utils.drawing.*;
 import utils.tween.*;
-import utils.tween.Updatable.PrintType;
 
 public class LevelManager {
     
@@ -27,7 +26,7 @@ public class LevelManager {
     public LevelManager(GameManager gameManager, GameBoard gameBoard) {
         this.gameManager = gameManager;
         this.gameBoard = gameBoard;
-        this.transitionSprite = new SimpleSprite("transitionSprite", 0, 0, gameManager.getWidth(), gameManager.getHeight(), Color.BLACK, "transition");
+        this.transitionSprite = new SimpleSprite("transitionSprite", 0, 0, gameManager.getWidth(), gameManager.getHeight(), "transition").setColor(Color.BLACK);
         this.currentLevel = 1;
         updateGeneralLevelInfo();
     }
@@ -104,6 +103,12 @@ public class LevelManager {
         LevelInfo levelInfo = LevelLoader.getLevelInfo(level + ".json", gameBoard);
         if (levelInfo != null) {
             currentLevel = level;
+
+            // clear sprites
+            Sprites.deleteSprites(new String[]{InfoBox.NAME});
+            gameBoard.clearGameObjects();
+
+            // clear updatables
             Updatables.deleteAllUpdatablesExcept(new String[]{"finishTransition", "updateGameToNewLevel", "moveTransitionSpriteTween", "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween"});
             gameBoard.setCurrentBoard(levelInfo);
             return true;

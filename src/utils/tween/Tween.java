@@ -11,11 +11,13 @@ public class Tween extends Updatable {
     private Number startValue;      // Starting value of the tween
     private Number endValue;        // Ending value of the tween
     private double currentValue;
+    private EaseType easeType;      // Type of easing to use
 
     private Tween(String name, Object target, String propertyName, Number startValue, Number endValue, double duration, int currentLoopCount, int targetLoopCount, boolean pingPong) {
         super(name, target, propertyName, duration, currentLoopCount, targetLoopCount, pingPong);
         this.startValue = startValue;
         this.endValue = endValue;
+        this.easeType = EaseType.LINEAR;
         updateProperty(0);
     }
 
@@ -25,6 +27,7 @@ public class Tween extends Updatable {
     public Tween setLoopCount(int loopCount) { targetLoopCount = loopCount; return this; }
     public Tween pingPong() { pingPong = true; return this; }
     public Tween setPrint(PrintType print) { this.print = print; return this; }
+    public Tween setEaseType(EaseType easeType) { this.easeType = easeType; return this; }
 
     @Override
     public String toString() {
@@ -44,7 +47,7 @@ public class Tween extends Updatable {
 
     // sets the property of the target object based on a normalized time (0 to 1)
     private void updateProperty(double t) {
-        currentValue = Updatables.lerp(startValue, endValue, t);
+        currentValue = Updatables.lerp(startValue, endValue, EaseTypes.getEasingFunction(easeType, t));
         Updatables.setProperty(getTarget(), getPropertyName(), currentValue);
     }
 
@@ -61,5 +64,10 @@ public class Tween extends Updatable {
             startValue = endValue;
             endValue = temp;
         }
+    }
+
+    @Override
+    public void performOnComplete() {
+        updateProperty(1); // make sure final value is desired value, even if time is not perfect
     }
 }

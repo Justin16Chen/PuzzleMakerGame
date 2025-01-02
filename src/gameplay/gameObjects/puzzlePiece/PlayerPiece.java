@@ -10,9 +10,10 @@ import gameplay.GameBoard;
 import gameplay.gameObjects.*;
 import utils.direction.Direction;
 import utils.direction.Directions;
+import utils.drawing.SimpleSprite;
+import utils.drawing.Sprites;
 import utils.tween.Tween;
 import utils.tween.Updatable;
-import utils.tween.Updatables;
 
 public class PlayerPiece extends PuzzlePiece {
 
@@ -20,8 +21,8 @@ public class PlayerPiece extends PuzzlePiece {
     public static double OCILLATION_TIME = 1.8;
     public static int STROKE_WIDTH = 2, STROKE_INSET = -2;
 
-    private double outlineBrightness;
-    private Tween outlineTween;
+    private SimpleSprite outlineSprite;
+    private double outlineColor;
 
     public PlayerPiece(GameBoard gameBoard, int boardx, int boardy, String sideData, String baseStrengthString) {
         super(gameBoard, GameObject.ObjectType.PLAYER_PIECE, boardx, boardy, sideData, baseStrengthString);
@@ -29,7 +30,31 @@ public class PlayerPiece extends PuzzlePiece {
 
     @Override
     public void setup() {
-        outlineTween = Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(5).setPrint(Updatable.PrintType.ON_LOOP);
+        
+        sprite = new SimpleSprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObject") {
+            @Override
+            public void draw(Graphics2D g) {
+        
+                // draw fill
+                g.setColor(hasConnectedSide() ? getHighlightedColor() : PuzzlePiece.COLOR);
+                g.fillRect(sprite.getX(), sprite.getY(), gameBoard.getTileSize(), gameBoard.getTileSize());
+        
+                for (Direction direction : Directions.getAllDirections())
+                    getSide(direction).draw(g, sprite.getX(), sprite.getY(), gameBoard.getTileSize());
+            }
+        };
+
+        outlineSprite = new SimpleSprite("playerOutline", sprite.getX(), sprite.getY(), gameBoard.getTileSize(), gameBoard.getTileSize(), "effect") {
+            @Override
+            public void draw(Graphics2D g) {
+                g.setColor(new Color((int) outlineColor, (int) outlineColor, (int) outlineColor));
+                g.setStroke(new BasicStroke(STROKE_WIDTH));
+                g.drawRect(sprite.getX() + STROKE_INSET, sprite.getY() + STROKE_INSET, gameBoard.getTileSize() - STROKE_INSET * 2, gameBoard.getTileSize() - STROKE_INSET * 2);
+            }
+        };
+
+        Tween.createTween("playerOutline", this, "outlineColor", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1);
+
     }
 
     // update the playerPiece
@@ -61,34 +86,10 @@ public class PlayerPiece extends PuzzlePiece {
             }
         }
     }
-    
-    @Override
-    public void draw(Graphics2D g) {
-        updateCurrentDrawPosToTarget(); // allow for smooth movement
-
-        // draw fill
-        g.setColor(hasConnectedSide() ? getHighlightedColor() : getColor());
-        g.fillRect(getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize, gameBoard.tileSize);
-
-        // draw outline
-        int brightness = (int) outlineBrightness;
-        g.setColor(new Color(brightness, brightness, brightness));
-        g.setStroke(new BasicStroke(STROKE_WIDTH));
-        g.drawRect(getCurrentDrawx() + STROKE_INSET, getCurrentDrawy() + STROKE_INSET, gameBoard.tileSize - STROKE_INSET * 2, gameBoard.tileSize - STROKE_INSET * 2);
-
-        for (Direction direction : Directions.getAllDirections())
-            getSide(direction).draw(g, getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize);
-    }
 
     @Override
-    public void updateInfoList(Graphics2D g, int drawcx, int drawbottomy) {
-        ArrayList<String> drawList = new ArrayList<String>();
-
-        drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
-        drawList.add("own outlineTween: " + outlineTween);
-        drawList.add("updatables: " + Arrays.toString(Updatables.getUpdatables().toArray()));
-        drawList.add("outlineTween in list: " + Updatables.getUpdatable(outlineTween.getName()));
-
-        setInfoList(g, drawcx, drawbottomy, drawList);
+    public void deleteSprites() {
+        Sprites.deleteSprite(sprite);
+        Sprites.deleteSprite(outlineSprite);
     }
 }

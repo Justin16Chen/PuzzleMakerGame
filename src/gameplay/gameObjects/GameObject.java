@@ -3,14 +3,18 @@ package gameplay.gameObjects;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import java.awt.Graphics2D;
 import java.awt.Font;
 
 import gameplay.GameBoard;
 import utils.direction.Direction;
 import utils.direction.Directions;
 import utils.drawing.InfoBox;
+import utils.drawing.SimpleSprite;
+import utils.drawing.Sprites;
 import utils.input.*;
+import utils.tween.EaseType;
+import utils.tween.Tween;
+import utils.tween.Updatables;
 
 public abstract class GameObject {
     
@@ -58,14 +62,11 @@ public abstract class GameObject {
     }
 
     // rate that gameobjects move between cells at
-    final public static double MOVE_RATE = 0.4;
-    
-    public static final double FINISH_MOVE_THRESHOLD = 0.5;
+    final public static double MOVE_RATE = 0.2;
     
     protected GameBoard gameBoard;
     protected KeyInput keyInput;
     protected MouseInput mouseInput;
-    private String name;
     private ObjectType objectType;
     private int objectIndex;
     private int boardx, boardy;
@@ -76,10 +77,8 @@ public abstract class GameObject {
     private boolean mustCheck = false;
     private boolean[] checkedSides;
     private ArrayList<GameObject> parents;
-    private InfoBox infoBox;
-    private double currentDrawx, currentDrawy;
-    private int targetDrawx, targetDrawy;
-
+    protected SimpleSprite sprite;
+    protected InfoBox infoBox;
     public GameObject(GameBoard gameBoard, ObjectType objectType, int boardx, int boardy) {
         this.gameBoard = gameBoard;
         this.keyInput = gameBoard.getKeyInput();
@@ -92,23 +91,22 @@ public abstract class GameObject {
         this.movedThisFrame = false;
         this.queuedMoveThisFrame = false;
 
-        this.name = GameObject.getObjectTypeName(objectType);
         this.movable = GameObject.getMovable(objectType);
         this.checkedSides = new boolean[4];
         this.parents = new ArrayList<>();
-
-        this.infoBox = InfoBox.createInfoBox();
-        infoBox.hide();
-        infoBox.setFont(new Font("Arial", Font.PLAIN, 10));
     }
 
     // setup function called after all game objects are created
     // meant to be overridden by subclasses if needed
-    public void setup() {}
+    public void setup() {
+    }
 
     // gameboard decides when to do this - only after it is properly setup
     public void updateVisualsAtStart() {
-        updateTargetDrawPos();
+        this.infoBox = new InfoBox(0, 0);
+        infoBox.setVisible(false);
+        infoBox.setFont(new Font("Arial", Font.PLAIN, 10));
+
         forceToTargetDrawPos();
     }
 
@@ -119,7 +117,6 @@ public abstract class GameObject {
     }
 
     // getters
-    public String getName() { return name; }
     public ObjectType getObjectType() { return objectType; }
     public int getObjectIndex() { return objectIndex; }
     public int getBoardX() { return boardx; }
@@ -128,11 +125,8 @@ public abstract class GameObject {
     public boolean movedThisFrame() { return movedThisFrame; }
     public boolean queuedMovedThisFrame() { return queuedMoveThisFrame; }
     public void setQueuedMovedThisFrame(boolean bool) { queuedMoveThisFrame = bool; }
+    public SimpleSprite getSprite() { return sprite; }
     public InfoBox getInfoBox() { return infoBox; }
-    public int getCurrentDrawx() { return (int) currentDrawx; }
-    public int getCurrentDrawy() { return (int) currentDrawy; }
-    public int getTargetDrawx() { return targetDrawx; }
-    public int getTargetDrawy() { return targetDrawy; }
 
     // whether or not the puzzle piece is the mover (initiates the motion)
     public boolean isMover() { return moveIndex == 0; }
@@ -221,10 +215,8 @@ public abstract class GameObject {
         //Print.println("GAME OBJECT MOVE FUNCTION", Print.RED);
         //System.out.println("for: " + this);
 
-        if (movedThisFrame) {
-            System.out.println(getName() + " already moved, overriding movement");
+        if (movedThisFrame) 
             return;
-        }
 
         //System.out.println(Print.RED + "MOVING GAME OBJECT" + Print.RESET);
         movedThisFrame = true;
@@ -233,9 +225,6 @@ public abstract class GameObject {
         int targetx = getBoardX() + moveInfo.getHdir();
         int targety = getBoardY() + moveInfo.getVdir();
         GameObject gameObject = gameBoard.getGameObject(targetx, targety);
-        
-        //System.out.println(this + " moving by (" + moveInfo.getHdir() + ", " + moveInfo.getVdir() + ") to (" + targetx + ", " + targety + ")");
-        //System.out.println(moveInfo.toString());
 
         // move game object current object is moving into
         if (gameObject != null) {
@@ -245,9 +234,10 @@ public abstract class GameObject {
         moveBoardX(moveInfo.getHdir());
         moveBoardY(moveInfo.getVdir());
 
-        // force previous movement tween to be done before starting the next one
-        forceToTargetDrawPos();
-        updateTargetDrawPos();
+        // tween sprite position
+        Tween.createTween("move " + objectType + " x", sprite, "x", sprite.getX(), gameBoard.findGameObjectDrawX(this), MOVE_RATE).setEaseType(EaseType.EASE_OUT);
+        Tween.createTween("move " + objectType + " y", sprite, "y", sprite.getY(), gameBoard.findGameObjectDrawY(this), MOVE_RATE).setEaseType(EaseType.EASE_OUT);
+
     }
 
     public HashMap<Direction, GameObject> getAdjacentGameObjects() {
@@ -279,41 +269,24 @@ public abstract class GameObject {
     }
 
     public abstract void update(double dt);
-    public abstract void draw(Graphics2D g);
 
-    private void updateTargetDrawPos() {
-        this.targetDrawx = gameBoard.findGameObjectDrawX(this);
-        this.targetDrawy = gameBoard.findGameObjectDrawY(this);
-    }
-    private void forceToTargetDrawPos() {
-        currentDrawx = targetDrawx;
-        currentDrawy = targetDrawy;
-    }
-    public void updateCurrentDrawPosToTarget() {
-        int xDist = (int) (targetDrawx - currentDrawx);
-        int yDist = (int) (targetDrawy - currentDrawy);
-        if (Math.abs(xDist) < FINISH_MOVE_THRESHOLD && Math.abs(yDist) < FINISH_MOVE_THRESHOLD)
-            forceToTargetDrawPos();
-        else
-            currentDrawx += xDist * MOVE_RATE;
-            currentDrawy += yDist * MOVE_RATE;
-
-    }
-
-    public void updateInfoList(Graphics2D g, int drawcx, int drawbottomy) {
-        ArrayList<String> drawList = new ArrayList<String>();
-        drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
-        setInfoList(g, drawcx, drawbottomy, drawList);
-    }
-    public void setInfoList(Graphics2D g, int drawcx, int drawbottomy, ArrayList<String> drawList) {
-        infoBox.clearDrawList();
+    public void updateDrawList() {
+        ArrayList<String> drawList = new ArrayList<>();
+        drawList.add("pos: (" + getBoardX() + ", " + getBoardY() +")");
         infoBox.setDrawList(drawList);
-        infoBox.setPos(drawcx, drawbottomy);
-        infoBox.setOffsets(0.5, 1);
+    }
+
+    protected void forceToTargetDrawPos() {
+        sprite.setX(gameBoard.findGameObjectDrawX(this));
+        sprite.setY(gameBoard.findGameObjectDrawY(this));
+    }
+
+    public void deleteSprites() {
+        Sprites.deleteSprite(sprite);
     }
 
     @Override
     public String toString() {
-        return "GameObject(" + name + "|(" + boardx + "," + boardy + ")|moveIdx:" + moveIndex + ")";
+        return "GameObject((" + boardx + "," + boardy + ")|moveIdx:" + moveIndex + ")";
     }
 }

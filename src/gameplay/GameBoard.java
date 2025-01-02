@@ -8,6 +8,8 @@ import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
 import gameplay.mapLoading.*;
 import utils.Print;
 import utils.drawing.InfoBox;
+import utils.drawing.SimpleSprite;
+import utils.drawing.Sprites;
 import utils.input.*;
 
 public class GameBoard {
@@ -24,12 +26,16 @@ public class GameBoard {
     public MouseInput getMouseInput() { return mouseInput; }
     
     // board properties
-    public int tileSize = 32;
-    public int width = 10;
-    public int height = 10;
+    private int tileSize = 32;
+    private int width = 10;
+    private int height = 10;
+    public int getTileSize() { return tileSize; }
+    public int getWidth() { return width; }
+    public int getHeight() { return height; }
 
     // visuals
-    public double screenSizeRatio = 0.7;
+    private double screenSizeRatio = 0.7;
+    public double getScreenSizeRatio() { return screenSizeRatio; }
 
     // list of all game objects represented with a 2D grid
     private GameObject[][] board;
@@ -38,7 +44,8 @@ public class GameBoard {
     private GameObject[][] nextBoard;
     // list of all game objects
     private ArrayList<GameObject> gameObjects;
-    
+
+    private SimpleSprite boardSprite;
     
     public GameBoard(GameManager gameManager, KeyInput keyInput, MouseInput mouseInput) {
         this.gameManager = gameManager;
@@ -48,6 +55,14 @@ public class GameBoard {
         gameObjects = new ArrayList<>();
         board = new GameObject[1][1];
         nextBoard = new GameObject[1][1];
+
+        boardSprite = new SimpleSprite("board", getDrawX(), getDrawY(), getDrawWidth(), getDrawHeight(), "gameBoard") {
+            @Override
+            public void draw(Graphics2D g) {
+                g.setColor(BOARD_COLOR);
+                g.fillRect(getX(), getY(), getWidth(), getHeight());
+            }
+        };
     }
 
     public void printBoard() {
@@ -69,14 +84,12 @@ public class GameBoard {
     public int getBoardHeight() { return height; }
 
     public void showObjInfoBoxes() {
-        for (GameObject gameObject : gameObjects) {
-            gameObject.getInfoBox().show();
-        }
+        for (GameObject gameObject : gameObjects) 
+            gameObject.getInfoBox().setVisible(true);
     }
     public void hideObjInfoBoxes() {
-        for (GameObject gameObject : gameObjects) {
-            gameObject.getInfoBox().hide();
-        }
+        for (GameObject gameObject : gameObjects) 
+            gameObject.getInfoBox().setVisible(false);
     }
 
     // check if a position is in the board boundaries
@@ -128,9 +141,11 @@ public class GameBoard {
         board = new GameObject[height][width];
         nextBoard = new GameObject[height][width];
 
-        // clear any infoboxes
-        for (GameObject gameObject : gameObjects) 
-            InfoBox.removeInfoBox(gameObject.getInfoBox());
+        // update board sprite
+        boardSprite.setX(getDrawX());
+        boardSprite.setY(getDrawY());
+        boardSprite.setWidth(getDrawWidth());
+        boardSprite.setHeight(getDrawHeight());
         
         // set the board for the current level
         gameObjects = levelInfo.getGameObjects();
@@ -154,6 +169,10 @@ public class GameBoard {
             gameObject.resetMovedThisFrame();
             gameObject.resetQueuedMovedThisFrame();
             gameObject.update(dt);
+
+            gameObject.getInfoBox().setX(gameObject.getSprite().getX());
+            gameObject.getInfoBox().setBottom(gameObject.getSprite().getY() - 5);
+            gameObject.updateDrawList();
 
             // put updated object into next board
             nextBoard[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
@@ -196,8 +215,6 @@ public class GameBoard {
     }
     public int getDrawWidth() { return width * tileSize; }
     public int getDrawHeight() { return height * tileSize; }
-    public int getDrawCenterX() { return getDrawX() + (int) (getDrawWidth() * 0.5); }
-    public int getDrawCenterY() { return getDrawY() + (int) (getDrawHeight() * 0.5); }
 
     public int findGameObjectDrawX(GameObject gameObject) {
         return getDrawX() + gameObject.getBoardX() * tileSize;
@@ -206,39 +223,16 @@ public class GameBoard {
         return getDrawY() + gameObject.getBoardY() * tileSize;
     }
 
-    // draw the board and all of the game objects on the board
-    public void draw(Graphics2D g) {
-        // game board
-        g.setColor(BOARD_COLOR);
-        g.fillRect(getDrawX(), getDrawY(), getDrawWidth(), getDrawHeight());
-
-        // loop through game board and draw game objects
-        for (int y=0; y<height; y++) {
-            for (int x=0; x<width; x++) {
-                GameObject gameObject = board[y][x];
-                if (gameObject == null) { continue; }
-                
-                int targetDrawx = findGameObjectDrawX(gameObject);
-                int targetDrawy = findGameObjectDrawY(gameObject);
-                gameObject.draw(g);
-                gameObject.updateInfoList(g, targetDrawx + tileSize / 2, targetDrawy - 10);
-                if (mouseInput.clicked()) {
-                    if (mouseInput.isOver(targetDrawx, targetDrawy, tileSize, tileSize)) {
-                        if (!gameObject.getInfoBox().isVisible()) gameObject.getInfoBox().show();
-                        else gameObject.getInfoBox().hide();
-                    }
-                }
-                if (gameManager.showDebug) {
-                    g.setColor(Color.BLACK);
-                    g.drawString("(" + x + ", " + y + ")", targetDrawx + tileSize / 4, targetDrawy + tileSize / 2);
-                }
-            }
-        }
-    }
     public GameObject getPlayerPiece() {
         for (GameObject gameObject : gameObjects) 
             if (gameObject.getObjectType() == GameObject.ObjectType.PLAYER_PIECE) 
                 return gameObject;
         return null;
+    }
+
+    // removes all game object sprites 
+    public void clearGameObjects() {
+        for (GameObject gameObject : gameObjects) 
+            gameObject.deleteSprites();
     }
 }

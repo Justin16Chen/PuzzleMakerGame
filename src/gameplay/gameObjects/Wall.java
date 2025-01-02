@@ -5,22 +5,26 @@ import java.awt.Graphics2D;
 
 import gameplay.GameBoard;
 import gameplay.GameManager;
+import utils.drawing.SimpleSprite;
 
 public class Wall extends GameObject {
 
     public static Color COLOR = GameManager.BG_COLOR;
+
     public Wall(GameBoard gameBoard, int boardx, int boardy) {
         super(gameBoard, GameObject.ObjectType.WALL, boardx, boardy);
+
+        sprite = new SimpleSprite(GameObject.ObjectType.WALL + "", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObject") {
+            @Override
+            public void draw(Graphics2D g) {
+                g.setColor(COLOR);
+                g.fillRect(getX(), getY(), gameBoard.getTileSize(), gameBoard.getTileSize());
+            }
+        };
     }
 
     @Override
     public void update(double dt) {
+        forceToTargetDrawPos();
     }
-
-    @Override
-    public void draw(Graphics2D g) {
-        g.setColor(COLOR);
-        g.fillRect(getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize, gameBoard.tileSize);
-    }
-    
 }

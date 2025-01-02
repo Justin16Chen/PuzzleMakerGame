@@ -28,17 +28,34 @@ public class Updatables {
 
     public static void addUpdatable(Updatable updatable) {
         boolean valid = true;
-        if (updatable.getType() == Updatable.Type.CALL) {
-            if (!hasMethod(updatable.getTarget(), updatable.getMethodName(), updatable.getMethodArgs())) {
-                valid = false;
-                throw new RuntimeException("method " + updatable.getMethodName() + " does not exist in " + updatable.getTarget() + " with parameters " + getParameterTypesString(updatable.getMethodArgs()));
-            }
-        } 
-        else if (updatable.getType() == Updatable.Type.SET) {
-            if (!hasProperty(updatable.getTarget(), updatable.getPropertyName())) {
-                valid = false;
-                throw new RuntimeException(updatable + " does not have property named " + updatable.getPropertyName());
-            }
+        if (updatable.getType() == Updatable.Type.CALL && !hasMethod(updatable.getTarget(), updatable.getMethodName(), updatable.getMethodArgs())) {
+            valid = false;
+            throw new RuntimeException("method " + updatable.getMethodName() + " does not exist in " + updatable.getTarget() + " with parameters " + getParameterTypesString(updatable.getMethodArgs()));
+        }
+        
+        if (updatable.getType() == Updatable.Type.SET && !hasProperty(updatable.getTarget(), updatable.getPropertyName())) {
+            valid = false;
+            throw new RuntimeException(updatable + " does not have property named " + updatable.getPropertyName());
+        }
+        
+
+        // remove older tween if both have same target object and either have the same property name or the same method name
+        for (int i=0; i<list.size(); i++) {
+
+            // target class is not the same
+            if (updatable.getTarget() != list.get(i).getTarget())
+                continue;
+            
+            if (updatable.getType() == Updatable.Type.CALL && list.get(i).getType() == Updatable.Type.CALL)
+                if (updatable.getMethodName().equals(list.get(i).getMethodName())) {
+                    list.remove(i);
+                    break;
+                }
+            else if (updatable.getType() == Updatable.Type.SET && list.get(i).getType() == Updatable.Type.SET) 
+                if (updatable.getPropertyName().equals(list.get(i).getPropertyName())) {
+                    list.remove(i);
+                    break;
+                }
         }
 
         if (valid) {
@@ -78,9 +95,10 @@ public class Updatables {
             
             // remove complete updatables
             if (updatable.isComplete()) {
+                updatable.performOnComplete();
+
                 if (canPrintUpdatable(updatable))
                     Print.println(updatable.getName() + " is complete", Print.BLUE);
-                
                 list.remove(updatable);
                 i--;
             }

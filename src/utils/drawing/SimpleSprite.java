@@ -6,14 +6,28 @@ public class SimpleSprite extends Sprite {
 
     private Color color;
 
-    public SimpleSprite(String name, int x, int y, Color color, String layerName) {
-        super(name, x, y, 1, 1, layerName);
-        this.color = color;
+    public SimpleSprite(String name, String layerName) {
+        super(name, 0, 0, 1, 1, layerName);
+        color = Color.BLACK;
     }
 
-    public SimpleSprite(String name, int x, int y, int width, int height, Color color, String layerName) {
+    public SimpleSprite(String name, int x, int y, String layerName) {
+        super(name, x, y, 1, 1, layerName);
+        this.color = Color.BLACK;
+    }
+
+    public SimpleSprite(String name, int x, int y, int width, int height, String layerName) {
         super(name, x, y, width, height, layerName);
+        this.color = Color.BLACK;
+    }
+
+    public SimpleSprite setColor(Color color) {
         this.color = color;
+        return this;
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     @Override

@@ -6,9 +6,9 @@ import java.util.ArrayList;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
-import utils.*;
 import utils.direction.Direction;
 import utils.direction.Directions;
+import utils.drawing.SimpleSprite;
 
 public class PuzzlePiece extends GameObject {
 
@@ -58,17 +58,29 @@ public class PuzzlePiece extends GameObject {
     }
 
     private Side[] sides;
-    private Color color;
 
     public PuzzlePiece(GameBoard gameBoard, int boardx, int boardy, String sideString, String baseStrengthString) {
         super(gameBoard, GameObject.ObjectType.PUZZLE_PIECE, boardx, boardy);
         this.sides = Side.getSideData(this, sideString, baseStrengthString);
-        this.color = COLOR;
     }
     public PuzzlePiece(GameBoard gameBoard, GameObject.ObjectType objectType, int boardx, int boardy, String sideString, String baseStrengthString) {
         super(gameBoard, objectType, boardx, boardy);
         this.sides = Side.getSideData(this, sideString, baseStrengthString);
-        this.color = COLOR;
+    }
+
+    @Override
+    public void setup() {
+        sprite = new SimpleSprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObject") {
+            
+            @Override
+            public void draw(Graphics2D g) {
+                g.setColor(hasConnectedSide() ? getHighlightedColor() : COLOR);
+                g.fillRect(getX(), getY(), gameBoard.getTileSize(), gameBoard.getTileSize());
+
+                for (int i=0; i<4; i++)
+                    getSide(Directions.getDirection(i)).draw(g, getX(), getY(), gameBoard.getTileSize());
+            }
+        };
     }
 
     public boolean equals(GameObject gameObject) {
@@ -273,14 +285,9 @@ public class PuzzlePiece extends GameObject {
     // move first, then check for connections
     @Override
     public void moveSelf(MoveInfo moveInfo) {
-
-        if (movedThisFrame()) {
-            // System.out.println(getName() + " already moved, overriding movement");
+        if (movedThisFrame()) 
             return;
-        }
-
-        // Print.println("MOVING " + this, Print.BLUE);
-
+        
         // move
         super.moveSelf(moveInfo);
 
@@ -308,34 +315,18 @@ public class PuzzlePiece extends GameObject {
     public Color getHighlightedColor() {
         int highlightAmount = 60;
         return new Color(
-            Math.min(255, color.getRed() + highlightAmount), 
-            Math.min(255, color.getGreen() + highlightAmount), 
-            Math.min(255, color.getBlue() + highlightAmount)
+            Math.min(255, COLOR.getRed() + highlightAmount), 
+            Math.min(255, COLOR.getGreen() + highlightAmount), 
+            Math.min(255, COLOR.getBlue() + highlightAmount)
         );
     }
-    public Color getColor() {
-        return color;
-    }
 
-
-    @Override
-    public void draw(Graphics2D g) {
-        updateCurrentDrawPosToTarget(); // allow for smooth movement
-
-        g.setColor(hasConnectedSide() ? getHighlightedColor() : color);
-        g.fillRect((int) getCurrentDrawx(), (int) getCurrentDrawy(), gameBoard.tileSize, gameBoard.tileSize);
-
-        for (int i=0; i<4; i++)
-            getSide(Directions.getDirection(i)).draw(g, getCurrentDrawx(), getCurrentDrawy(), gameBoard.tileSize);
-    }
-
+    /*
     @Override
     public void updateInfoList(Graphics2D g, int drawcx, int drawbottomy) {
         ArrayList<String> drawList = new ArrayList<String>();
 
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
-        drawList.add("current draw pos: (" + getCurrentDrawx() + "," + getCurrentDrawy() + ")");
-        drawList.add("target draw pos: (" + getTargetDrawx() + "," + getTargetDrawy() + ")");
         drawList.add("index: " + getMoveIndex());
         drawList.add("must move: " + mustCheck());
         drawList.add("sides: ");
@@ -350,4 +341,5 @@ public class PuzzlePiece extends GameObject {
 
         setInfoList(g, drawcx, drawbottomy, drawList);
     }
+    */
 }

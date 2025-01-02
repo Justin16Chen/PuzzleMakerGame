@@ -14,7 +14,6 @@ import gameplay.mapLoading.LevelLoader;
 import gameplay.mapLoading.LevelManager;
 import utils.Print;
 import utils.drawing.InfoBox;
-import utils.drawing.Sprite;
 import utils.drawing.Sprites;
 import utils.input.*;
 import utils.tween.*;
@@ -101,15 +100,10 @@ public class GameManager extends JPanel {
     // start the game
     public void startGame() {
 
-        // setup info boxes
-        InfoBox.setGameManager(this);
-
         setupLayers();
 
         // debug info box drawer
-        debugInfoBox = InfoBox.createInfoBox();
-        debugInfoBox.setPos(0, 0);
-        debugInfoBox.setOffsets(0, 0);
+        debugInfoBox = new InfoBox(0, 0);
 
         // create game board
         gameBoard = new GameBoard(this, keyInput, mouseInput);
@@ -132,10 +126,12 @@ public class GameManager extends JPanel {
     public void setupLayers() {
         Sprites.addLayer("default", 0);
         Sprites.addLayer("gameBoard", 1);
-        Sprites.addLayer("gameObjects", 2);
-        Sprites.addLayer("effects", 3);
+        Sprites.addLayer("gameObject", 2);
+        Sprites.addLayer("effect", 3);
         Sprites.addLayer("transition", 4);
         Sprites.addLayer("debug", 5);
+
+        System.out.println(Sprites.getLayersToString());
     }
 
     // create the game loop
@@ -216,10 +212,7 @@ public class GameManager extends JPanel {
             breakpointBoundaries = MoveLogic.findBreakpointBoundaries(gameBoard, gameBoard.getPlayerPiece().getBoardX(), gameBoard.getPlayerPiece().getBoardY(), hdir, vdir);
             breakpoints = ConnectionLogic.findBreakpoints(gameBoard, breakpointBoundaries, hdir, vdir);
         }
-        if (keyInput.keyClicked("P")) {
-            boolean canMove = MoveLogic.canObjectsMove(gameBoard, gameBoard.getGameObjects(), hdir, vdir);
-            Print.println("can all game objects move: " + canMove, Print.YELLOW);
-        }
+
         // refresh map data from json files
         if (keyInput.keyClicked(RELOAD_LEVEL_KEY)) {
             levelManager.updateGeneralLevelInfo();
@@ -235,10 +228,10 @@ public class GameManager extends JPanel {
 
         if (keyInput.keyClicked(TOGGLE_DEBUG_KEY)) {
             showDebug = !showDebug;
-            if (showDebug) 
-                debugInfoBox.show();
-            else 
-                debugInfoBox.hide();
+            debugInfoBox.setVisible(showDebug);
+            for (GameObject gameObject : gameBoard.getGameObjects()) 
+                gameObject.getInfoBox().setVisible(showDebug);
+            updateDebugDrawList();
         }
 
         if (keyInput.keyClicked(PRINT_UPDATABLES_KEY))
@@ -252,23 +245,16 @@ public class GameManager extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
 
         if (createdGameLoop) {
-            drawGame(g2);
+            // clear screen
+            g.setColor(BG_COLOR);
+            g.fillRect(0, 0, getWindowWidth(), getWindowHeight());
+
+            // draw game sprites
             Sprites.drawSprites(g2);
         }
-        if (showDebug) {
-            updateDebug(g2);
-        }
-
-        InfoBox.drawInfoBoxes(g2);
     }
 
-    public void drawGame(Graphics2D g) {
-        g.setColor(BG_COLOR);
-        g.fillRect(0, 0, getWindowWidth(), getWindowHeight());
-        gameBoard.draw(g);
-    }
-
-    private void updateDebug(Graphics2D g) {
+    private void updateDebugDrawList() {
 
     ArrayList<String> drawList = new ArrayList<>();
         addDebugGeneral(drawList);
@@ -278,8 +264,7 @@ public class GameManager extends JPanel {
         addDebugLevel(drawList);
         //addDebugGameObjects(drawList);
         addDebugMovement(drawList);
-
-        debugInfoBox.clearDrawList();
+        
         debugInfoBox.setDrawList(drawList);
     }
 
@@ -292,6 +277,7 @@ public class GameManager extends JPanel {
         drawList.add("contentPane insets: " + getContentPaneInsets().left + ", " + getContentPaneInsets().top);
         drawList.add("main insets: " + window.getInsets().left + ", " + window.getInsets().top);
     }
+    @SuppressWarnings("unused")
     private void addDebugInput(ArrayList<String> drawList) {
         drawList.add("===INPUT===");
         InputBase.State[] states = { 
@@ -311,6 +297,7 @@ public class GameManager extends JPanel {
             }
         }
     }
+    @SuppressWarnings("unused")
     private void addDebugUpdatables(ArrayList<String> drawList) {
         drawList.add("===UPDATABLES===");
         drawList.add("can print updatables: " + Updatables.getAllowPrint());
@@ -319,6 +306,7 @@ public class GameManager extends JPanel {
             drawList.add("" + updatable.getName());
         
     }
+    @SuppressWarnings("unused")
     private void addDebugControls(ArrayList<String> drawList) {
         drawList.add("===CONTROLS===");
         drawList.add(TOGGLE_DEBUG_KEY + ": toggle debug info");
@@ -331,22 +319,25 @@ public class GameManager extends JPanel {
         drawList.add(INCREMENT_VDIR_KEY + ": increment breakpoint vdir");
         drawList.add(FIND_BREAKPOINT_KEY + ": find breakpoints from player pos, hdir, and vdir");
     }
+    @SuppressWarnings("unused")
     private void addDebugLevel(ArrayList<String> drawList) {
         drawList.add("===LEVEL===");
         drawList.add("current level: " + levelManager.getCurrentLevel());
         drawList.add("Map Size: (" + gameBoard.getBoardWidth() + ", " + gameBoard.getBoardHeight() + ")");
         drawList.add("level succeeded: " + gameBoard.allPuzzlePiecesConnected());
         drawList.add("transitioning: " + levelManager.transitioningBetweenLevels());
-        drawList.add("tile size: " + gameBoard.tileSize);
+        drawList.add("tile size: " + gameBoard.getTileSize());
         drawList.add("game board draw pos: (" + gameBoard.getDrawX() + ", " + gameBoard.getDrawY() + ")");
     }
+    @SuppressWarnings("unused")
     private void addDebugGameObjects(ArrayList<String> drawList) {
         drawList.add("===GAME OBJECTS===");
         drawList.add("number: " + gameBoard.getGameObjects().size());
         for (GameObject gameObject : gameBoard.getGameObjects()) {
-            drawList.add("object: " + gameObject.getName() + " | pos: (" + gameObject.getBoardX() + ", " + gameObject.getBoardY() + ")");
+            drawList.add("object: " + gameObject.getObjectType() + " | pos: (" + gameObject.getBoardX() + ", " + gameObject.getBoardY() + ")");
         }
     }
+    @SuppressWarnings("unused")
     private void addDebugMovement(ArrayList<String> drawList) {
         drawList.add("===MOVEMENT===");
         drawList.add("dir to check: (" + hdir + ", " + vdir + ")");
