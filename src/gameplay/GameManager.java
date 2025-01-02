@@ -186,19 +186,16 @@ public class GameManager extends JPanel {
         gameBoard.update(dt);
 
         // go to next level
-        if (keyInput.keyClicked(ALLOW_TRANSITION_KEY) && gameBoard.allPuzzlePiecesConnected() && !levelManager.transitioningBetweenLevels()) {
-            if (levelManager.hasLevel(levelManager.getCurrentLevel() + 1)) 
+        if (keyInput.keyClicked(ALLOW_TRANSITION_KEY) && gameBoard.allPuzzlePiecesConnected() && !levelManager.transitioningBetweenLevels()
+            && levelManager.hasLevel(levelManager.getCurrentLevel() + 1)) 
                 levelManager.transitionToNextLevel(true, true);
-            
-        }
 
         // IN PROGRESS: testing MoveLogic.java
-        if (keyInput.keyClicked("Minus")) {
+        if (keyInput.keyClicked("Minus")) 
             if (++hdir == 2) hdir = -1;
-        }
-        if (keyInput.keyClicked("Equals")) {
+        if (keyInput.keyClicked("Equals")) 
             if (++vdir == 2) vdir = -1;
-        }
+        
         if (keyInput.keyClicked("P")) {
             boolean canMove = MoveLogic.canObjectsMove(gameBoard, gameBoard.getGameObjects(), hdir, vdir);
             Print.println("can all game objects move: " + canMove, Print.YELLOW);
@@ -210,12 +207,11 @@ public class GameManager extends JPanel {
         }
 
         // keybinds to move through levels
-        if (keyInput.keyClicked(PREV_LEVEL_KEY)) {
+        if (keyInput.keyClicked(PREV_LEVEL_KEY)) 
             levelManager.transitionToLevel(levelManager.getCurrentLevel() - 1, true, true);
-        }
-        if (keyInput.keyClicked(NEXT_LEVEL_KEY)) {
+        if (keyInput.keyClicked(NEXT_LEVEL_KEY)) 
             levelManager.transitionToNextLevel(true, true);
-        }
+        
 
         if (keyInput.keyClicked("Q")) {
             showDebug = !showDebug;
@@ -225,7 +221,8 @@ public class GameManager extends JPanel {
                 debugInfoBox.hide();
         }
 
-        Updatables.setAllowPrint(keyInput.keyDown(PRINT_UPDATABLES_KEY));
+        if (keyInput.keyClicked(PRINT_UPDATABLES_KEY))
+            Updatables.setAllowPrint(!Updatables.getAllowPrint());
     }
 
     // swing's built in draw function for UI components
@@ -296,6 +293,7 @@ public class GameManager extends JPanel {
     }
     private void addDebugUpdatables(ArrayList<String> drawList) {
         drawList.add("===UPDATABLES===");
+        drawList.add("can print updatables: " + Updatables.getAllowPrint());
         drawList.add("amount of updatables: " + Updatables.getUpdatableAmount());
         for (Updatable updatable : Updatables.getUpdatables()) 
             drawList.add("" + updatable.getName());

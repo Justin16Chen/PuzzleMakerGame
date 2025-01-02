@@ -34,7 +34,7 @@ public class Tween extends Updatable {
 
     }
 
-    public void update(double deltaTime) {
+    public void update() {
         double t = Math.min(1, getElapsedTime() / getDuration());
         updateProperty(t);
 

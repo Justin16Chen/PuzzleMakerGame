@@ -5,6 +5,7 @@ import gameplay.GameManager;
 import utils.Print;
 import utils.drawing.*;
 import utils.tween.*;
+import utils.tween.Updatable.PrintType;
 
 public class LevelManager {
     
@@ -64,10 +65,14 @@ public class LevelManager {
             Tween.createTween("moveTransitionSpriteDownTween", transitionSprite, "height", 1, gameManager.getHeight(), transitionTime);
         else if (outro)
             Tween.createTween("moveTransitionSpriteUpTween", transitionSprite, "height", gameManager.getHeight(), 1, transitionTime);
+        
+        System.out.println(Updatables.getUpdatables().size());
 
         // load level
-        if (intro)
-            Timer.createCallTimer("updateGameToNewLevel", this, transitionTime, "setLevelInfo", level); // this causes the bug
+        if (intro) {
+            Print.println("CREATING CALL TIMER", Print.GREEN);
+            Timer.createCallTimer("updateGameToNewLevel", this, transitionTime, "setLevelInfo", level).setPrint(Updatable.PrintType.ON_COMPLETE); // this causes the bug
+        }
         else
             setLevelInfo(level);
 
@@ -77,7 +82,6 @@ public class LevelManager {
 
     @SuppressWarnings("unused")
     private void finishTransition() {
-        transitionSprite.setVisible(false);
         transitioning = false;
     }
     
@@ -98,7 +102,7 @@ public class LevelManager {
         LevelInfo levelInfo = LevelLoader.getLevelInfo(level + ".json", gameBoard);
         if (levelInfo != null) {
             currentLevel = level;
-            Updatables.deleteAllUpdatablesExcept(new String[]{"finishTransition"});
+            Updatables.deleteAllUpdatablesExcept(new String[]{"finishTransition", "updateGameToNewLevel", "moveTransitionSpriteTween", "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween"});
             gameBoard.setCurrentBoard(levelInfo);
             return true;
         }

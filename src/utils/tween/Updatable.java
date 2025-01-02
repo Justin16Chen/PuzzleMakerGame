@@ -58,16 +58,13 @@ public abstract class Updatable {
         return "Updatable(name: " + name + " | type: " + type + " | property: " + propertyName + " | duration" + duration + " | elapsed time:" + elapsedTime + ")";
     }
 
-    public void step(double deltaTime) {
-        if (paused) 
-            return;
-
+    public void updateTime(double deltaTime) {
         elapsedTime += deltaTime;
-
-        update(deltaTime);
     }
 
-    protected abstract void update(double deltaTime);
+    public void update() {} // meant to be overridden
+    public void performOnLoopComplete() {} // meant to be overridden if an updatable wants to perform an action when the loop is complete
+    public abstract void loop(); // resets the updatable to the beginning of the loop
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -88,6 +85,5 @@ public abstract class Updatable {
     public PrintType getPrint() { return print; }
     public boolean isComplete() { return currentLoop >= targetLoopCount && elapsedTime >= duration && targetLoopCount >= 0 && !pingPong; }
     
-    public abstract void loop();
 
 }

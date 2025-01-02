@@ -28,17 +28,13 @@ public class PlayerPiece extends PuzzlePiece {
 
     @Override
     public void setup() {
-        System.out.println("PLAYER SETUP CALLED");
-        Updatables.deleteUpdatables(new String[]{"playerOutline"});
-        outlineTween = Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1).setPrint(Updatable.PrintType.ALWAYS);
-        System.out.println("list so far: " + Arrays.toString(Updatables.getUpdatables().toArray()));
+        outlineTween = Tween.createTween("playerOutline", this, "outlineBrightness", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(5).setPrint(Updatable.PrintType.ON_LOOP);
+        System.out.println("updatables in player setup: \n" + Updatables.getUpdatablesToString(4));
     }
 
     // update the playerPiece
     @Override
     public void update(double dt) {
-        outlineTween.setName("the gameboard is this wide: " + gameBoard.getBoardWidth());
-
         // get player input
         int hdir = keyInput.keyClickedInt("D") - keyInput.keyClickedInt("A");
         int vdir = keyInput.keyClickedInt("S") - keyInput.keyClickedInt("W");

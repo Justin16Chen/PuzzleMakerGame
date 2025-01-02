@@ -3,13 +3,12 @@ package utils.tween;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import utils.Print;
 
 public class Updatables {
 
-    private static boolean allowPrint = true;
+    private static boolean allowPrint = false;
 
     public static boolean getAllowPrint() { return allowPrint; }
     public static void setAllowPrint(boolean allowPrint) { Updatables.allowPrint = allowPrint; }
@@ -19,6 +18,13 @@ public class Updatables {
     public static int getUpdatableAmount() { return list.size(); }
 
     public static ArrayList<Updatable> getUpdatables() { return list; }
+
+    public static String getUpdatablesToString(int spaces) {
+        String str = "";
+        for (Updatable updatable : list) 
+            str += " ".repeat(spaces) + updatable + "\n";
+        return str;
+     }
 
     public static void addUpdatable(Updatable updatable) {
         boolean valid = true;
@@ -45,18 +51,22 @@ public class Updatables {
     }
 
     public static void updateUpdatables(double dt) {
-        ArrayList<Updatable> newList = new ArrayList<>();
-        ArrayList<Updatable> copyList = new ArrayList<>(list);
-        for (int i=0; i<copyList.size(); i++) {
-            Updatable updatable = copyList.get(i);
+        for (int i=0; i<list.size(); i++) {
+            Updatable updatable = list.get(i);
 
             // update updatable
-            updatable.step(dt);
+            if (!updatable.isPaused()) {
+                updatable.updateTime(dt);
+                updatable.update();
+            }
 
             // print updatable
             if (canPrintUpdatable(updatable)) 
-                System.out.println(updatable.getPrint() + " idx " + i + " target: " + updatable.getTarget() + " | old list: " + Arrays.toString(list.toArray()));
+                System.out.println(updatable.getPrint() + " idx " + i + " target: " + updatable.getTarget() + " | old list: " + getUpdatablesToString(0));
             
+            // perform updatable loop action
+            if (updatable.isLoopComplete()) 
+                updatable.performOnLoopComplete();
 
             // loop updatable
             if (updatable.isLoopComplete() && !updatable.isComplete()) {
@@ -65,26 +75,19 @@ public class Updatables {
                 
                 updatable.loop();
             }
-            // only add updatable if it isn't complete
-            if (!updatable.isComplete()) 
-                newList.add(updatable);
-            else if (canPrintUpdatable(updatable))
-                Print.println(updatable.getName() + " is complete", Print.BLUE);
+            
+            // remove complete updatables
+            if (updatable.isComplete()) {
+                if (canPrintUpdatable(updatable))
+                    Print.println(updatable.getName() + " is complete", Print.BLUE);
+                
+                list.remove(updatable);
+                i--;
+            }
         }
-        list = newList;
-    }
-
-    public static void clearUpdatables() {
-        list.clear();
     }
 
     public static Updatable getUpdatable(String name) {
-        for (Updatable updatable : list)
-            if (updatable.getName().equals(name))
-                return updatable;
-        return null;
-    }
-    public static Updatable getUpdatable(ArrayList<Updatable> list, String name) {
         for (Updatable updatable : list)
             if (updatable.getName().equals(name))
                 return updatable;
