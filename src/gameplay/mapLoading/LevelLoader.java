@@ -182,7 +182,7 @@ public class LevelLoader {
                     if (gameObject.getBoardX() < 0 || gameObject.getBoardX() >= mapWidth || gameObject.getBoardY() < 0 || gameObject.getBoardY() >= mapHeight)
                         throw new JSONException(gameObject + " tried to be instantiated out of bounds");
                     if (filledPositions[gameObject.getBoardY()][gameObject.getBoardX()])
-                        throw new RuntimeException(gameObject + " tried to be instantiated on a position that was already filled");
+                        throw new JSONException(gameObject + " tried to be instantiated on a position that was already filled");
                     filledPositions[gameObject.getBoardY()][gameObject.getBoardX()] = true;
 
                     gameObjects.add(gameObject);

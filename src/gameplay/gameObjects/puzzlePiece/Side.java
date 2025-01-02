@@ -19,7 +19,7 @@ public class Side {
     }
     final public static Color STRONG_COLOR = new Color(200, 180, 20);
     final public static Color WEAK_COLOR = new Color(30, 75, 220);
-    final public static Color COLLECTED_WEAK_COLOR = new Color(30, 75, 255);
+    final public static Color COLLECTED_WEAK_COLOR = new Color(90, 185, 255);
     final public static double DRAW_WIDTH_PERCENT = 0.15;
     // draw offsets for x and y are the same b/c cos(45) = sin(45)
     final public static double DRAW_OFF = Math.cos(Math.toRadians(45));
