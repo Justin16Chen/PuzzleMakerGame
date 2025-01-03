@@ -55,6 +55,7 @@ public class Tween extends Updatable {
 
     @Override
     public void loop() {
+        updateProperty(1);
         elapsedTime = 0;
         currentLoop++;
         if (pingPong) {
@@ -70,6 +71,6 @@ public class Tween extends Updatable {
 
     @Override
     public void performOnComplete() {
-        updateProperty(1); // make sure final value is desired value, even if time is not perfect
+        updateProperty(1);
     }
 }

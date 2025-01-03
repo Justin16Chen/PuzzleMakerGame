@@ -286,17 +286,22 @@ public class PuzzlePiece extends GameObject {
         super.moveSelf(moveInfo);
 
         // check if it can connect with other puzzle pieces
+        checkForConnections(moveInfo);
+    }
+
+    // update connected state for all sides
+    public void checkForConnections(MoveInfo moveInfo) {
         ConnectInfo[] connectInfoList = new ConnectInfo[4];
 
         for (int i=0; i<4; i++) {
             Direction direction = Directions.getDirection(i);
-            if (getSide(direction).isConnected() || !getSide(direction).canConnect()) continue;
+            if (getSide(direction).isConnected() || !getSide(direction).canConnect()) 
+                continue;
             int connectDirx = Directions.getDirectionX(direction), connectDiry = Directions.getDirectionY(direction);
-            if (connectDirx == -moveInfo.getHdir() && connectDiry == -moveInfo.getVdir()) continue;
+            if (connectDirx == -moveInfo.getHdir() && connectDiry == -moveInfo.getVdir()) 
+                continue;
             connectInfoList[i] = getConnectInfo(0, 0, connectDirx, connectDiry);
-            // System.out.println(connectInfoList[i]);
         }
-        //Print.println(" PUZZLE PIECE MOVE FUNCTION: " + connectInfo, Print.PURPLE);
         for (ConnectInfo connectInfo : connectInfoList) {
             if (connectInfo == null) continue;
             if (connectInfo.canConnect()) 

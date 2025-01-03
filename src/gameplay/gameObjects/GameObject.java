@@ -97,8 +97,7 @@ public abstract class GameObject {
 
     // setup function called after all game objects are created
     // meant to be overridden by subclasses if needed
-    public void setup() {
-    }
+    public void setup() {}
 
     // gameboard decides when to do this - only after it is properly setup
     public void updateVisualsAtStart() {

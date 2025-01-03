@@ -156,6 +156,15 @@ public class GameBoard {
             gameObject.setup();
             gameObject.updateVisualsAtStart(); // make sure gameobjects start in correct draw position
         }
+
+        // check for any puzzle pieces already connected and update that
+        for (GameObject gameObject : gameObjects) {
+            if (!PuzzlePiece.isPuzzlePiece(gameObject)) 
+                continue;
+            
+            PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
+            puzzlePiece.checkForConnections(MoveInfo.makeValidMove(0, 0));
+        }
     }
 
     // update loop

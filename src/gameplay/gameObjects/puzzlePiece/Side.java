@@ -9,7 +9,6 @@ import utils.direction.Direction;
 import utils.direction.Directions;
 import utils.tween.EaseType;
 import utils.tween.Tween;
-import utils.tween.Updatable;
 
 public class Side {
     public enum Type {
@@ -18,12 +17,13 @@ public class Side {
         NOTHING
     }
     final public static Color STRONG_COLOR = new Color(200, 180, 20);
-    final public static Color WEAK_COLOR = new Color(30, 75, 220);
+    final public static Color WEAK_COLOR = new Color(70, 120, 230);
     final public static Color CONNECTED_STRONG_COLOR = new Color(250, 245, 150);
     final public static Color CONNECTED_WEAK_COLOR = new Color(90, 185, 255);
     final public static double DRAW_WIDTH_PERCENT = 0.15;
     // draw offsets for x and y are the same b/c cos(45) = sin(45)
     final public static double DRAW_OFF = Math.cos(Math.toRadians(45));
+    final public static double CONNECT_TWEEN_TIME = 0.6;
 
     // returns a list of sides based on string (from json file)
     public static Side[] getSideData(PuzzlePiece parent, String typeString, String baseStrengthString) {
@@ -135,8 +135,7 @@ public class Side {
             Print.println("ERROR, PARENT OF " + this + " DOES NOT MATCH WITH ANY IN " + connectInfo);
 
         if (getType() == Type.STRONG)
-            Tween.createTween("connectSide", this, "tweenPercent", 0, 1, 0.6).setEaseType(EaseType.EASE_IN);
-        
+            Tween.createTween("connectSide", this, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(EaseType.EASE_IN_BACK);
     }
 
     public void draw(Graphics2D g, int parentDrawx, int parentDrawy, int tileSize) {

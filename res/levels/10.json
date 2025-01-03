@@ -1,0 +1,38 @@
+{
+    "mapWidth": 3,
+    "mapHeight": 7,
+
+    "gameObjects": [
+        {
+            "name": "playerPiece",
+            "x": 0,
+            "y": 5,
+            "sideData": "wnnn"
+        },
+        {
+            "name": "puzzlePiece",
+            "x": 1,
+            "y": 1,
+            "sideData": "nnsw"
+        },
+        {
+            "name": "puzzlePiece",
+            "x": 1,
+            "y": 2,
+            "sideData": "nssn"
+        },
+        {
+            "name": "puzzlePiece",
+            "x": 1,
+            "y": 3,
+            "sideData": "nsns"
+        },
+        {"name": "wall", "x": 1, "y": 4},
+        {
+            "name": "puzzlePiece",
+            "x": 2,
+            "y": 5,
+            "sideData": "snnn"
+        }
+    ]
+}
