@@ -52,9 +52,8 @@ public class PuzzlePiece extends GameObject {
         //Print.println("disconnecting " + disconnectInfo, Print.YELLOW);
         Side side1 = disconnectInfo.getPiece1().getSide(disconnectInfo.getPiece1Direction());
         Side side2 = disconnectInfo.getPiece2().getSide(disconnectInfo.getPiece2Direction());
-
-        side1.setConnected(false);
-        side2.setConnected(false);
+        side1.disconnect();
+        side2.disconnect();
     }
 
     private Side[] sides;
@@ -112,8 +111,7 @@ public class PuzzlePiece extends GameObject {
     }
     // connect a side
     public void connectSide(Direction direction, ConnectInfo connectInfo) {
-        getSide(direction).setConnected(true); 
-        getSide(direction).setConnectInfo(connectInfo);
+        getSide(direction).connect(connectInfo);
         // System.out.println("CONNECTING SIDES");
         // System.out.println(connectInfo);
     }

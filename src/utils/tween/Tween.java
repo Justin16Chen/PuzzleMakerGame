@@ -1,5 +1,7 @@
 package utils.tween;
 
+import utils.JMath;
+
 public class Tween extends Updatable {
 
     public static Tween createTween(String name, Object target, String propertyName, Number startValue, Number endValue, double duration) {
@@ -33,7 +35,7 @@ public class Tween extends Updatable {
     public String toString() {
         double time = Math.round(getElapsedTime() * 1000) / 1000.;
         double finishTime = Math.round(getDuration() * 1000) / 1000.;
-        return "Tween(" + getName() + " | modifying "  + targetObject + "'s " + getPropertyName() + " | start: " + startValue + " | end: " + endValue + " | current: " + currentValue + " | " + time + "/" + finishTime + "sec | " + getCurrentLoop() + "/" + getTargetLoopCount() + " loops | ping pong: " + getPingPong() + " | loop complete: " + isLoopComplete() + " | complete: " + isComplete() + ")";
+        return "Tween(" + getName() + " | modifying "  + targetObject.getClass() + "'s " + getPropertyName() + " | start: " + startValue + " | end: " + endValue + " | current: " + currentValue + " | " + time + "/" + finishTime + "sec | " + getCurrentLoop() + "/" + getTargetLoopCount() + " loops | ping pong: " + getPingPong() + " | loop complete: " + isLoopComplete() + " | complete: " + isComplete() + ")";
 
     }
 
@@ -47,7 +49,7 @@ public class Tween extends Updatable {
 
     // sets the property of the target object based on a normalized time (0 to 1)
     private void updateProperty(double t) {
-        currentValue = Updatables.lerp(startValue, endValue, EaseTypes.getEasingFunction(easeType, t));
+        currentValue = JMath.lerp(startValue.doubleValue(), endValue.doubleValue(), EaseTypes.getEasingFunction(easeType, t));
         Updatables.setProperty(getTarget(), getPropertyName(), currentValue);
     }
 

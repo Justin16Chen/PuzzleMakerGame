@@ -79,7 +79,7 @@ public class Updatables {
 
             // print updatable
             if (canPrintUpdatable(updatable)) 
-                System.out.println(updatable.getPrint() + " idx " + i + " target: " + updatable.getTarget() + " | old list: " + getUpdatablesToString(0));
+                System.out.println(updatable.getPrint() + ": " + updatable);
             
             // perform updatable loop action
             if (updatable.isLoopComplete()) 
@@ -154,10 +154,6 @@ public class Updatables {
             default:
                 return false;
         }
-    }
-
-    public static double lerp(Number start, Number end, Number t) {
-        return start.doubleValue() + t.doubleValue() * (end.doubleValue() - start.doubleValue());
     }
 
     public static boolean hasProperty(Object targetObject, String propertyName) {

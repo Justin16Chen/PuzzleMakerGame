@@ -3,9 +3,13 @@ package gameplay.gameObjects.puzzlePiece;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import utils.JMath;
 import utils.Print;
 import utils.direction.Direction;
 import utils.direction.Directions;
+import utils.tween.EaseType;
+import utils.tween.Tween;
+import utils.tween.Updatable;
 
 public class Side {
     public enum Type {
@@ -15,11 +19,13 @@ public class Side {
     }
     final public static Color STRONG_COLOR = new Color(200, 180, 20);
     final public static Color WEAK_COLOR = new Color(30, 75, 220);
-    final public static Color COLLECTED_WEAK_COLOR = new Color(90, 185, 255);
+    final public static Color CONNECTED_STRONG_COLOR = new Color(250, 245, 150);
+    final public static Color CONNECTED_WEAK_COLOR = new Color(90, 185, 255);
     final public static double DRAW_WIDTH_PERCENT = 0.15;
     // draw offsets for x and y are the same b/c cos(45) = sin(45)
     final public static double DRAW_OFF = Math.cos(Math.toRadians(45));
 
+    // returns a list of sides based on string (from json file)
     public static Side[] getSideData(PuzzlePiece parent, String typeString, String baseStrengthString) {
         Side[] sideData = new Side[4];
         for (int i=0; i<4; i++) {
@@ -73,6 +79,7 @@ public class Side {
     private PuzzlePiece parent;
     private PuzzlePiece piece2;
     private Side piece2Side;
+    private double tweenPercent; // plays animation based on this when connecting w another side
 
     public Side(PuzzlePiece parent, Direction direction, Type type) {
         this.parent = parent;
@@ -91,7 +98,7 @@ public class Side {
     }
     public String getString(int number) {
         if (connected && number == 0) return "Side(" + direction + "|" + type + "|\n  p2 pos:(" + piece2.getBoardX() + "," + piece2.getBoardY() + ")\n  p2 side:" + piece2Side.getString(1) + ")";
-        return "Side(" + direction + "|" + type + ")";
+        return "Side(" + direction + "|" + type + "tweenAmount: " + tweenPercent + ")";
     }
 
     public Direction getDirection() { return direction; }
@@ -103,74 +110,83 @@ public class Side {
     public PuzzlePiece getPiece2() { return piece2; }
     public Side getPiece2Side() { return piece2Side; }
 
-    public void setConnected(boolean connected) { 
-        if (type != Side.Type.NOTHING) this.connected = connected; 
-        else this.connected = false;
-
-        if (!connected) {
-            connectInfo = null;
-            piece2 = null;
-            piece2Side = null;
-        }
+    public void disconnect() { 
+        if (!connected)
+            throw new IllegalCallerException("cannot disconnect a side that is not connected");
+        connected = false;
+        connectInfo = null;
+        piece2 = null;
+        piece2Side = null;
+            
     }
-    public void setConnectInfo(ConnectInfo connectInfo) {
+    public void connect(ConnectInfo connectInfo) {
+        if (connected)
+            throw new IllegalCallerException("cannot connect a side that is already connected");
+        connected = true;
         this.connectInfo = connectInfo;
-        // System.out.println("SETTING CONNECT INFO");
+        
         if (parent.equals(connectInfo.getPiece1())) {
             this.piece2 = connectInfo.getPiece2();
             this.piece2Side = connectInfo.getPiece2Side();
         } else if (parent.equals(connectInfo.getPiece2())) {
             this.piece2 = connectInfo.getPiece1();
             this.piece2Side = connectInfo.getPiece1Side();
-        } else {
+        } else
             Print.println("ERROR, PARENT OF " + this + " DOES NOT MATCH WITH ANY IN " + connectInfo);
-        }
+
+        if (getType() == Type.STRONG)
+            Tween.createTween("connectSide", this, "tweenPercent", 0, 1, 0.6).setEaseType(EaseType.EASE_IN);
+        
     }
 
     public void draw(Graphics2D g, int parentDrawx, int parentDrawy, int tileSize) {
-        if (getType() == Type.NOTHING || (getType() == Type.STRONG && isConnected()))
+        if (getType() == Type.NOTHING || (getType() == Type.STRONG && isConnected() && tweenPercent == 1))
             return;
         int offset = (int) Math.ceil((DRAW_OFF * DRAW_WIDTH_PERCENT * tileSize));
         int[] xList = new int[4], yList = new int[4];
         if (!isConnected())
             g.setColor(getType() == Type.STRONG ? STRONG_COLOR : WEAK_COLOR);
         else
-            g.setColor(COLLECTED_WEAK_COLOR);
-        switch (getDirection()) {
-            case UP: 
-                xList[0] = 0;                 yList[0] = 0;
-                xList[1] = tileSize;          yList[1] = 0;
-                xList[2] = tileSize - offset; yList[2] = offset;
-                xList[3] = offset;            yList[3] = offset;
-                break;
-            case LEFT: 
-                xList[0] = 0;      yList[0] = 0;
-                xList[1] = 0;      yList[1] = tileSize;
-                xList[2] = offset; yList[2] = tileSize - offset;
-                xList[3] = offset; yList[3] = offset;
-                break;
-            case DOWN: 
-                xList[0] = 0;                 yList[0] = 0;
-                xList[1] = tileSize;          yList[1] = 0;
-                xList[2] = tileSize - offset; yList[2] = offset;
-                xList[3] = offset;            yList[3] = offset;
-                for (int i=0; i<xList.length; i++) 
-                    yList[i] = tileSize - yList[i];
+            g.setColor(getType() == Type.STRONG ? CONNECTED_STRONG_COLOR : CONNECTED_WEAK_COLOR);
+        
+        fillInDrawLists(xList, yList, tileSize, offset);
 
-                break;
-            case RIGHT:
-                xList[0] = 0;      yList[0] = 0;
-                xList[1] = 0;      yList[1] = tileSize;
-                xList[2] = offset; yList[2] = tileSize - offset;
-                xList[3] = offset; yList[3] = offset;
-                for (int i=0; i<xList.length; i++)
-                    xList[i] = tileSize - xList[i];
-                break;
-        }
         for (int i=0; i<xList.length; i++) {
             xList[i] += parentDrawx;
             yList[i] += parentDrawy;
         }
         g.fillPolygon(xList, yList, xList.length);
+    }
+
+    // gets the draw information for sides (relative)
+    // mutates xList and yList
+    private void fillInDrawLists(int[] xList, int[] yList, int tileSize, int offset) {
+        int halfTile = tileSize / 2;
+        switch (getDirection()) {
+            case UP: 
+                xList[0] = (int) JMath.lerp(0, halfTile, tweenPercent);               yList[0] = 0;
+                xList[1] = (int) JMath.lerp(tileSize, halfTile, tweenPercent);          yList[1] = 0;
+                xList[2] = (int) JMath.lerp(tileSize - offset, halfTile, tweenPercent); yList[2] = offset;
+                xList[3] = (int) JMath.lerp(offset, halfTile, tweenPercent);            yList[3] = offset;
+                break;
+            case LEFT: 
+                xList[0] = 0;      yList[0] = (int) JMath.lerp(0, halfTile, tweenPercent);
+                xList[1] = 0;      yList[1] = (int) JMath.lerp(tileSize, halfTile, tweenPercent);
+                xList[2] = offset; yList[2] = (int) JMath.lerp(tileSize - offset, halfTile, tweenPercent);
+                xList[3] = offset; yList[3] = (int) JMath.lerp(offset, halfTile, tweenPercent);
+                break;
+            case DOWN: 
+                xList[0] = (int) JMath.lerp(0, halfTile, tweenPercent);                 yList[0] = tileSize;
+                xList[1] = (int) JMath.lerp(tileSize, halfTile, tweenPercent);          yList[1] = tileSize;
+                xList[2] = (int) JMath.lerp(tileSize - offset, halfTile, tweenPercent); yList[2] = tileSize - offset;
+                xList[3] = (int) JMath.lerp(offset, halfTile, tweenPercent);            yList[3] = tileSize - offset;
+                break;
+            case RIGHT:
+                xList[0] = tileSize;          yList[0] = (int) JMath.lerp(0, halfTile, tweenPercent);
+                xList[1] = tileSize;          yList[1] = (int) JMath.lerp(tileSize, halfTile, tweenPercent);
+                xList[2] = tileSize - offset; yList[2] = (int) JMath.lerp(tileSize - offset, halfTile, tweenPercent);
+                xList[3] = tileSize - offset; yList[3] = (int) JMath.lerp(offset, halfTile, tweenPercent);
+                break;
+        }
     }
 }

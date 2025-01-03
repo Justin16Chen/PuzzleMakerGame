@@ -58,7 +58,7 @@ public class GameManager extends JPanel {
     final String INCREMENT_VDIR_KEY = "Equals";
     final String FIND_BREAKPOINT_KEY = "0";
 
-    final double LEVEL_FINISH_BUFFER_TIME = 1;
+    final double LEVEL_FINISH_BUFFER_TIME = 1.1;
 
     // debug MoveLogic.java IN PROGRESS
     private int hdir = 0, vdir = 0;

@@ -12,7 +12,9 @@ import utils.direction.Directions;
 import utils.drawing.InfoBox;
 import utils.drawing.SimpleSprite;
 import utils.drawing.Sprites;
+import utils.tween.EaseType;
 import utils.tween.Tween;
+import utils.tween.Updatable;
 
 public class PlayerPiece extends PuzzlePiece {
 
@@ -92,6 +94,5 @@ public class PlayerPiece extends PuzzlePiece {
     @Override
     public void deleteSprites() {
         Sprites.deleteSprites(new String[]{sprite.getName(), outlineSprite.getName(), InfoBox.NAME});
-        System.out.println(Sprites.getSpritesToString());
     }
 }

@@ -4,7 +4,10 @@ import java.awt.*;
 import javax.swing.*;
 
 import gameplay.*;
+import utils.JMath;
 import utils.input.*;
+import utils.tween.EaseType;
+import utils.tween.EaseTypes;
 
 public class Main extends ParentFrame {
 
@@ -49,5 +52,7 @@ public class Main extends ParentFrame {
         Main main = new Main(60);
         main.setupWindow();
         main.gameManager.startGame();
+
+        System.out.println(EaseTypes.getEasingFunction(EaseType.EASE_IN_BACK, 0.4));
     }
 }
