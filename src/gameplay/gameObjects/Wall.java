@@ -14,7 +14,7 @@ public class Wall extends GameObject {
     public Wall(GameBoard gameBoard, int boardx, int boardy) {
         super(gameBoard, GameObject.ObjectType.WALL, boardx, boardy);
 
-        sprite = new SimpleSprite(GameObject.ObjectType.WALL + "", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObject") {
+        sprite = new SimpleSprite("wall", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObjects1") {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(COLOR);

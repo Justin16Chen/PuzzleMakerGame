@@ -4,16 +4,15 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
 import utils.direction.Direction;
 import utils.direction.Directions;
+import utils.drawing.InfoBox;
 import utils.drawing.SimpleSprite;
 import utils.drawing.Sprites;
 import utils.tween.Tween;
-import utils.tween.Updatable;
 
 public class PlayerPiece extends PuzzlePiece {
 
@@ -31,7 +30,7 @@ public class PlayerPiece extends PuzzlePiece {
     @Override
     public void setup() {
         
-        sprite = new SimpleSprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObject") {
+        sprite = new SimpleSprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObjects1") {
             @Override
             public void draw(Graphics2D g) {
         
@@ -44,7 +43,7 @@ public class PlayerPiece extends PuzzlePiece {
             }
         };
 
-        outlineSprite = new SimpleSprite("playerOutline", sprite.getX(), sprite.getY(), gameBoard.getTileSize(), gameBoard.getTileSize(), "effect") {
+        outlineSprite = new SimpleSprite("playerOutline", sprite.getX(), sprite.getY(), gameBoard.getTileSize(), gameBoard.getTileSize(), "effects") {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(new Color((int) outlineColor, (int) outlineColor, (int) outlineColor));
@@ -72,6 +71,9 @@ public class PlayerPiece extends PuzzlePiece {
             MoveInfo moveInfo = getAllMoveInfo(selfList, hdir, vdir);
             if (moveInfo.canMove()) {
 
+                // update the move indecies of all game objects
+                MoveLogic.updateMoveIndecies(gameBoard, getBoardX(), getBoardY());
+
                 // find any potential breakpoint boundaries for movement
                 ArrayList<GameObject> breakpointBoundaries = MoveLogic.findBreakpointBoundaries(gameBoard, getBoardX(), getBoardY(), hdir, vdir);
         
@@ -89,7 +91,7 @@ public class PlayerPiece extends PuzzlePiece {
 
     @Override
     public void deleteSprites() {
-        Sprites.deleteSprite(sprite);
-        Sprites.deleteSprite(outlineSprite);
+        Sprites.deleteSprites(new String[]{sprite.getName(), outlineSprite.getName(), InfoBox.NAME});
+        System.out.println(Sprites.getSpritesToString());
     }
 }

@@ -70,7 +70,7 @@ public class PuzzlePiece extends GameObject {
 
     @Override
     public void setup() {
-        sprite = new SimpleSprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObject") {
+        sprite = new SimpleSprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObjects1") {
             
             @Override
             public void draw(Graphics2D g) {
@@ -102,7 +102,7 @@ public class PuzzlePiece extends GameObject {
     public Side getSide(Direction direction) {
         return sides[Directions.getMoveIndex(direction)];
     }
-    // all of the sides are connected
+    // one of the sides is connected
     public boolean hasConnectedSide() {
         for (Direction direction : Directions.getAllDirections()) {
             if (getSide(direction).isConnected())
@@ -243,10 +243,6 @@ public class PuzzlePiece extends GameObject {
 
         // System.out.println("finished checking");
 
-        /*
-        [valid, valid, disconnect, valid]
-        */
-
         // also always get move info for base piece with no side offsets
         moveInfoList[4] = getMoveInfo(hdir, vdir);
 
@@ -321,9 +317,9 @@ public class PuzzlePiece extends GameObject {
         );
     }
 
-    /*
+    
     @Override
-    public void updateInfoList(Graphics2D g, int drawcx, int drawbottomy) {
+    public void updateDrawList() {
         ArrayList<String> drawList = new ArrayList<String>();
 
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
@@ -339,7 +335,6 @@ public class PuzzlePiece extends GameObject {
             drawList.add(parent.toString());
         }
 
-        setInfoList(g, drawcx, drawbottomy, drawList);
+        infoBox.setDrawList(drawList);
     }
-    */
 }

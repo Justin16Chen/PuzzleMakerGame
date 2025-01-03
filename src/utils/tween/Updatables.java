@@ -329,6 +329,12 @@ public class Updatables {
         }
         return sb.toString();
     }
+    public static boolean hasUpdatable(String name) {
+        for (Updatable updatable : list)
+            if (updatable.getName().equals(name))
+                return true;
+        return false;
+    }
 
 
 }

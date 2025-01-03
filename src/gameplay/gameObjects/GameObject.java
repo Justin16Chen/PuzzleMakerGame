@@ -14,7 +14,6 @@ import utils.drawing.Sprites;
 import utils.input.*;
 import utils.tween.EaseType;
 import utils.tween.Tween;
-import utils.tween.Updatables;
 
 public abstract class GameObject {
     
@@ -282,7 +281,7 @@ public abstract class GameObject {
     }
 
     public void deleteSprites() {
-        Sprites.deleteSprite(sprite);
+        Sprites.deleteSprites(new String[]{sprite.getName(), InfoBox.NAME});
     }
 
     @Override

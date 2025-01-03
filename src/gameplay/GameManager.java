@@ -1,7 +1,7 @@
 package gameplay;
 
 import java.util.ArrayList;
-
+import java.util.HashMap;
 import java.awt.*;
 
 import javax.swing.JPanel;
@@ -12,8 +12,8 @@ import gameplay.gameObjects.puzzlePiece.ConnectionLogic;
 import gameplay.gameObjects.puzzlePiece.Side;
 import gameplay.mapLoading.LevelLoader;
 import gameplay.mapLoading.LevelManager;
-import utils.Print;
 import utils.drawing.InfoBox;
+import utils.drawing.Sprite;
 import utils.drawing.Sprites;
 import utils.input.*;
 import utils.tween.*;
@@ -49,7 +49,7 @@ public class GameManager extends JPanel {
 
     // refresh level from json keybind
     final String TOGGLE_DEBUG_KEY = "Q";
-    final String RELOAD_LEVEL_KEY = "1";
+    final String RELOAD_LEVEL_KEY = "R";
     final String PREV_LEVEL_KEY = "2";
     final String NEXT_LEVEL_KEY = "3";
     final String ALLOW_TRANSITION_KEY = "Space";
@@ -57,6 +57,8 @@ public class GameManager extends JPanel {
     final String INCREMENT_HDIR_KEY = "Minus";
     final String INCREMENT_VDIR_KEY = "Equals";
     final String FIND_BREAKPOINT_KEY = "0";
+
+    final double LEVEL_FINISH_BUFFER_TIME = 1;
 
     // debug MoveLogic.java IN PROGRESS
     private int hdir = 0, vdir = 0;
@@ -104,6 +106,7 @@ public class GameManager extends JPanel {
 
         // debug info box drawer
         debugInfoBox = new InfoBox(0, 0);
+        debugInfoBox.setName("debugInfoBox");
 
         // create game board
         gameBoard = new GameBoard(this, keyInput, mouseInput);
@@ -126,12 +129,12 @@ public class GameManager extends JPanel {
     public void setupLayers() {
         Sprites.addLayer("default", 0);
         Sprites.addLayer("gameBoard", 1);
-        Sprites.addLayer("gameObject", 2);
-        Sprites.addLayer("effect", 3);
-        Sprites.addLayer("transition", 4);
-        Sprites.addLayer("debug", 5);
-
-        System.out.println(Sprites.getLayersToString());
+        Sprites.addLayer("gameObjects1", 2);
+        Sprites.addLayer("gameObjects2", 3);
+        Sprites.addLayer("gameObjects3", 4);
+        Sprites.addLayer("effects", 5);
+        Sprites.addLayer("transitions", 6);
+        Sprites.addLayer("debug", 7);
     }
 
     // create the game loop
@@ -185,23 +188,18 @@ public class GameManager extends JPanel {
 
     public void updateGame(double dt) {
 
-        // IN PROGRESS: this should be happening in player update function before movement
-        int playerx = 0, playery = 0;
-        for (GameObject gameObject : gameBoard.getGameObjects()) 
-            if (gameObject.getObjectType() == GameObject.ObjectType.PLAYER_PIECE) {
-                playerx = gameObject.getBoardX();
-                playery = gameObject.getBoardY();
-            }
-        
-        // update game object indecies
-        MoveLogic.updateMoveIndecies(gameBoard, playerx, playery);
-
+        // update game board and game objects
         gameBoard.update(dt);
 
         // go to next level
-        if (keyInput.keyClicked(ALLOW_TRANSITION_KEY) && gameBoard.allPuzzlePiecesConnected() && !levelManager.transitioningBetweenLevels()
-            && levelManager.hasLevel(levelManager.getCurrentLevel() + 1)) 
+        if (gameBoard.allPuzzlePiecesConnected() && !levelManager.transitioningBetweenLevels() && levelManager.hasLevel(levelManager.getCurrentLevel() + 1)) 
+            if (keyInput.keyClicked(ALLOW_TRANSITION_KEY)) {
                 levelManager.transitionToNextLevel(true, true);
+                Updatables.deleteUpdatables(new String[]{"queueLevelTransition"});
+            }
+            // go after a timer if user does not manually transition
+            else if (!Updatables.hasUpdatable("queueLevelTransition"))
+                Timer.createCallTimer("queueLevelTransition", levelManager, LEVEL_FINISH_BUFFER_TIME, "transitionToNextLevel", true, true);
 
         // IN PROGRESS: testing MoveLogic.java
         if (keyInput.keyClicked(INCREMENT_HDIR_KEY)) 
@@ -225,14 +223,12 @@ public class GameManager extends JPanel {
         if (keyInput.keyClicked(NEXT_LEVEL_KEY)) 
             levelManager.transitionToNextLevel(true, true);
         
-
+        // show/hide debug info
         if (keyInput.keyClicked(TOGGLE_DEBUG_KEY)) {
             showDebug = !showDebug;
             debugInfoBox.setVisible(showDebug);
-            for (GameObject gameObject : gameBoard.getGameObjects()) 
-                gameObject.getInfoBox().setVisible(showDebug);
-            updateDebugDrawList();
         }
+        if (showDebug) updateDebugDrawList();
 
         if (keyInput.keyClicked(PRINT_UPDATABLES_KEY))
             Updatables.setAllowPrint(!Updatables.getAllowPrint());
@@ -260,10 +256,11 @@ public class GameManager extends JPanel {
         addDebugGeneral(drawList);
         //addDebugInput(drawList); // more advanced stuff, separated
         addDebugControls(drawList);
-        //addDebugUpdatables(drawList);
+        addDebugUpdatables(drawList);
+        addDebugSprites(drawList);
         addDebugLevel(drawList);
         //addDebugGameObjects(drawList);
-        addDebugMovement(drawList);
+        //addDebugMovement(drawList);
         
         debugInfoBox.setDrawList(drawList);
     }
@@ -304,6 +301,19 @@ public class GameManager extends JPanel {
         drawList.add("amount of updatables: " + Updatables.getUpdatableAmount());
         for (Updatable updatable : Updatables.getUpdatables()) 
             drawList.add("" + updatable.getName());
+    }
+    @SuppressWarnings("unused")
+    private void addDebugSprites(ArrayList<String> drawList) {
+        drawList.add("===SPRITES===");
+        HashMap<String, Integer> spriteCounters = new HashMap<>();
+        for (Sprite sprite : Sprites.getSprites()) 
+            if (spriteCounters.containsKey(sprite.getName()))
+                spriteCounters.put(sprite.getName(), spriteCounters.get(sprite.getName()) + 1);
+            else
+                spriteCounters.put(sprite.getName(), 1);
+        
+        for (String spriteName : spriteCounters.keySet()) 
+            drawList.add(spriteName + ": " + spriteCounters.get(spriteName));
         
     }
     @SuppressWarnings("unused")

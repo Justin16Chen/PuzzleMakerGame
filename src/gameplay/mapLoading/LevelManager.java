@@ -26,7 +26,7 @@ public class LevelManager {
     public LevelManager(GameManager gameManager, GameBoard gameBoard) {
         this.gameManager = gameManager;
         this.gameBoard = gameBoard;
-        this.transitionSprite = new SimpleSprite("transitionSprite", 0, 0, gameManager.getWidth(), gameManager.getHeight(), "transition").setColor(Color.BLACK);
+        this.transitionSprite = new SimpleSprite("transitionSprite", 0, 0, gameManager.getWidth(), gameManager.getHeight(), "transitions").setColor(Color.BLACK);
         this.currentLevel = 1;
         updateGeneralLevelInfo();
     }
@@ -105,7 +105,6 @@ public class LevelManager {
             currentLevel = level;
 
             // clear sprites
-            Sprites.deleteSprites(new String[]{InfoBox.NAME});
             gameBoard.clearGameObjects();
 
             // clear updatables

@@ -1,6 +1,6 @@
 package utils.drawing;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 
 public abstract class Sprite {
 
@@ -22,15 +22,17 @@ public abstract class Sprite {
 
     @Override
     public boolean equals(Object obj) {
-        return getName().equals(((Sprite) obj).getName());
+        Sprite sprite = (Sprite) obj;
+        return name.equals(sprite.getName()) && x == sprite.getX() && y == sprite.getY() && width == sprite.getWidth() && height == sprite.getHeight() && layerName.equals(sprite.getLayerName());
     }
     @Override
     public String toString() {
         String visibleString = visible ? "shown" : "hidden"; 
-        return "Sprite(" + name + "(" +  x + ", " + y + ") | " + width + "x" + height + " | " + layerName + " layer | " + visibleString + ")";
+        return "Sprite(" + name + " (" +  x + ", " + y + ") | " + width + "x" + height + " | " + layerName + " layer | " + visibleString + ")";
     }
 
     public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
     
     public int getX() { return x; }
     public void setX(int x) { this.x = x; }

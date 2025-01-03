@@ -48,8 +48,8 @@ public class InfoBox extends SimpleSprite {
     
         // Calculate maximum width of the list items, including padding
         int maxWidth = 0;
-        for (String string : drawList) 
-            maxWidth = Math.max(maxWidth, fontMetrics.stringWidth(string));
+        for (int i=0; i<drawList.size(); i++)
+            maxWidth = Math.max(maxWidth, fontMetrics.stringWidth(drawList.get(i)));
         maxWidth += borderSize * 2;  // Add padding on both sides
         setWidth(maxWidth);
     }

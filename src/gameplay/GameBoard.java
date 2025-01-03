@@ -5,11 +5,12 @@ import java.util.ArrayList;
 
 import gameplay.gameObjects.*;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
+import gameplay.gameObjects.puzzlePiece.Side;
 import gameplay.mapLoading.*;
 import utils.Print;
-import utils.drawing.InfoBox;
+import utils.direction.Direction;
+import utils.direction.Directions;
 import utils.drawing.SimpleSprite;
-import utils.drawing.Sprites;
 import utils.input.*;
 
 public class GameBoard {
@@ -160,27 +161,30 @@ public class GameBoard {
     // update loop
     public void update(double dt) {
 
-        // clear the next board
-        nextBoard = createEmptyBoard(width, height);
-
         // update current board
         for (int i=0; i<gameObjects.size(); i++) {
+
+            // update game object
             GameObject gameObject = gameObjects.get(i);
             gameObject.resetMovedThisFrame();
             gameObject.resetQueuedMovedThisFrame();
             gameObject.update(dt);
 
-            gameObject.getInfoBox().setX(gameObject.getSprite().getX());
-            gameObject.getInfoBox().setBottom(gameObject.getSprite().getY() - 5);
-            gameObject.updateDrawList();
-
-            // put updated object into next board
-            nextBoard[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
+            // update game object info box
+            if (gameManager.mouseInput.clicked()
+                && gameManager.mouseInput.isOver(gameObject.getSprite().getX(), gameObject.getSprite().getY(), gameObject.getSprite().getWidth(), gameObject.getSprite().getHeight())) 
+                gameObject.getInfoBox().setVisible(!gameObject.getInfoBox().isVisible());
+            if (gameObject.getInfoBox().isVisible()) {
+                gameObject.getInfoBox().setX(gameObject.getSprite().getX());
+                gameObject.getInfoBox().setBottom(gameObject.getSprite().getY() - 5);
+                gameObject.updateDrawList();
+            }
         }
         // set the old board to the new board for next frame
         board = updateGameObjectPositions(board);
     }
 
+    // update the positions of the game objects on the 2d grid to match their instance data
     private GameObject[][] updateGameObjectPositions(GameObject[][] board) {
         GameObject[][] newBoard = createEmptyBoard(board[0].length, board.length);
         for (int i=0; i<gameObjects.size(); i++) {
@@ -192,16 +196,15 @@ public class GameBoard {
 
     // checks if all of the puzzle pieces are connected (win condition)
     public boolean allPuzzlePiecesConnected() {
-        for (int i=0; i<gameObjects.size(); i++) {
-            GameObject gameObject = gameObjects.get(i);
+        for (GameObject gameObject : gameObjects) {
+            if (!PuzzlePiece.isPuzzlePiece(gameObject)) 
+                continue;
 
-            if (gameObject.getObjectType() == GameObject.ObjectType.PUZZLE_PIECE) {
-                PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
+            PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
 
-                if (!puzzlePiece.hasConnectedSide()) {
+            for (Direction dir : Directions.getAllDirections()) 
+                if (puzzlePiece.getSide(dir).getType() != Side.Type.NOTHING && !puzzlePiece.getSide(dir).isConnected()) 
                     return false;
-                }
-            }
         }
         return true;
     }

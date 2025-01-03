@@ -8,7 +8,14 @@ public class Sprites {
 
     private static HashMap<Integer, String> layers = new HashMap<>();
     private static HashMap<String, ArrayList<Sprite>> sprites = new HashMap<>();
-    private static int numLayers = 0;
+
+    
+    public static ArrayList<Sprite> getSprites() {
+        ArrayList<Sprite> allSprites = new ArrayList<>();
+        for (String layerName : layers.values()) 
+            allSprites.addAll(sprites.get(layerName));
+        return allSprites;
+    }
 
     public static void addLayer(String layerName, int layerNumber) {
         if (layers.containsKey(layerNumber)) 
@@ -16,7 +23,6 @@ public class Sprites {
         
         layers.put(layerNumber, layerName);
         sprites.put(layerName, new ArrayList<Sprite>());
-        numLayers++;
     }
     public static void addSprite(Sprite sprite, String layerName) {
         if (!layers.values().contains(layerName)) 
@@ -25,39 +31,29 @@ public class Sprites {
     }
 
     public static void deleteSprite(Sprite spriteToDelete) {
-        for (int i=0; i<numLayers; i++) {
-            ArrayList<Sprite> list = sprites.get(layers.get(i));
-            for (int j=0; j<list.size(); j++)
-                if (list.get(j).equals(spriteToDelete)) {
-                    list.remove(j);
+        for (String layerName : layers.values()) 
+            for (Sprite sprite : sprites.get(layerName)) 
+                if (sprite.equals(spriteToDelete)) {
+                    sprites.get(layerName).remove(sprite);
                     return;
                 }
-        }
     }
 
     public static void deleteSprites(String[] names) {
-        for (int i=0; i<numLayers; i++) {
-            ArrayList<Sprite> list = sprites.get(layers.get(i));
-            for (int j=0; j<list.size(); j++) {
-                Sprite sprite = list.get(j);
-
-                for (String name : names)
+        for (String name : names) 
+            for (String layerName : layers.values()) 
+                for (Sprite sprite : sprites.get(layerName)) 
                     if (sprite.getName().equals(name)) {
-                        list.remove(sprite);
-                        j--;
+                        sprites.get(layerName).remove(sprite);
+                        break;
                     }
-            }
-        }
     }
 
     public static void drawSprites(Graphics2D g) {
-        for (String layerName : layers.values()) {
-            ArrayList<Sprite> list = sprites.get(layerName);
-            for (Sprite sprite : list) {
+        for (String layerName : layers.values()) 
+            for (Sprite sprite : sprites.get(layerName)) 
                 if (sprite.isVisible())
                     sprite.draw(g);
-            }
-        }
     }
 
     public static String getLayersToString() {

@@ -92,7 +92,6 @@ public class MoveLogic {
         goList.add(mover);
 
         do {
-
             // set the index
             for (GameObject gameObject : goList) {
                 gameObject.setMoveIndex(index);
