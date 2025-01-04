@@ -4,8 +4,15 @@
 
     "gameObjects": [
         { "name": "playerPiece", "x": 0, "y": 0, "sideData": "nnnn" },
-        { "name": "puzzlePiece", "x": 3, "y": 3, "sideData": "nnsn" },
-        { "name": "puzzlePiece", "x": 3, "y": 4, "sideData": "snnn" },
+
+        { "name": "puzzlePiece", "x": 2, "y": 3, "sideData": "nnsw" },
+        { "name": "puzzlePiece", "x": 2, "y": 4, "sideData": "snnw" },
+
+        { "name": "puzzlePiece", "x": 4, "y": 3, "sideData": "nwsw" },
+        { "name": "puzzlePiece", "x": 4, "y": 4, "sideData": "swnw" },
+
+        { "name": "puzzlePiece", "x": 6, "y": 3, "sideData": "nwsn" },
+        { "name": "puzzlePiece", "x": 6, "y": 4, "sideData": "swnn" },
         { "name": "wall", "x": 2, "y": 0, "width": 5, "height": 3 }
         
     ]

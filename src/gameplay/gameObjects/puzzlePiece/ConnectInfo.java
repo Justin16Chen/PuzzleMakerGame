@@ -60,4 +60,8 @@ public class ConnectInfo {
         }
         return "ConnectInfo(" + invalidMessage + ")";
     }
+    public void connect(boolean playAnimation) {
+        getPiece1().connectSide(getPiece1Direction(), this, playAnimation);
+        getPiece2().connectSide(getPiece2Direction(), this, playAnimation);
+    }
 }

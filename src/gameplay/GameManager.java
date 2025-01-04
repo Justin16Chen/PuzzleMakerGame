@@ -22,6 +22,19 @@ import window.ParentFrame;
 public class GameManager extends JPanel {
 
     public static Color BG_COLOR = new Color(230, 230, 230);
+
+    // refresh level from json keybind
+    final String TOGGLE_DEBUG_KEY = "Q";
+    final String RELOAD_LEVEL_KEY = "R";
+    final String PREV_LEVEL_KEY = "2";
+    final String NEXT_LEVEL_KEY = "3";
+    final String ALLOW_TRANSITION_KEY = "Space";
+    final String PRINT_UPDATABLES_KEY = "U";
+    final String INCREMENT_HDIR_KEY = "Minus";
+    final String INCREMENT_VDIR_KEY = "Equals";
+    final String FIND_BREAKPOINT_KEY = "0";
+
+    final double LEVEL_FINISH_BUFFER_TIME = 1.1;
     
     // window
     private ParentFrame window;
@@ -37,28 +50,18 @@ public class GameManager extends JPanel {
     public double dt;
 
     // level management
-    LevelManager levelManager;
+    private LevelManager levelManager;
+    public LevelManager getLevelManager() { return levelManager; }
 
     // debug
     public boolean showDebug;
     private InfoBox debugInfoBox;
 
     // input
-    KeyInput keyInput;
-    MouseInput mouseInput;
-
-    // refresh level from json keybind
-    final String TOGGLE_DEBUG_KEY = "Q";
-    final String RELOAD_LEVEL_KEY = "R";
-    final String PREV_LEVEL_KEY = "2";
-    final String NEXT_LEVEL_KEY = "3";
-    final String ALLOW_TRANSITION_KEY = "Space";
-    final String PRINT_UPDATABLES_KEY = "U";
-    final String INCREMENT_HDIR_KEY = "Minus";
-    final String INCREMENT_VDIR_KEY = "Equals";
-    final String FIND_BREAKPOINT_KEY = "0";
-
-    final double LEVEL_FINISH_BUFFER_TIME = 1.1;
+    private KeyInput keyInput;
+    public KeyInput getKeyInput() { return keyInput; }
+    private MouseInput mouseInput;
+    public MouseInput getMouseInput() { return mouseInput; }
 
     // debug MoveLogic.java IN PROGRESS
     private int hdir = 0, vdir = 0;
@@ -107,6 +110,7 @@ public class GameManager extends JPanel {
         // debug info box drawer
         debugInfoBox = new InfoBox(0, 0);
         debugInfoBox.setName("debugInfoBox");
+        debugInfoBox.setVisible(false);
 
         // create game board
         gameBoard = new GameBoard(this, keyInput, mouseInput);
@@ -251,8 +255,7 @@ public class GameManager extends JPanel {
     }
 
     private void updateDebugDrawList() {
-
-    ArrayList<String> drawList = new ArrayList<>();
+        ArrayList<String> drawList = new ArrayList<>();
         addDebugGeneral(drawList);
         //addDebugInput(drawList); // more advanced stuff, separated
         addDebugControls(drawList);

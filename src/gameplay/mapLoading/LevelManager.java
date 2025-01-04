@@ -15,7 +15,7 @@ public class LevelManager {
 
     private int currentLevel;
     public int startLevel;
-    public int lastLevel;
+    public int endLevel;
     private boolean transitioning;
     private double totalTransitionTime;
     private double transitionTime;
@@ -33,14 +33,14 @@ public class LevelManager {
 
     public int getCurrentLevel() { return currentLevel; }
     public boolean transitioningBetweenLevels() { return transitioning; }
-    public boolean hasLevel(int level) { return level <= lastLevel && level >= startLevel; }
+    public boolean hasLevel(int level) { return level <= endLevel && level >= startLevel; }
 
     // sets the general level info
     public void updateGeneralLevelInfo() {
         // System.out.println("UPDATING GENERAL LEVEL INFO");
         GeneralLevelInfo generalLevelInfo = LevelLoader.getGeneralLevelInfo("levelInfo.json");
         startLevel = generalLevelInfo.getStartLevel();
-        lastLevel = generalLevelInfo.getLastLevel();
+        endLevel = generalLevelInfo.getendLevel();
         totalTransitionTime = generalLevelInfo.getTransitionTime();
         transitionTime = totalTransitionTime * 0.5;
     }

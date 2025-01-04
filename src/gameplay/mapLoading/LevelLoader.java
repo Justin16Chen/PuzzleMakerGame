@@ -130,17 +130,17 @@ public class LevelLoader {
 
         File file = new File(ROOT_PATH + "/" + fileName);
         try {
-            int startLevel, lastLevel;
+            int startLevel, endLevel;
             double transitionTime;
 
             String content = new String(Files.readAllBytes(Paths.get(file.toURI())));
             JSONObject levelObject = new JSONObject(content);
 
             startLevel = levelObject.getInt("startLevel");
-            lastLevel = levelObject.getInt("lastLevel");
+            endLevel = levelObject.getInt("endLevel");
             transitionTime = levelObject.getDouble("transitionTime");
 
-            return new GeneralLevelInfo(startLevel, lastLevel, transitionTime);
+            return new GeneralLevelInfo(startLevel, endLevel, transitionTime);
         } catch (JSONException e) {
             Print.println(fileName + " is not formatted correctly", Print.RED);
         } catch (IOException e) {
@@ -200,28 +200,38 @@ public class LevelLoader {
 
     // create a game object given the primitive data
     public static ArrayList<GameObject> createGameObjects(JSONObject jsonObject, GameBoard gameBoard) {
+        GameObject.ObjectType objectType = GameObject.getObjectType(jsonObject.getString("name"));
+        switch (objectType) {
+            case WALL: return Wall.loadWall(jsonObject, gameBoard);
+            case BOX: return Box.loadBox(jsonObject, gameBoard);
+            case PUZZLE_PIECE: return PuzzlePiece.loadPuzzlePiece(jsonObject, gameBoard);
+            case PLAYER_PIECE: return PlayerPiece.loadPlayerPiece(jsonObject, gameBoard);
+            default: 
+                Print.println("GAME OBJECT TYPE NOT RECOGNIZED: " + objectType, Print.RED);
+                return new ArrayList<GameObject>();
+        }
+    }
+    public static ArrayList<GameObject> createGameObjectsOld(JSONObject jsonObject, GameBoard gameBoard) {
         ArrayList<GameObject> gameObjects = new ArrayList<>();
         ObjectType objectType = GameObject.getObjectType(jsonObject.getString("name"));
+
         switch (objectType) {
             case PUZZLE_PIECE: 
-                String strengths = jsonObject.has("strengthData") ? jsonObject.getString("strengthData") : "ssss";
-                gameObjects.add(new PuzzlePiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData"), strengths)); 
+                gameObjects.add(new PuzzlePiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData"))); 
                 break;
             case PLAYER_PIECE: 
-                strengths = jsonObject.has("strengthData") ? jsonObject.getString("strengthData") : "ssss";
-                gameObjects.add(new PlayerPiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData"), strengths));
+                gameObjects.add(new PlayerPiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")));
                 break;
             case WALL:
                 int width = jsonObject.has("width") ? jsonObject.getInt("width") : 1;
                 int height = jsonObject.has("height") ? jsonObject.getInt("height") : 1;
-                for (int y=0; y<height; y++) {
-                    for (int x=0; x<width; x++) {
+                for (int y=0; y<height; y++) 
+                    for (int x=0; x<width; x++) 
                         gameObjects.add(new Wall(gameBoard, jsonObject.getInt("x") + x, jsonObject.getInt("y") + y));
-                    }
-                }
                 break;
             default: break;
         }
         return gameObjects;
     }
+
 }

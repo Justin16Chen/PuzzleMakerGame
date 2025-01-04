@@ -26,7 +26,7 @@ public class Side {
     final public static double CONNECT_TWEEN_TIME = 0.6;
 
     // returns a list of sides based on string (from json file)
-    public static Side[] getSideData(PuzzlePiece parent, String typeString, String baseStrengthString) {
+    public static Side[] getSideData(PuzzlePiece parent, String typeString) {
         Side[] sideData = new Side[4];
         for (int i=0; i<4; i++) {
             Type type;
@@ -119,7 +119,7 @@ public class Side {
         piece2Side = null;
             
     }
-    public void connect(ConnectInfo connectInfo) {
+    public void connect(ConnectInfo connectInfo, boolean playAnimation) {
         if (connected)
             throw new IllegalCallerException("cannot connect a side that is already connected");
         connected = true;
@@ -131,11 +131,19 @@ public class Side {
         } else if (parent.equals(connectInfo.getPiece2())) {
             this.piece2 = connectInfo.getPiece1();
             this.piece2Side = connectInfo.getPiece1Side();
-        } else
+        } else {
             Print.println("ERROR, PARENT OF " + this + " DOES NOT MATCH WITH ANY IN " + connectInfo);
+            return;
+        }
 
-        if (getType() == Type.STRONG)
-            Tween.createTween("connectSide", this, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(EaseType.EASE_IN_BACK);
+        if (getType() == Type.STRONG) 
+            if (playAnimation) {
+                Tween.createTween("connectSide", this, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(EaseType.EASE_IN_BACK);
+                Tween.createTween("connectSide", piece2Side, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(EaseType.EASE_IN_BACK);
+            } else {
+                tweenPercent = 1;
+                piece2Side.tweenPercent = 1;
+            }
     }
 
     public void draw(Graphics2D g, int parentDrawx, int parentDrawy, int tileSize) {

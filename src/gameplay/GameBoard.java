@@ -5,11 +5,8 @@ import java.util.ArrayList;
 
 import gameplay.gameObjects.*;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
-import gameplay.gameObjects.puzzlePiece.Side;
 import gameplay.mapLoading.*;
 import utils.Print;
-import utils.direction.Direction;
-import utils.direction.Directions;
 import utils.drawing.SimpleSprite;
 import utils.input.*;
 
@@ -62,6 +59,8 @@ public class GameBoard {
             public void draw(Graphics2D g) {
                 g.setColor(BOARD_COLOR);
                 g.fillRect(getX(), getY(), getWidth(), getHeight());
+                g.setFont(new Font("Arial", Font.BOLD, 15));
+                g.drawString("Level " + gameManager.getLevelManager().getCurrentLevel(), getX(), getY() - 10);
             }
         };
     }
@@ -163,7 +162,7 @@ public class GameBoard {
                 continue;
             
             PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
-            puzzlePiece.checkForConnections(MoveInfo.makeValidMove(0, 0));
+            puzzlePiece.checkForConnections(MoveInfo.makeValidMove(0, 0), false);
         }
     }
 
@@ -180,8 +179,8 @@ public class GameBoard {
             gameObject.update(dt);
 
             // update game object info box
-            if (gameManager.mouseInput.clicked()
-                && gameManager.mouseInput.isOver(gameObject.getSprite().getX(), gameObject.getSprite().getY(), gameObject.getSprite().getWidth(), gameObject.getSprite().getHeight())) 
+            if (gameManager.getMouseInput().clicked()
+                && gameManager.getMouseInput().isOver(gameObject.getSprite().getX(), gameObject.getSprite().getY(), gameObject.getSprite().getWidth(), gameObject.getSprite().getHeight())) 
                 gameObject.getInfoBox().setVisible(!gameObject.getInfoBox().isVisible());
             if (gameObject.getInfoBox().isVisible()) {
                 gameObject.getInfoBox().setX(gameObject.getSprite().getX());
@@ -208,12 +207,9 @@ public class GameBoard {
         for (GameObject gameObject : gameObjects) {
             if (!PuzzlePiece.isPuzzlePiece(gameObject)) 
                 continue;
-
             PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
-
-            for (Direction dir : Directions.getAllDirections()) 
-                if (puzzlePiece.getSide(dir).getType() != Side.Type.NOTHING && !puzzlePiece.getSide(dir).isConnected()) 
-                    return false;
+            if (!puzzlePiece.areAllSidesConnected())
+                return false;
         }
         return true;
     }

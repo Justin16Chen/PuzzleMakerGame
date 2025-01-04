@@ -3,12 +3,14 @@
         "gameObject": ["name", "x", "y"],
         "puzzlePiece": ["sideData"],
         "playerPiece": ["sideData"],
-        "wall": []
+        "wall": [],
+        "box": []
     },
     "optional": {
         "gameObject": [],
         "puzzlePiece": [],
         "playerPiece": [],
-        "wall": ["width", "height"]
+        "wall": ["width", "height"],
+        "box": ["width", "height"]
     }
 }

@@ -20,6 +20,7 @@ public abstract class GameObject {
     // game object enum types
     public static enum ObjectType {
         WALL,
+        BOX,
         PLAYER_PIECE,
         PUZZLE_PIECE
     }
@@ -29,6 +30,7 @@ public abstract class GameObject {
             case PUZZLE_PIECE: return "puzzlePiece";
             case PLAYER_PIECE: return "playerPiece";
             case WALL: return "wall";
+            case BOX: return "box";
             default: throw new IllegalArgumentException(objectType + " is not valid");
         }
     }
@@ -38,6 +40,7 @@ public abstract class GameObject {
             case "puzzlePiece": return ObjectType.PUZZLE_PIECE;
             case "playerPiece": return ObjectType.PLAYER_PIECE;
             case "wall": return ObjectType.WALL;
+            case "box": return ObjectType.BOX;
             default: throw new IllegalArgumentException(objectTypeName + " is not valid");
         }
     }
@@ -50,12 +53,14 @@ public abstract class GameObject {
         return -1;
     }
     
+    // TODO: refactor this to be in json file
     // whether or not a game object is movable
     public static boolean getMovable(ObjectType objectType) {
         switch (objectType) {
             case PUZZLE_PIECE: return true;
             case PLAYER_PIECE: return true;
             case WALL: return false;
+            case BOX: return true;
             default: return false;
         }
     }
@@ -96,8 +101,8 @@ public abstract class GameObject {
     }
 
     // setup function called after all game objects are created
-    // meant to be overridden by subclasses if needed
-    public void setup() {}
+    // supposed to create sprites and tweens here - NOT in constructor
+    public abstract void setup();
 
     // gameboard decides when to do this - only after it is properly setup
     public void updateVisualsAtStart() {
@@ -266,7 +271,8 @@ public abstract class GameObject {
         return adjacentGameObjects;
     }
 
-    public abstract void update(double dt);
+    // meant to be overridden by subclasses (if needed)
+    public void update(double dt) {}
 
     public void updateDrawList() {
         ArrayList<String> drawList = new ArrayList<>();
