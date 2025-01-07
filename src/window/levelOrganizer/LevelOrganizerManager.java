@@ -3,9 +3,8 @@ package window.levelOrganizer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.ComponentOrientation;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -25,17 +24,18 @@ import utils.input.MouseInput;
 
 public class LevelOrganizerManager extends JPanel {
     
+    public static final String LEVELS_FOLDER_PATH = "res/levels/";
     public static final Color BG_COLOR = new Color(230, 230, 230), SELECTED_COLOR = new Color(200, 200, 200), REPLACE_COLOR = new Color(160, 160, 160);
     public static final Font FONT = new Font("Arial", Font.PLAIN, 18);
-    public static final int OFFSET_X = 25, OFFSET_Y = 25, DRAG_OFFSET_Y = -15;
+    public static final int OFFSET_X = 25, OFFSET_Y = 25, DRAG_OFFSET_Y = -15, REPLACE_STROKE_WIDTH = 4;;
     public static final double SPACING_PERCENT = 0.7;
 
-    private LevelOrganizer window;
     private JScrollBar scrollBar;
     private KeyInput keyInput;
     private MouseInput mouseInput;
 
     private ArrayList<String> levelFileNames;
+    private int startLevelFileIndex;
     private int selectedIndex, replaceIndex;
     private String selectedFileName;
     private boolean draggingSelectedFile;
@@ -43,11 +43,10 @@ public class LevelOrganizerManager extends JPanel {
     private FontMetrics fontMetrics;
     private int offset, spacing;
 
-    public LevelOrganizerManager(LevelOrganizer window, KeyInput keyInput, MouseInput mouseInput) {
-        this.window = window;
+    public LevelOrganizerManager(KeyInput keyInput, MouseInput mouseInput) {
         this.keyInput = keyInput;
         this.mouseInput = mouseInput;
-        mouseInput.setInsets(new Insets(60, 197, 0, 0));
+        mouseInput.setInsets(new Insets(90, 197, 0, 0));
         levelFileNames = loadLevelFileNames("res/levels/levelInfo.json");
 
         start();
@@ -64,16 +63,7 @@ public class LevelOrganizerManager extends JPanel {
                 int fps = 60;
                 long sleepInterval = (long) (1000. / fps);
 
-                double dt = 0;
-                long prevTime = System.currentTimeMillis();
-                long currentTime = System.currentTimeMillis();
-
                 while (true) {
-
-                    // update dt
-                    prevTime = currentTime;
-                    currentTime = System.currentTimeMillis();
-                    dt = (currentTime - prevTime) / 1000.;
 
                     // update input
                     keyInput.update();
@@ -102,25 +92,27 @@ public class LevelOrganizerManager extends JPanel {
         if (mouseInput.getX() >= getWidth() || mouseInput.getY() >= getHeight()) 
             return;
         int index = getFileIndex(mouseInput.getY());
-        if (index < 0 || index >= levelFileNames.size())
+        if (index < -1 || index >= levelFileNames.size())
             return;
 
-        if (mouseInput.clicked()) {
+        if (mouseInput.clicked() && index >= 0) {
             selectedIndex = index;
             selectedFileName = levelFileNames.get(selectedIndex);
             draggingSelectedFile = true;
         }
-
+        int dragIndex = mouseInput.getY() < OFFSET_Y + spacing * 0.5 ? 0 : getFileIndex(mouseInput.getY() + DRAG_OFFSET_Y) + 1;
         if (!mouseInput.down()) {
             if (draggingSelectedFile) {
                 levelFileNames.remove(selectedIndex);
-                levelFileNames.add(index, selectedFileName);
-                selectedIndex = index;
+                if (dragIndex >= selectedIndex)
+                    dragIndex--;
+                levelFileNames.add(dragIndex, selectedFileName);
+                selectedIndex = dragIndex;
             }
             draggingSelectedFile = false;
         }
         if (draggingSelectedFile)
-            replaceIndex = index;
+            replaceIndex = dragIndex;
         
     }
 
@@ -133,8 +125,9 @@ public class LevelOrganizerManager extends JPanel {
             int startLevel, endLevel;
 
             startLevel = obj.getInt("startLevel");
-            //endLevel = obj.getInt("endLevel");
-            endLevel = 30;
+            endLevel = obj.getInt("endLevel");
+
+            startLevelFileIndex = startLevel; // bruh bad code
 
             for (int i = startLevel; i <= endLevel; i++) 
                 fileNames.add(i + ".json");
@@ -181,7 +174,6 @@ public class LevelOrganizerManager extends JPanel {
         g.setColor(Color.BLACK);
         g.setFont(FONT);
         for (int i = 0; i < levelFileNames.size(); i++) {
-            //System.out.println(offset + spacing * i);
             if (i == selectedIndex) {
                 g.setColor(SELECTED_COLOR);
                 g.fillRect(0, getFileDrawY(i), getWidth(), spacing);
@@ -192,13 +184,12 @@ public class LevelOrganizerManager extends JPanel {
                         g.drawString(levelFileNames.get(i), OFFSET_X, offset + spacing * i);
                 }
             }
-            else if (i == replaceIndex) {
-                g.setColor(REPLACE_COLOR);
-                g.fillRect(0, getFileDrawY(i), getWidth(), spacing);
-                g.setColor(Color.BLACK);
-                g.drawString(levelFileNames.get(i), OFFSET_X, offset + spacing * i);
-            }
             else {
+                if (i == replaceIndex) {
+                    g.setColor(REPLACE_COLOR);
+                    g.setStroke(new BasicStroke(REPLACE_STROKE_WIDTH));
+                    g.drawLine(0, getFileDrawY(i), getWidth(), getFileDrawY(i));
+                }
                 g.setColor(Color.BLACK);
                 g.drawString(levelFileNames.get(i), OFFSET_X, offset + spacing * i);
             }
@@ -207,9 +198,28 @@ public class LevelOrganizerManager extends JPanel {
         // draw selected file being dragged by mouse
         if (draggingSelectedFile) {
             g.setColor(SELECTED_COLOR);
-            g.fillRect(0, (int) (mouseInput.getY() - spacing * SPACING_PERCENT + DRAG_OFFSET_Y), getWidth(), spacing);
+            g.fillRect(0, (int) (mouseInput.getY() - spacing * SPACING_PERCENT + DRAG_OFFSET_Y), fontMetrics.stringWidth(selectedFileName) + OFFSET_X * 2, spacing);
             g.setColor(Color.BLACK);
             g.drawString(selectedFileName, OFFSET_X, mouseInput.getY() + DRAG_OFFSET_Y);
         }
+    }
+
+    public void save() {
+        // save them + temp so there are no errors w mutliple files w the same name
+        for (int i = 0; i < levelFileNames.size(); i++) {
+            int levelNum = startLevelFileIndex + i;
+            File levelFile = new File(LEVELS_FOLDER_PATH + levelFileNames.get(levelNum));
+            levelFile.renameTo(new File(LEVELS_FOLDER_PATH + "temp " + levelNum + ".json"));
+        }
+        
+        for (int i = 0; i < levelFileNames.size(); i++) {
+            int levelNum = startLevelFileIndex + i;
+            
+            File levelFile = new File(LEVELS_FOLDER_PATH + "temp " + levelNum + ".json");
+            levelFile.renameTo(new File(LEVELS_FOLDER_PATH + levelNum + ".json"));
+        }
+
+        levelFileNames = loadLevelFileNames("res/levels/levelInfo.json");
+
     }
 }

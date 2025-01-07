@@ -7,6 +7,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class KeyInput extends KeyAdapter {
+
+    public static final KeyInput NOTHING_INPUT = new KeyInput(Type.NOTHING);
+
+    private enum Type {
+        NOTHING,
+        ACTIVE
+    }
+
     private ArrayList<String> keyList = new ArrayList<String>(Arrays.asList(
         "Back Quote","1","2","3","4","5","6","7","8","9","0","Minus","Equals","Backspace",
         "Q","W","E","R","T","Y","U","I","O","P","Open Bracket","Close Bracket","Back Slash",
@@ -14,9 +22,17 @@ public class KeyInput extends KeyAdapter {
         "Shift","Z","X","C","V","B","N","M","Comma","Period","Slash",
         "Ctrl","Windows","Alt","Space","Page Up","Page Down","Up","Left","Down","Right"
     ));
-    public HashMap<String, Key> keyMap = new HashMap<String, Key>();
+
+    private HashMap<String, Key> keyMap = new HashMap<String, Key>();
+    private Type type;
+    
     public KeyInput() {
         setupKeyMap();
+        type = Type.ACTIVE;
+    }
+    public KeyInput(Type type) {
+        setupKeyMap();
+        this.type = type;
     }
 
     // setup key map from key list
@@ -28,6 +44,9 @@ public class KeyInput extends KeyAdapter {
     
     // update all keys
     public void update() {
+        if (type == Type.NOTHING)
+            return;
+
         for (String keyName : keyList) {
             keyMap.get(keyName).update();
         }
@@ -74,10 +93,14 @@ public class KeyInput extends KeyAdapter {
     // recieve key input
     @Override
     public void keyPressed(KeyEvent e) {
+        if (type == Type.NOTHING)
+            return;
         keyMap.get(parseKeyEvent(e)).setDown(true);
     }
     @Override
     public void keyReleased(KeyEvent e) {
+        if (type == Type.NOTHING)
+            return;
         keyMap.get(parseKeyEvent(e)).setDown(false);
     }
 }

@@ -6,14 +6,36 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 public class MouseInput extends InputBase implements MouseListener, MouseMotionListener {
+
+    final public static MouseInput NOTHING_INPUT = new MouseInput(Type.NOTHING);
     final public static int OFFSET_X = 0;
     final public static int OFFSET_Y = 0;
+
+    private enum Type {
+        NOTHING,
+        ACTIVE
+    }
+
+    private Type type;
     private int x, y;
     private int absX, absY;
     private Insets insets;
 
     public MouseInput(Insets insets) {
         this.insets = insets;
+        type = Type.ACTIVE;
+        x = -1;
+        y = -1;
+        absX = -1;
+        absY = -1;
+    }
+    public MouseInput(Type type) {
+        this.type = type;
+        insets = new Insets(0, 0, 0, 0);
+        x = -1;
+        y = -1;
+        absX = -1;
+        absY = -1;
     }
 
     public int getX() { return x; }
@@ -39,21 +61,29 @@ public class MouseInput extends InputBase implements MouseListener, MouseMotionL
     // detect mouse input
     @Override
     public void mouseDragged(MouseEvent e) {
+        if (type == Type.NOTHING)
+            return;
         setPos(e);
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        if (type == Type.NOTHING)
+            return;
         setPos(e);
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
+        if (type == Type.NOTHING)
+            return;
         setDown(true);
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        if (type == Type.NOTHING)
+            return;
         setDown(false);
     }
 

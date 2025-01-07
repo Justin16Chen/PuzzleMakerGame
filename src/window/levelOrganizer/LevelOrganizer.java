@@ -1,13 +1,16 @@
 package window.levelOrganizer;
 
 import java.awt.BorderLayout;
-import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.util.concurrent.Flow;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 
@@ -18,7 +21,7 @@ import window.ParentFrame;
 public class LevelOrganizer extends ParentFrame {
 
     public LevelOrganizer() {
-        super("Level Organizer", 600, 600);
+        super("Level Organizer", 400, 600);
     }
 
     // setup the window
@@ -41,13 +44,20 @@ public class LevelOrganizer extends ParentFrame {
         this.addMouseListener(mouseInput);
         this.addMouseMotionListener(mouseInput);
 
-        setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+        JPanel northContainer = new JPanel(new FlowLayout());
+        northContainer.setBorder(BorderFactory.createEmptyBorder(25, 0, 0, 0));
+        JLabel title = new JLabel("Level Organizer");
+        title.setFont(new Font("Arial", Font.PLAIN, 24));
+        northContainer.setPreferredSize(new Dimension(100, 80));
+        northContainer.add(title);
+        contentPane.add(northContainer, BorderLayout.NORTH);
 
-        LevelOrganizerManager levelOrganizerManager = new LevelOrganizerManager(this, keyInput, mouseInput);
-        levelOrganizerManager.setPreferredSize(new Dimension(200, 500));
+        LevelOrganizerManager levelOrganizerManager = new LevelOrganizerManager(keyInput, mouseInput);
+        levelOrganizerManager.setPreferredSize(new Dimension(200, 480));
         
         JPanel centerContainer = new JPanel(new FlowLayout());
-        centerContainer.setBorder(BorderFactory.createEmptyBorder(50, 0, 0, 0));
+        centerContainer.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        centerContainer.setPreferredSize(new Dimension(200, 510));
         centerContainer.add(levelOrganizerManager);
 
         contentPane.add(centerContainer, BorderLayout.CENTER);
@@ -57,6 +67,21 @@ public class LevelOrganizer extends ParentFrame {
         contentPane.add(scrollBar, BorderLayout.EAST);
 
         levelOrganizerManager.setScrollBar(scrollBar);
+
+        JButton saveButton = new JButton("Save");
+        saveButton.setPreferredSize(new Dimension(80, 35));
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                levelOrganizerManager.save();
+            }
+        });
+
+        JPanel southContainer = new JPanel(new FlowLayout());
+        southContainer.setPreferredSize(new Dimension(200, 70));
+        southContainer.setBorder(BorderFactory.createEmptyBorder(13, 0, 0, 0));
+        southContainer.add(saveButton);
+        contentPane.add(southContainer, BorderLayout.SOUTH);
 
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);                    // setup how to close the window

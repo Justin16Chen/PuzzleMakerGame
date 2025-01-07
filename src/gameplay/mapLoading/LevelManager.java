@@ -18,6 +18,7 @@ public class LevelManager {
     public int endLevel;
     private boolean transitioning;
     private double totalTransitionTime;
+    public double getTransitionTime() { return totalTransitionTime; }
     private double transitionTime;
 
     private SimpleSprite transitionSprite;
@@ -108,8 +109,14 @@ public class LevelManager {
             gameBoard.clearGameObjects();
 
             // clear updatables
-            Updatables.deleteAllUpdatablesExcept(new String[]{"finishTransition", "updateGameToNewLevel", "moveTransitionSpriteTween", "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween"});
+            Updatables.deleteAllUpdatablesExcept(new String[]{ "finishTransition", "updateGameToNewLevel", "moveTransitionSpriteTween", 
+                "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween" });
+            
+            // create the new game board
             gameBoard.setCurrentBoard(levelInfo);
+
+            // update the visuals of the new game board
+            gameManager.updateGameBoardVisuals();
             return true;
         }
         return false;

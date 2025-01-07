@@ -13,6 +13,7 @@ import gameplay.gameObjects.puzzlePiece.Side;
 import gameplay.mapLoading.LevelLoader;
 import gameplay.mapLoading.LevelManager;
 import utils.drawing.InfoBox;
+import utils.drawing.SimpleSprite;
 import utils.drawing.Sprite;
 import utils.drawing.Sprites;
 import utils.input.*;
@@ -21,7 +22,8 @@ import window.ParentFrame;
 
 public class GameManager extends JPanel {
 
-    public static Color BG_COLOR = new Color(230, 230, 230);
+    public static final Color BG_COLOR = new Color(230, 230, 230);
+    public static final double BOARD_SCALE_RATIO = 0.8;
 
     // refresh level from json keybind
     final String TOGGLE_DEBUG_KEY = "Q";
@@ -112,11 +114,11 @@ public class GameManager extends JPanel {
         debugInfoBox.setName("debugInfoBox");
         debugInfoBox.setVisible(false);
 
-        // create game board
-        gameBoard = new GameBoard(this, keyInput, mouseInput);
-
         // setup base level properties
         LevelLoader.getObjectData("requiredObjectData.json");
+
+        // create game board
+        gameBoard = new GameBoard(keyInput, mouseInput);
         
         // load level
         levelManager = new LevelManager(this, gameBoard);
@@ -124,6 +126,16 @@ public class GameManager extends JPanel {
 
         // hide info boxes to start
         gameBoard.hideObjInfoBoxes();
+
+        // level text
+        new SimpleSprite("levelText", "ui") {
+            @Override
+            public void draw(Graphics2D g) {
+                g.setColor(Color.BLACK);
+                g.setFont(new Font("Arial", Font.BOLD, 15));
+                g.drawString("Level " + levelManager.getCurrentLevel(), gameBoard.getBoardSprite().getX(), gameBoard.getBoardSprite().getY() - 12);
+            }
+        };
         
         // create and start the game loop
         createGameLoop();
@@ -137,8 +149,9 @@ public class GameManager extends JPanel {
         Sprites.addLayer("gameObjects2", 3);
         Sprites.addLayer("gameObjects3", 4);
         Sprites.addLayer("effects", 5);
-        Sprites.addLayer("transitions", 6);
-        Sprites.addLayer("debug", 7);
+        Sprites.addLayer("ui", 6);
+        Sprites.addLayer("transitions", 7);
+        Sprites.addLayer("debug", 8);
     }
 
     // create the game loop
@@ -202,8 +215,9 @@ public class GameManager extends JPanel {
                 Updatables.deleteUpdatables(new String[]{"queueLevelTransition"});
             }
             // go after a timer if user does not manually transition
-            else if (!Updatables.hasUpdatable("queueLevelTransition"))
+            else if (!Updatables.hasUpdatable("queueLevelTransition")) {
                 Timer.createCallTimer("queueLevelTransition", levelManager, LEVEL_FINISH_BUFFER_TIME, "transitionToNextLevel", true, true);
+            }
 
         // IN PROGRESS: testing MoveLogic.java
         if (keyInput.keyClicked(INCREMENT_HDIR_KEY)) 
@@ -252,6 +266,18 @@ public class GameManager extends JPanel {
             // draw game sprites
             Sprites.drawSprites(g2);
         }
+    }
+
+    // update game board visuals when map reloads
+    public void updateGameBoardVisuals() {
+        gameBoard.setTileSize((int) (getWidth() * BOARD_SCALE_RATIO), (int) (getWidth() * BOARD_SCALE_RATIO));
+        gameBoard.getBoardSprite().setWidth(gameBoard.getTileSize() * gameBoard.getBoardWidth());
+        gameBoard.getBoardSprite().setHeight(gameBoard.getTileSize() * gameBoard.getBoardHeight());
+        gameBoard.getBoardSprite().setCenterX((int) (getWidth() * 0.5));
+        gameBoard.getBoardSprite().setCenterY((int) (getHeight() * 0.5));
+
+        // update game object visuals once game board is set
+        gameBoard.setupGameObjectVisuals();
     }
 
     private void updateDebugDrawList() {
@@ -340,7 +366,7 @@ public class GameManager extends JPanel {
         drawList.add("level succeeded: " + gameBoard.allPuzzlePiecesConnected());
         drawList.add("transitioning: " + levelManager.transitioningBetweenLevels());
         drawList.add("tile size: " + gameBoard.getTileSize());
-        drawList.add("game board draw pos: (" + gameBoard.getDrawX() + ", " + gameBoard.getDrawY() + ")");
+        drawList.add("game board draw pos: (" + gameBoard.getBoardSprite().getX() + ", " + gameBoard.getBoardSprite().getY() + ")");
     }
     @SuppressWarnings("unused")
     private void addDebugGameObjects(ArrayList<String> drawList) {

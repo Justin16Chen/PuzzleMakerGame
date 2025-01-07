@@ -12,8 +12,8 @@ import utils.drawing.SimpleSprite;
 
 public class Box extends GameObject {
 
-    public static final Color COLOR = new Color(132, 132, 132), OUTLINE_COLOR = new Color(132, 132, 132);
-    public static final int OUTLINE_WIDTH = 2, OUTLINE_OFFSET = 8;
+    public static final Color COLOR = new Color(191, 130, 71), OUTLINE_COLOR = new Color(138, 80, 26);
+    public static final int OUTLINE_WIDTH = 2, OUTLINE_OFFSET = 12, DIAGONAL_SIZE = 15;
     public Box(GameBoard gameBoard, int boardx, int boardy) {
         super(gameBoard, GameObject.ObjectType.BOX, boardx, boardy);
     }
@@ -25,9 +25,68 @@ public class Box extends GameObject {
             public void draw(Graphics2D g) {
                 g.setColor(COLOR);
                 g.fillRect(getX(), getY(), getWidth(), getHeight());
+                
+                g.setStroke(new BasicStroke(DIAGONAL_SIZE));
                 g.setColor(OUTLINE_COLOR);
-                g.setStroke(new BasicStroke(OUTLINE_WIDTH));
-                g.drawRect(getX() + OUTLINE_OFFSET, getY() + OUTLINE_OFFSET, getWidth() - OUTLINE_OFFSET * 2, getHeight() - OUTLINE_OFFSET * 2);
+                g.drawLine(getX() + OUTLINE_OFFSET, getY() + OUTLINE_OFFSET, getX() + getWidth() - OUTLINE_OFFSET, getY() + getHeight() - OUTLINE_OFFSET);
+
+                g.setStroke(new BasicStroke(DIAGONAL_SIZE - OUTLINE_WIDTH * 2));
+                g.setColor(COLOR);
+                g.drawLine(getX() + OUTLINE_OFFSET, getY() + OUTLINE_OFFSET, getX() + getWidth() - OUTLINE_OFFSET, getY() + getHeight() - OUTLINE_OFFSET);
+
+                g.setStroke(new BasicStroke(DIAGONAL_SIZE));
+                g.setColor(OUTLINE_COLOR);
+                g.drawLine(getX() + getWidth() - OUTLINE_OFFSET, getY() + OUTLINE_OFFSET, getX() + OUTLINE_OFFSET, getY() + getHeight() - OUTLINE_OFFSET);
+
+                g.setStroke(new BasicStroke(DIAGONAL_SIZE - OUTLINE_WIDTH * 2));
+                g.setColor(COLOR);
+                g.drawLine(getX() + getWidth() - OUTLINE_OFFSET, getY() + OUTLINE_OFFSET, getX() + OUTLINE_OFFSET, getY() + getHeight() - OUTLINE_OFFSET);
+
+                g.setStroke(new BasicStroke(OUTLINE_OFFSET));
+                g.setColor(OUTLINE_COLOR);
+                g.drawRect(getX() + OUTLINE_OFFSET / 2, getY() + OUTLINE_OFFSET / 2, getWidth() - OUTLINE_OFFSET, getWidth() - OUTLINE_OFFSET);
+                g.setStroke(new BasicStroke(OUTLINE_OFFSET - OUTLINE_WIDTH));
+                g.setColor(COLOR);
+                g.drawRect(getX() + OUTLINE_OFFSET / 2 - OUTLINE_WIDTH / 2, getY() + OUTLINE_OFFSET / 2 - OUTLINE_WIDTH / 2, getWidth() - OUTLINE_OFFSET + OUTLINE_WIDTH, getWidth() - OUTLINE_OFFSET + OUTLINE_WIDTH);
+
+                /*
+                for (int i=0; i<4; i++) {
+                    int[] xList = new int[4];
+                    int[] yList = new int[4];
+                    switch(i) {
+                        case 0:
+                            xList = new int[] { OUTLINE_OFFSET + DIAGONAL_SIZE, getWidth() / 2, getWidth() - OUTLINE_OFFSET - DIAGONAL_SIZE };
+                            yList = new int[] { OUTLINE_OFFSET, getWidth() / 2 - DIAGONAL_SIZE, OUTLINE_OFFSET };
+                            break;
+                        case 1:
+                            xList = new int[] { OUTLINE_OFFSET, getWidth() / 2 - DIAGONAL_SIZE, OUTLINE_OFFSET };
+                            yList = new int[] { OUTLINE_OFFSET + DIAGONAL_SIZE, getWidth() / 2, getWidth() - OUTLINE_OFFSET - DIAGONAL_SIZE };
+                            break;
+                        case 2:
+                            xList = new int[] { OUTLINE_OFFSET + DIAGONAL_SIZE, getWidth() / 2, getWidth() - OUTLINE_OFFSET - DIAGONAL_SIZE };
+                            yList = new int[] { getWidth() - OUTLINE_OFFSET, getWidth() / 2 + DIAGONAL_SIZE, getWidth() - OUTLINE_OFFSET };
+                            break;
+                        case 3:
+                            xList = new int[] { getWidth() - OUTLINE_OFFSET, getWidth() / 2 + DIAGONAL_SIZE, getWidth() - OUTLINE_OFFSET };
+                            yList = new int[] { OUTLINE_OFFSET + DIAGONAL_SIZE, getWidth() / 2, getWidth() - OUTLINE_OFFSET - DIAGONAL_SIZE };
+                            break;
+                    }
+    
+                    for (int j=0; j<3; j++) {
+                        xList[j] += getX();
+                        yList[j] += getY();
+                    }
+                    g.setStroke(new BasicStroke(OUTLINE_WIDTH));
+                    g.drawPolygon(xList, yList, 3);
+                }
+                */
+
+                /*
+                g.drawLine(getX() + OUTLINE_OFFSET + DIAGONAL_SIZE, getY() + OUTLINE_OFFSET,getX() +  getWidth() - OUTLINE_OFFSET, getY() + getHeight() - OUTLINE_OFFSET - DIAGONAL_SIZE);
+                g.drawLine(getX() + OUTLINE_OFFSET, getY() + OUTLINE_OFFSET + DIAGONAL_SIZE, getX() +  getWidth() - OUTLINE_OFFSET - DIAGONAL_SIZE, getY() + getHeight() - OUTLINE_OFFSET);
+                g.drawLine(getX() + getWidth() - OUTLINE_OFFSET - DIAGONAL_SIZE, getY() + OUTLINE_OFFSET, getX() + OUTLINE_OFFSET, getY() + getWidth() - OUTLINE_OFFSET - DIAGONAL_SIZE);
+                g.drawLine(getX() + getWidth() - OUTLINE_OFFSET, getY() + OUTLINE_OFFSET + DIAGONAL_SIZE, getX() + OUTLINE_OFFSET + DIAGONAL_SIZE, getY() + getWidth() - OUTLINE_OFFSET);
+                */
             }
         };
     }
