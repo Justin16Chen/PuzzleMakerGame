@@ -1,7 +1,6 @@
 package gameplay.gameObjects;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import java.awt.Font;
@@ -10,8 +9,8 @@ import gameplay.GameBoard;
 import utils.direction.Direction;
 import utils.direction.Directions;
 import utils.drawing.InfoBox;
-import utils.drawing.SimpleSprite;
-import utils.drawing.Sprites;
+import utils.drawing.sprites.Sprite;
+import utils.drawing.sprites.Sprites;
 import utils.input.*;
 import utils.tween.EaseType;
 import utils.tween.Tween;
@@ -82,7 +81,7 @@ public abstract class GameObject {
     private boolean mustCheck = false;
     private boolean[] checkedSides;
     private ArrayList<GameObject> parents;
-    protected SimpleSprite sprite;
+    protected Sprite sprite;
     protected InfoBox infoBox;
     public GameObject(GameBoard gameBoard, ObjectType objectType, int boardx, int boardy, int width, int height) {
         this.gameBoard = gameBoard;
@@ -133,7 +132,7 @@ public abstract class GameObject {
     public boolean movedThisFrame() { return movedThisFrame; }
     public boolean queuedMovedThisFrame() { return queuedMoveThisFrame; }
     public void setQueuedMovedThisFrame(boolean bool) { queuedMoveThisFrame = bool; }
-    public SimpleSprite getSprite() { return sprite; }
+    public Sprite getSprite() { return sprite; }
     public InfoBox getInfoBox() { return infoBox; }
 
     // whether or not the puzzle piece is the mover (initiates the motion)

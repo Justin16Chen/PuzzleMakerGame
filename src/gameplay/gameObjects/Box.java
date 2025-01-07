@@ -3,12 +3,11 @@ package gameplay.gameObjects;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
 
 import org.json.JSONObject;
 
 import gameplay.GameBoard;
-import utils.drawing.SimpleSprite;
+import utils.drawing.sprites.Sprite;
 
 public class Box extends GameObject {
 
@@ -27,7 +26,9 @@ public class Box extends GameObject {
     
     @Override
     public void setup() {
-        sprite = new SimpleSprite("box", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), getCellWidth() * gameBoard.getTileSize(), getCellHeight() * gameBoard.getTileSize(), "gameObjects1") {
+        sprite = new Sprite("box", "res/textures/box.png", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), getCellWidth() * gameBoard.getTileSize(), getCellHeight() * gameBoard.getTileSize(), "gameObjects1");
+        /*
+         {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(COLOR);
@@ -63,5 +64,6 @@ public class Box extends GameObject {
                 
             }
         };
+        */
     }
 }

@@ -12,8 +12,8 @@ import gameplay.gameObjects.*;
 import utils.direction.Direction;
 import utils.direction.Directions;
 import utils.drawing.InfoBox;
-import utils.drawing.SimpleSprite;
-import utils.drawing.Sprites;
+import utils.drawing.sprites.Sprite;
+import utils.drawing.sprites.Sprites;
 import utils.tween.Tween;
 
 public class PlayerPiece extends PuzzlePiece {
@@ -26,7 +26,7 @@ public class PlayerPiece extends PuzzlePiece {
     public static double OCILLATION_TIME = 1.8;
     public static int STROKE_WIDTH = 2, STROKE_INSET = -2;
 
-    private SimpleSprite outlineSprite;
+    private Sprite outlineSprite;
     private double outlineColor;
 
     public PlayerPiece(GameBoard gameBoard, int boardx, int boardy, String sideData) {
@@ -36,7 +36,7 @@ public class PlayerPiece extends PuzzlePiece {
     @Override
     public void setup() {
         
-        sprite = new SimpleSprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObjects1") {
+        sprite = new Sprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObjects1") {
             @Override
             public void draw(Graphics2D g) {
         
@@ -49,7 +49,7 @@ public class PlayerPiece extends PuzzlePiece {
             }
         };
 
-        outlineSprite = new SimpleSprite("playerOutline", sprite.getX(), sprite.getY(), gameBoard.getTileSize(), gameBoard.getTileSize(), "effects") {
+        outlineSprite = new Sprite("playerOutline", sprite.getX(), sprite.getY(), gameBoard.getTileSize(), gameBoard.getTileSize(), "effects") {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(new Color((int) outlineColor, (int) outlineColor, (int) outlineColor));

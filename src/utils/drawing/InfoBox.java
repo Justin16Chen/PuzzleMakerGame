@@ -2,12 +2,15 @@ package utils.drawing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import utils.drawing.sprites.Sprite;
+
 import java.awt.Graphics2D;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 
-public class InfoBox extends SimpleSprite {
+public class InfoBox extends Sprite {
 
     final public static String NAME = "infoBox";
 
@@ -22,7 +25,7 @@ public class InfoBox extends SimpleSprite {
     private int borderSize;
 
     public InfoBox(int x, int y) {
-        super(NAME, x, y, "debug");
+        super(NAME, x, y, 1, 1, "debug");
         font = new Font("Arial", Font.PLAIN, 12);
         this.bgColor = BG_COLOR;
         this.textColor = TEXT_COLOR;
@@ -30,8 +33,27 @@ public class InfoBox extends SimpleSprite {
         drawList = new ArrayList<>();
     }
 
+    public InfoBox(String name, int x, int y) {
+        super(name, x, y, 1, 1, "debug");
+        font = new Font("Arial", Font.PLAIN, 12);
+        this.bgColor = BG_COLOR;
+        this.textColor = TEXT_COLOR;
+        this.borderSize = BORDER_SIZE;
+        drawList = new ArrayList<>();
+    }
+    
     public InfoBox(int x, int y, Color bgColor, Color textColor, int borderSize) {
-        super(NAME, x, y, "debug");
+        super(NAME, x, y, 1, 1, "debug");
+        drawList = new ArrayList<>();
+        font = new Font("Arial", Font.PLAIN, 12);
+        this.bgColor = bgColor;
+        this.textColor = textColor;
+        this.borderSize = borderSize;
+        drawList = new ArrayList<>();
+    }
+
+    public InfoBox(String name, int x, int y, Color bgColor, Color textColor, int borderSize) {
+        super(name, x, y, 1, 1, "debug");
         drawList = new ArrayList<>();
         font = new Font("Arial", Font.PLAIN, 12);
         this.bgColor = bgColor;

@@ -10,7 +10,6 @@ import org.json.*;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
-import gameplay.gameObjects.GameObject.ObjectType;
 import gameplay.gameObjects.puzzlePiece.PlayerPiece;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
 import utils.Print;

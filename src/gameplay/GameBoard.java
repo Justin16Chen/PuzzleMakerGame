@@ -7,7 +7,7 @@ import gameplay.gameObjects.*;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
 import gameplay.mapLoading.*;
 import utils.Print;
-import utils.drawing.SimpleSprite;
+import utils.drawing.sprites.Sprite;
 import utils.input.*;
 
 public class GameBoard {
@@ -35,13 +35,11 @@ public class GameBoard {
     // list of all game objects represented with a 2D grid
     private GameObject[][] board;
 
-    // the game board the next frame
-    private GameObject[][] nextBoard;
     // list of all game objects
     private ArrayList<GameObject> gameObjects;
 
-    private SimpleSprite boardSprite;
-    public SimpleSprite getBoardSprite() { return boardSprite; }
+    private Sprite boardSprite;
+    public Sprite getBoardSprite() { return boardSprite; }
     
     public GameBoard(KeyInput keyInput, MouseInput mouseInput) {
         this.keyInput = keyInput;
@@ -49,9 +47,8 @@ public class GameBoard {
 
         gameObjects = new ArrayList<>();
         board = new GameObject[1][1];
-        nextBoard = new GameObject[1][1];
 
-        boardSprite = new SimpleSprite("board", 0, 0, 1, 1, "gameBoard") {
+        boardSprite = new Sprite("board", 0, 0, 1, 1, "gameBoard") {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(BOARD_COLOR);
@@ -132,7 +129,6 @@ public class GameBoard {
         width = levelInfo.getMapWidth();
         height = levelInfo.getMapHeight();
         board = new GameObject[height][width];
-        nextBoard = new GameObject[height][width];
         
         // set the board for the current level
         gameObjects = levelInfo.getGameObjects();

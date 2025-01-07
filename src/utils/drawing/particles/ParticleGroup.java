@@ -2,9 +2,9 @@ package utils.drawing.particles;
 
 import java.awt.Graphics2D;
 
-import utils.drawing.SimpleSprite;
+import utils.drawing.sprites.Sprite;
 
-public class ParticleGroup extends SimpleSprite {
+public class ParticleGroup extends Sprite {
     
     private Particle[] particles;
     private NumberProperty angleStart, angleEnd,
@@ -13,7 +13,7 @@ public class ParticleGroup extends SimpleSprite {
         lifeTime;
     private ColorProperty color;
     public ParticleGroup(String name, int x, int y, String layerName) {
-        super(name, x, y, layerName);
+        super(name, x, y, 1, 1, layerName);
     }
 
     public ParticleGroup setParticleNumber(int num) {

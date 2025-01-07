@@ -10,7 +10,7 @@ import gameplay.GameBoard;
 import gameplay.gameObjects.*;
 import utils.direction.Direction;
 import utils.direction.Directions;
-import utils.drawing.SimpleSprite;
+import utils.drawing.sprites.Sprite;
 
 public class PuzzlePiece extends GameObject {
 
@@ -55,7 +55,7 @@ public class PuzzlePiece extends GameObject {
 
     @Override
     public void setup() {
-        sprite = new SimpleSprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObjects1") {
+        sprite = new Sprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObjects1") {
             
             @Override
             public void draw(Graphics2D g) {

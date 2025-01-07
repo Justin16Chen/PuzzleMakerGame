@@ -2,13 +2,12 @@ package gameplay.gameObjects;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
 
 import org.json.JSONObject;
 
 import gameplay.GameBoard;
 import gameplay.GameManager;
-import utils.drawing.SimpleSprite;
+import utils.drawing.sprites.Sprite;
 
 public class Wall extends GameObject {
 
@@ -26,7 +25,7 @@ public class Wall extends GameObject {
 
     @Override
     public void setup() {
-        sprite = new SimpleSprite("wall", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), getCellWidth() * gameBoard.getTileSize(), getCellHeight() * gameBoard.getTileSize(), "gameObjects1") {
+        sprite = new Sprite("wall", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), getCellWidth() * gameBoard.getTileSize(), getCellHeight() * gameBoard.getTileSize(), "gameObjects1") {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(COLOR);

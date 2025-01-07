@@ -5,7 +5,7 @@ import java.awt.Color;
 import gameplay.GameBoard;
 import gameplay.GameManager;
 import utils.Print;
-import utils.drawing.*;
+import utils.drawing.sprites.Sprite;
 import utils.tween.*;
 
 public class LevelManager {
@@ -21,14 +21,14 @@ public class LevelManager {
     public double getTransitionTime() { return totalTransitionTime; }
     private double transitionTime;
 
-    private SimpleSprite transitionSprite;
+    private Sprite transitionSprite;
 
 
     public LevelManager(GameManager gameManager, GameBoard gameBoard) {
         this.gameManager = gameManager;
         this.gameBoard = gameBoard;
-        this.transitionSprite = new SimpleSprite("transitionSprite", 0, 0, gameManager.getWidth(), gameManager.getHeight(), "transitions").setColor(Color.BLACK);
-        this.currentLevel = 1;
+        transitionSprite = new Sprite("transitionSprite", 0, 0, gameManager.getWidth(), gameManager.getHeight(), "transitions");
+        transitionSprite.setColor(Color.BLACK);
         updateGeneralLevelInfo();
     }
 

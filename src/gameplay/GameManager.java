@@ -13,9 +13,8 @@ import gameplay.gameObjects.puzzlePiece.Side;
 import gameplay.mapLoading.LevelLoader;
 import gameplay.mapLoading.LevelManager;
 import utils.drawing.InfoBox;
-import utils.drawing.SimpleSprite;
-import utils.drawing.Sprite;
-import utils.drawing.Sprites;
+import utils.drawing.sprites.Sprite;
+import utils.drawing.sprites.Sprites;
 import utils.input.*;
 import utils.tween.*;
 import window.ParentFrame;
@@ -111,8 +110,7 @@ public class GameManager extends JPanel {
         setupLayers();
 
         // debug info box drawer
-        debugInfoBox = new InfoBox(0, 0);
-        debugInfoBox.setName("debugInfoBox");
+        debugInfoBox = new InfoBox("debugInfoBox", 0, 0);
         debugInfoBox.setVisible(false);
 
         // setup base level properties
@@ -129,7 +127,7 @@ public class GameManager extends JPanel {
         gameBoard.hideObjInfoBoxes();
 
         // level text
-        new SimpleSprite("levelText", "ui") {
+        new Sprite("levelText", "ui") {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(Color.BLACK);
