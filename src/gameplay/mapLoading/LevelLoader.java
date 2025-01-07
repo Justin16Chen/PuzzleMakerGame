@@ -177,16 +177,17 @@ public class LevelLoader {
                     throw new JSONException("object at index " + i + " is invalid");
                 
                 // json gameobject data creates a list of game objects
-                for (GameObject gameObject : createGameObjects(jsonObject, gameBoard)) {
-                    // only 1 gameobject can be on a position
-                    if (gameObject.getBoardX() < 0 || gameObject.getBoardX() >= mapWidth || gameObject.getBoardY() < 0 || gameObject.getBoardY() >= mapHeight)
-                        throw new JSONException(gameObject + " tried to be instantiated out of bounds");
-                    if (filledPositions[gameObject.getBoardY()][gameObject.getBoardX()])
-                        throw new JSONException(gameObject + " tried to be instantiated on a position that was already filled");
-                    filledPositions[gameObject.getBoardY()][gameObject.getBoardX()] = true;
+                GameObject gameObject = createGameObject(jsonObject, gameBoard);
 
-                    gameObjects.add(gameObject);
-                }
+                // only 1 gameobject can be on a position
+                if (gameObject.getBoardX() < 0 || gameObject.getBoardX() >= mapWidth || gameObject.getBoardY() < 0 || gameObject.getBoardY() >= mapHeight)
+                    throw new JSONException(gameObject + " tried to be instantiated out of bounds");
+                if (filledPositions[gameObject.getBoardY()][gameObject.getBoardX()])
+                    throw new JSONException(gameObject + " tried to be instantiated on a position that was already filled");
+                filledPositions[gameObject.getBoardY()][gameObject.getBoardX()] = true;
+
+                // add game object to list
+                gameObjects.add(gameObject);
             }
             return new LevelInfo(mapWidth, mapHeight, gameObjects);
         } catch (IOException e) {
@@ -199,7 +200,7 @@ public class LevelLoader {
     }
 
     // create a game object given the primitive data
-    public static ArrayList<GameObject> createGameObjects(JSONObject jsonObject, GameBoard gameBoard) {
+    public static GameObject createGameObject(JSONObject jsonObject, GameBoard gameBoard) {
         GameObject.ObjectType objectType = GameObject.getObjectType(jsonObject.getString("name"));
         switch (objectType) {
             case WALL: return Wall.loadWall(jsonObject, gameBoard);
@@ -208,30 +209,7 @@ public class LevelLoader {
             case PLAYER_PIECE: return PlayerPiece.loadPlayerPiece(jsonObject, gameBoard);
             default: 
                 Print.println("GAME OBJECT TYPE NOT RECOGNIZED: " + objectType, Print.RED);
-                return new ArrayList<GameObject>();
+                return null;
         }
     }
-    public static ArrayList<GameObject> createGameObjectsOld(JSONObject jsonObject, GameBoard gameBoard) {
-        ArrayList<GameObject> gameObjects = new ArrayList<>();
-        ObjectType objectType = GameObject.getObjectType(jsonObject.getString("name"));
-
-        switch (objectType) {
-            case PUZZLE_PIECE: 
-                gameObjects.add(new PuzzlePiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData"))); 
-                break;
-            case PLAYER_PIECE: 
-                gameObjects.add(new PlayerPiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")));
-                break;
-            case WALL:
-                int width = jsonObject.has("width") ? jsonObject.getInt("width") : 1;
-                int height = jsonObject.has("height") ? jsonObject.getInt("height") : 1;
-                for (int y=0; y<height; y++) 
-                    for (int x=0; x<width; x++) 
-                        gameObjects.add(new Wall(gameBoard, jsonObject.getInt("x") + x, jsonObject.getInt("y") + y));
-                break;
-            default: break;
-        }
-        return gameObjects;
-    }
-
 }

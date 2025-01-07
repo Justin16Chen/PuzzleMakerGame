@@ -1,6 +1,7 @@
 package gameplay.gameObjects;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import java.awt.Font;
@@ -73,7 +74,7 @@ public abstract class GameObject {
     protected MouseInput mouseInput;
     private ObjectType objectType;
     private int objectIndex;
-    private int boardx, boardy;
+    private int boardx, boardy, cellWidth, cellHeight;
     private boolean movable;
     private boolean queuedMoveThisFrame;
     private boolean movedThisFrame;
@@ -83,7 +84,7 @@ public abstract class GameObject {
     private ArrayList<GameObject> parents;
     protected SimpleSprite sprite;
     protected InfoBox infoBox;
-    public GameObject(GameBoard gameBoard, ObjectType objectType, int boardx, int boardy) {
+    public GameObject(GameBoard gameBoard, ObjectType objectType, int boardx, int boardy, int width, int height) {
         this.gameBoard = gameBoard;
         this.keyInput = gameBoard.getKeyInput();
         this.mouseInput = gameBoard.getMouseInput();
@@ -91,6 +92,8 @@ public abstract class GameObject {
         this.objectIndex = GameObject.getObjectIndex(objectType);
         this.boardx = boardx;
         this.boardy = boardy;
+        this.cellWidth = width;
+        this.cellHeight = height;
 
         this.movedThisFrame = false;
         this.queuedMoveThisFrame = false;
@@ -124,6 +127,8 @@ public abstract class GameObject {
     public int getObjectIndex() { return objectIndex; }
     public int getBoardX() { return boardx; }
     public int getBoardY() { return boardy; }
+    public int getCellWidth() { return cellWidth; }
+    public int getCellHeight() { return cellHeight; }
     public boolean isMovable() { return movable; }
     public boolean movedThisFrame() { return movedThisFrame; }
     public boolean queuedMovedThisFrame() { return queuedMoveThisFrame; }
@@ -174,18 +179,41 @@ public abstract class GameObject {
         boardy += y; 
     }
 
+    private int[][] getOffsetsToCheckMovement(int hdir, int vdir) {
+        boolean horizontal = vdir == 0;
+        int[][] offsets = new int[horizontal ? cellHeight : cellWidth][2];
+        for (int i=0; i<offsets.length; i++) 
+            if (horizontal) {
+                offsets[i][1] = i;
+                offsets[i][0] = hdir > 0 ? cellWidth - 1 : 0;
+            }
+            else {
+                offsets[i][0] = i;
+                offsets[i][1] = vdir > 0 ? cellHeight - 1: 0;
+            }
+        return offsets;
+    }
+
     // check if the game object and any subsequent game objects can move in a certain direction
     public MoveInfo getMoveInfo(int hdir, int vdir) {
-        return getMoveInfo(0, 0, hdir, vdir);
+        int[][] offsets = getOffsetsToCheckMovement(hdir, vdir);
+
+        MoveInfo validMoveInfo = MoveInfo.makeInvalidMove();
+        for (int i=0; i<offsets.length; i++) {
+            validMoveInfo = getMoveInfo(hdir, vdir, offsets[i][0], offsets[i][1]);
+            if (!validMoveInfo.canMove())
+                return MoveInfo.makeInvalidMove();
+        }  
+        return validMoveInfo;
     }
-    public MoveInfo getMoveInfo(int xOff, int yOff, int hdir, int vdir) {
+    private MoveInfo getMoveInfo(int hdir, int vdir, int xOff, int yOff) {
 
         // cannot move immovable game objects
         if (!isMovable()) return MoveInfo.makeInvalidMove();
-
+        
         // find target position
-        int targetx = getBoardX() + hdir;
-        int targety = getBoardY() + vdir;
+        int targetx = getBoardX() + xOff + hdir;
+        int targety = getBoardY() + yOff + vdir;
 
         // out of bounds
         if (!gameBoard.inBounds(targetx, targety)) return MoveInfo.makeInvalidMove();
@@ -202,8 +230,10 @@ public abstract class GameObject {
         MoveInfo moveInfo = gameObject.getMoveInfo(hdir, vdir);
 
         // if that game object can move, this one can move
-        if (moveInfo.canMove()) return MoveInfo.makeValidMove(hdir, vdir);
+        if (moveInfo.canMove())
+            return MoveInfo.makeValidMove(hdir, vdir);
         return MoveInfo.makeInvalidMove();
+        
     }
 
     // meant to be overridden by any moving objects
@@ -224,15 +254,19 @@ public abstract class GameObject {
         //System.out.println(Print.RED + "MOVING GAME OBJECT" + Print.RESET);
         movedThisFrame = true;
 
-        // get starting game object to move
-        int targetx = getBoardX() + moveInfo.getHdir();
-        int targety = getBoardY() + moveInfo.getVdir();
-        GameObject gameObject = gameBoard.getGameObject(targetx, targety);
+        int[][] offsets = getOffsetsToCheckMovement(moveInfo.getHdir(), moveInfo.getVdir());
 
-        // move game object current object is moving into
-        if (gameObject != null) {
-            gameObject.move(moveInfo, false);
+        for (int[] offset : offsets) {
+            // get starting game object to move
+            int targetx = getBoardX() + offset[0] + moveInfo.getHdir();
+            int targety = getBoardY() + offset[1] + moveInfo.getVdir();
+            GameObject gameObject = gameBoard.getGameObject(targetx, targety);
+    
+            // move game object current object is moving into
+            if (gameObject != null) 
+                gameObject.move(moveInfo, false);
         }
+        
         // move self
         moveBoardX(moveInfo.getHdir());
         moveBoardY(moveInfo.getVdir());

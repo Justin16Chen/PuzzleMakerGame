@@ -100,14 +100,16 @@ public class GameBoard {
             throw new RuntimeException(boardx + ", " + boardy + " is out of bounds");
         }
 
+        /*
         // first check next board
         if (nextBoard[boardy][boardx] != null) {
             return nextBoard[boardy][boardx];
         }
         // empty cell or if the object at old board moved, cell must be empty
         if (board[boardy][boardx] == null || board[boardy][boardx].movedThisFrame()) return null;
-        
         // object at old board has not moved
+        */
+        
         return board[boardy][boardx];
     }
 
@@ -136,7 +138,10 @@ public class GameBoard {
         gameObjects = levelInfo.getGameObjects();
         for (int i=0; i<levelInfo.getGameObjects().size(); i++) {
             GameObject gameObject = levelInfo.getGameObjects().get(i);
-            board[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
+            // instiate game object on all cells that it covers
+            for (int y=0; y<gameObject.getCellHeight(); y++) 
+                for (int x=0; x<gameObject.getCellWidth(); x++)
+                    board[gameObject.getBoardY() + y][gameObject.getBoardX() + x] = gameObject;
         }
 
         // check for any puzzle pieces already connected and update that
@@ -159,14 +164,23 @@ public class GameBoard {
     // update loop
     public void update(double dt) {
 
+        ArrayList<GameObject> updatedGameObjects = new ArrayList<>();
+
         // update current board
         for (int i=0; i<gameObjects.size(); i++) {
 
             // update game object
             GameObject gameObject = gameObjects.get(i);
+
+            // skip if already updated
+            if (updatedGameObjects.contains(gameObject))
+                continue;
+
             gameObject.resetMovedThisFrame();
             gameObject.resetQueuedMovedThisFrame();
             gameObject.update(dt);
+
+            updatedGameObjects.add(gameObject);
 
             // update game object info box
             if (mouseInput.clicked()
@@ -187,7 +201,11 @@ public class GameBoard {
         GameObject[][] newBoard = createEmptyBoard(board[0].length, board.length);
         for (int i=0; i<gameObjects.size(); i++) {
             GameObject gameObject = gameObjects.get(i);
-                newBoard[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
+
+            // instiate game object on all cells that it covers
+            for (int y=0; y<gameObject.getCellHeight(); y++)
+                for (int x=0; x<gameObject.getCellWidth(); x++)
+                    newBoard[gameObject.getBoardY() + y][gameObject.getBoardX() + x] = gameObject;
         }
         return newBoard;
     }

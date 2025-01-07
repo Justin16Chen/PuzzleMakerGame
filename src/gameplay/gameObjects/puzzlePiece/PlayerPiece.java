@@ -18,10 +18,8 @@ import utils.tween.Tween;
 
 public class PlayerPiece extends PuzzlePiece {
 
-    public static ArrayList<GameObject> loadPlayerPiece(JSONObject jsonObject, GameBoard gameBoard) {
-        ArrayList<GameObject> gameObjects = new ArrayList<>();
-        gameObjects.add(new PlayerPiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData"))); 
-        return gameObjects;
+    public static GameObject loadPlayerPiece(JSONObject jsonObject, GameBoard gameBoard) {
+        return new PlayerPiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
     }
 
     public static int BRIGHT_OUTLINE = 200, DIM_OUTLINE = 100;

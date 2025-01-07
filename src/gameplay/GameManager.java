@@ -26,15 +26,16 @@ public class GameManager extends JPanel {
     public static final double BOARD_SCALE_RATIO = 0.8;
 
     // refresh level from json keybind
-    final String TOGGLE_DEBUG_KEY = "Q";
-    final String RELOAD_LEVEL_KEY = "R";
-    final String PREV_LEVEL_KEY = "2";
-    final String NEXT_LEVEL_KEY = "3";
-    final String ALLOW_TRANSITION_KEY = "Space";
-    final String PRINT_UPDATABLES_KEY = "U";
-    final String INCREMENT_HDIR_KEY = "Minus";
-    final String INCREMENT_VDIR_KEY = "Equals";
-    final String FIND_BREAKPOINT_KEY = "0";
+    public static final String TOGGLE_DEBUG_KEY = "Q",
+            RELOAD_LEVEL_KEY = "R",
+            PREV_LEVEL_KEY = "2",
+            NEXT_LEVEL_KEY = "3",
+            ALLOW_TRANSITION_KEY = "Space",
+            PRINT_UPDATABLES_KEY = "U",
+            INCREMENT_HDIR_KEY = "Minus",
+            INCREMENT_VDIR_KEY = "Equals",
+            FIND_BREAKPOINT_KEY = "0",
+            PRINT_BOARD_KEY = "P";
 
     final double LEVEL_FINISH_BUFFER_TIME = 1.1;
     
@@ -229,6 +230,10 @@ public class GameManager extends JPanel {
             breakpoints = ConnectionLogic.findBreakpoints(gameBoard, breakpointBoundaries, hdir, vdir);
         }
 
+        // print the game board
+        if (keyInput.keyClicked(PRINT_BOARD_KEY))
+            gameBoard.printBoard();
+
         // refresh map data from json files
         if (keyInput.keyClicked(RELOAD_LEVEL_KEY)) {
             levelManager.updateGeneralLevelInfo();
@@ -349,6 +354,7 @@ public class GameManager extends JPanel {
     private void addDebugControls(ArrayList<String> drawList) {
         drawList.add("===CONTROLS===");
         drawList.add(TOGGLE_DEBUG_KEY + ": toggle debug info");
+        drawList.add(PRINT_BOARD_KEY + ": print game board (objType idx)");
         drawList.add(PRINT_UPDATABLES_KEY + ": print updatables");
         drawList.add(RELOAD_LEVEL_KEY + ": refresh level json file");
         drawList.add(PREV_LEVEL_KEY + ": go to prev lvl");

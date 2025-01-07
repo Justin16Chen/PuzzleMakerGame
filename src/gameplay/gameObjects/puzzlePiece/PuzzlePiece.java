@@ -24,10 +24,8 @@ public class PuzzlePiece extends GameObject {
         return gameObject.getObjectType() == GameObject.ObjectType.PLAYER_PIECE || gameObject.getObjectType() == GameObject.ObjectType.PUZZLE_PIECE;
     }
 
-    public static ArrayList<GameObject> loadPuzzlePiece(JSONObject jsonObject, GameBoard gameBoard) {
-        ArrayList<GameObject> gameObjects = new ArrayList<>();
-        gameObjects.add(new PuzzlePiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData"))); 
-        return gameObjects;
+    public static GameObject loadPuzzlePiece(JSONObject jsonObject, GameBoard gameBoard) {
+        return new PuzzlePiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
     }
 
     // whether this piece can connect to another puzzle piece or not
@@ -47,11 +45,11 @@ public class PuzzlePiece extends GameObject {
     private Side[] sides;
 
     public PuzzlePiece(GameBoard gameBoard, int boardx, int boardy, String sideString) {
-        super(gameBoard, GameObject.ObjectType.PUZZLE_PIECE, boardx, boardy);
+        super(gameBoard, GameObject.ObjectType.PUZZLE_PIECE, boardx, boardy, 1, 1);
         this.sides = Side.getSideData(this, sideString);
     }
     public PuzzlePiece(GameBoard gameBoard, GameObject.ObjectType objectType, int boardx, int boardy, String sideString) {
-        super(gameBoard, objectType, boardx, boardy);
+        super(gameBoard, objectType, boardx, boardy, 1, 1);
         this.sides = Side.getSideData(this, sideString);
     }
 

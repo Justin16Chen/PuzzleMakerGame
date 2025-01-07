@@ -14,28 +14,24 @@ public class Wall extends GameObject {
 
     public static Color COLOR = GameManager.BG_COLOR;
 
-    public Wall(GameBoard gameBoard, int boardx, int boardy) {
-        super(gameBoard, GameObject.ObjectType.WALL, boardx, boardy);
+    public static GameObject loadWall(JSONObject jsonObject, GameBoard gameBoard) {
+        int width = jsonObject.has("width") ? jsonObject.getInt("width") : 1;
+        int height = jsonObject.has("height") ? jsonObject.getInt("height") : 1;
+        return new Wall(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), width, height);
+    }
+
+    public Wall(GameBoard gameBoard, int boardx, int boardy, int width, int height) {
+        super(gameBoard, GameObject.ObjectType.WALL, boardx, boardy, width, height);
     }
 
     @Override
     public void setup() {
-        sprite = new SimpleSprite("wall", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObjects1") {
+        sprite = new SimpleSprite("wall", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), getCellWidth() * gameBoard.getTileSize(), getCellHeight() * gameBoard.getTileSize(), "gameObjects1") {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(COLOR);
-                g.fillRect(getX(), getY(), gameBoard.getTileSize(), gameBoard.getTileSize());
+                g.fillRect(getX(), getY(), getWidth(), getHeight());
             }
         };
-    }
-
-    public static ArrayList<GameObject> loadWall(JSONObject jsonObject, GameBoard gameBoard) {
-        ArrayList<GameObject> gameObjects = new ArrayList<>();
-        int width = jsonObject.has("width") ? jsonObject.getInt("width") : 1;
-        int height = jsonObject.has("height") ? jsonObject.getInt("height") : 1;
-        for (int y=0; y<height; y++) 
-            for (int x=0; x<width; x++) 
-                gameObjects.add(new Wall(gameBoard, jsonObject.getInt("x") + x, jsonObject.getInt("y") + y));
-        return gameObjects;
     }
 }
