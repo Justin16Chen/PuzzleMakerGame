@@ -12,6 +12,7 @@ import utils.drawing.InfoBox;
 import utils.drawing.sprites.Sprite;
 import utils.drawing.sprites.Sprites;
 import utils.input.*;
+import utils.tween.Ease;
 import utils.tween.EaseType;
 import utils.tween.Tween;
 
@@ -271,8 +272,8 @@ public abstract class GameObject {
         moveBoardY(moveInfo.getVdir());
 
         // tween sprite position
-        Tween.createTween("move " + objectType + " x", sprite, "x", sprite.getX(), gameBoard.findGameObjectDrawX(this), MOVE_RATE).setEaseType(EaseType.EASE_OUT);
-        Tween.createTween("move " + objectType + " y", sprite, "y", sprite.getY(), gameBoard.findGameObjectDrawY(this), MOVE_RATE).setEaseType(EaseType.EASE_OUT);
+        Tween.createTween("move " + objectType + " x", sprite, "x", sprite.getX(), gameBoard.findGameObjectDrawX(this), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
+        Tween.createTween("move " + objectType + " y", sprite, "y", sprite.getY(), gameBoard.findGameObjectDrawY(this), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
 
     }
 

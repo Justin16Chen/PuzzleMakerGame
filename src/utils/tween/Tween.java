@@ -19,7 +19,7 @@ public class Tween extends Updatable {
         super(name, target, propertyName, duration, currentLoopCount, targetLoopCount, pingPong);
         this.startValue = startValue;
         this.endValue = endValue;
-        this.easeType = EaseType.LINEAR;
+        this.easeType = new EaseType(Ease.LINEAR, 1);
         updateProperty(0);
     }
 
@@ -49,7 +49,7 @@ public class Tween extends Updatable {
 
     // sets the property of the target object based on a normalized time (0 to 1)
     private void updateProperty(double t) {
-        currentValue = JMath.lerp(startValue.doubleValue(), endValue.doubleValue(), EaseTypes.getEasingFunction(easeType, t));
+        currentValue = JMath.lerp(startValue.doubleValue(), endValue.doubleValue(), easeType.calculate(t));
         Updatables.setProperty(getTarget(), getPropertyName(), currentValue);
     }
 

@@ -14,12 +14,8 @@ public class LevelManager {
     private GameBoard gameBoard;
 
     private int currentLevel;
-    public int startLevel;
-    public int endLevel;
     private boolean transitioning;
-    private double totalTransitionTime;
-    public double getTransitionTime() { return totalTransitionTime; }
-    private double transitionTime;
+    private GeneralLevelInfo generalLevelInfo;
 
     private Sprite transitionSprite;
 
@@ -34,16 +30,13 @@ public class LevelManager {
 
     public int getCurrentLevel() { return currentLevel; }
     public boolean transitioningBetweenLevels() { return transitioning; }
-    public boolean hasLevel(int level) { return level <= endLevel && level >= startLevel; }
+    public boolean hasLevel(int level) { return level <= generalLevelInfo.getEndLevel() && level >= generalLevelInfo.getStartLevel(); }
 
     // sets the general level info
     public void updateGeneralLevelInfo() {
-        // System.out.println("UPDATING GENERAL LEVEL INFO");
-        GeneralLevelInfo generalLevelInfo = LevelLoader.getGeneralLevelInfo("levelInfo.json");
-        startLevel = generalLevelInfo.getStartLevel();
-        endLevel = generalLevelInfo.getendLevel();
-        totalTransitionTime = generalLevelInfo.getTransitionTime();
-        transitionTime = totalTransitionTime * 0.5;
+        GeneralLevelInfo newInfo = LevelLoader.getGeneralLevelInfo("levelInfo.json");
+        if (newInfo != null)
+            generalLevelInfo = newInfo;
     }
 
     // transition to a specific level with optional intro/outro tweens
@@ -66,20 +59,20 @@ public class LevelManager {
         // sprite transition animation
         transitionSprite.setVisible(true);
         if (intro && outro)
-            Tween.createTween("moveTransitionSpriteTween", transitionSprite, "height", 1, gameManager.getHeight(), transitionTime).pingPong();
+            Tween.createTween("moveTransitionSpriteTween", transitionSprite, "height", 1, gameManager.getHeight(), generalLevelInfo.getTransitionTime()).setEaseType(new EaseType(Ease.EASE_OUT, 2)).pingPong();
         else if (intro)
-            Tween.createTween("moveTransitionSpriteDownTween", transitionSprite, "height", 1, gameManager.getHeight(), transitionTime);
+            Tween.createTween("moveTransitionSpriteDownTween", transitionSprite, "height", 1, gameManager.getHeight(), generalLevelInfo.getTransitionTime()).setEaseType(new EaseType(Ease.EASE_OUT, 2));
         else if (outro)
-            Tween.createTween("moveTransitionSpriteUpTween", transitionSprite, "height", gameManager.getHeight(), 1, transitionTime);
+            Tween.createTween("moveTransitionSpriteUpTween", transitionSprite, "height", gameManager.getHeight(), 1, generalLevelInfo.getTransitionTime()).setEaseType(new EaseType(Ease.EASE_OUT, 2));
         
         // load level
         if (intro) 
-            Timer.createCallTimer("updateGameToNewLevel", this, transitionTime, "setLevelInfo", level).setPrint(Updatable.PrintType.ON_COMPLETE); // this causes the bug
+            Timer.createCallTimer("updateGameToNewLevel", this, generalLevelInfo.getTransitionTime(), "setLevelInfo", level).setPrint(Updatable.PrintType.ON_COMPLETE); // this causes the bug
         else
             setLevelInfo(level);
 
         // update transition variable
-        Timer.createCallTimer("finishTransition", this, intro && outro ? totalTransitionTime : transitionTime, "finishTransition");
+        Timer.createCallTimer("finishTransition", this, intro && outro ? generalLevelInfo.getTotalTransitionTime() : generalLevelInfo.getTransitionTime(), "finishTransition");
     }
 
     @SuppressWarnings("unused")

@@ -30,13 +30,14 @@ public class GameManager extends JPanel {
             PREV_LEVEL_KEY = "2",
             NEXT_LEVEL_KEY = "3",
             ALLOW_TRANSITION_KEY = "Space",
+            MOVE_TO_LEVEL_KEY = "Shift",
             PRINT_UPDATABLES_KEY = "U",
             INCREMENT_HDIR_KEY = "Minus",
             INCREMENT_VDIR_KEY = "Equals",
             FIND_BREAKPOINT_KEY = "0",
             PRINT_BOARD_KEY = "P";
 
-    final double LEVEL_FINISH_BUFFER_TIME = 1.1;
+    final double LEVEL_FINISH_BUFFER_TIME = 0.4;
     
     // window
     private ParentFrame window;

@@ -11,6 +11,6 @@
         "puzzlePiece": [],
         "playerPiece": [],
         "wall": ["width", "height"],
-        "box": ["width", "height"]
+        "box": ["size"]
     }
 }

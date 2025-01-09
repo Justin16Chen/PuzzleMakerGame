@@ -126,26 +126,13 @@ public class LevelLoader {
 
     // gets the general info about the levels
     public static GeneralLevelInfo getGeneralLevelInfo(String fileName) {
-
-        File file = new File(ROOT_PATH + "/" + fileName);
         try {
-            int startLevel, endLevel;
-            double transitionTime;
-
-            String content = new String(Files.readAllBytes(Paths.get(file.toURI())));
-            JSONObject levelObject = new JSONObject(content);
-
-            startLevel = levelObject.getInt("startLevel");
-            endLevel = levelObject.getInt("endLevel");
-            transitionTime = levelObject.getDouble("transitionTime");
-
-            return new GeneralLevelInfo(startLevel, endLevel, transitionTime);
+            return new GeneralLevelInfo(ROOT_PATH + "/" + fileName);
         } catch (JSONException e) {
             Print.println(fileName + " is not formatted correctly", Print.RED);
         } catch (IOException e) {
             Print.println("COULD NOT FIND FILE", Print.RED);
         }
-        Print.println("RETURNING NULL FOR LEVEL INFO", Print.RED);
         return null;
     }
 
@@ -181,8 +168,11 @@ public class LevelLoader {
                 // only 1 gameobject can be on a position
                 if (gameObject.getBoardX() < 0 || gameObject.getBoardX() >= mapWidth || gameObject.getBoardY() < 0 || gameObject.getBoardY() >= mapHeight)
                     throw new JSONException(gameObject + " tried to be instantiated out of bounds");
+                if (gameObject.getCellWidth() < 0 || gameObject.getCellHeight() < 0)
+                    throw new JSONException(gameObject + "cannot have a width and height of 0");
                 if (filledPositions[gameObject.getBoardY()][gameObject.getBoardX()])
                     throw new JSONException(gameObject + " tried to be instantiated on a position that was already filled");
+
                 filledPositions[gameObject.getBoardY()][gameObject.getBoardX()] = true;
 
                 // add game object to list

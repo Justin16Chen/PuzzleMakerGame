@@ -7,6 +7,7 @@ import utils.JMath;
 import utils.Print;
 import utils.direction.Direction;
 import utils.direction.Directions;
+import utils.tween.Ease;
 import utils.tween.EaseType;
 import utils.tween.Tween;
 
@@ -138,8 +139,8 @@ public class Side {
 
         if (getType() == Type.STRONG) 
             if (playAnimation) {
-                Tween.createTween("connectSide", this, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(EaseType.EASE_IN_BACK);
-                Tween.createTween("connectSide", piece2Side, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(EaseType.EASE_IN_BACK);
+                Tween.createTween("connectSide", this, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(new EaseType(Ease.EASE_IN_BACK));
+                Tween.createTween("connectSide", piece2Side, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(new EaseType(Ease.EASE_IN_BACK));
             } else {
                 tweenPercent = 1;
                 piece2Side.tweenPercent = 1;
