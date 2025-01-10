@@ -143,8 +143,8 @@ public class ConnectionLogic {
 
     // disconnect all breakpoints
     public static void disconnectBreakpoints(ArrayList<Side> breakpoints) {
-        // Print.println("DISCONNECTING BREAKPOINT SIDES", Print.YELLOW);
-        for (Side side : breakpoints) 
+        //Print.println("DISCONNECTING BREAKPOINT SIDES", Print.YELLOW);
+        for (Side side : breakpoints)
             PuzzlePiece.disconnect(new DisconnectInfo(side.getParent(), side.getPiece2(), side.getDirection()));
     }
 }

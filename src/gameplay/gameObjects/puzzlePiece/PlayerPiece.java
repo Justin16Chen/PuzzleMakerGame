@@ -35,19 +35,7 @@ public class PlayerPiece extends PuzzlePiece {
 
     @Override
     public void setup() {
-        
-        sprite = new Sprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObjects1") {
-            @Override
-            public void draw(Graphics2D g) {
-        
-                // draw fill
-                g.setColor(areAllSidesConnected() ? getHighlightedColor() : PuzzlePiece.COLOR);
-                g.fillRect(sprite.getX(), sprite.getY(), gameBoard.getTileSize(), gameBoard.getTileSize());
-        
-                for (Direction direction : Directions.getAllDirections())
-                    getSide(direction).draw(g, sprite.getX(), sprite.getY(), gameBoard.getTileSize());
-            }
-        };
+        super.setup();
 
         outlineSprite = new Sprite("playerOutline", sprite.getX(), sprite.getY(), gameBoard.getTileSize(), gameBoard.getTileSize(), "effects") {
             @Override

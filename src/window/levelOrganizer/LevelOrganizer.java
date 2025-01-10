@@ -88,7 +88,7 @@ public class LevelOrganizer extends ParentFrame {
         this.pack();                                                            //  make sure window size is valid
         this.setVisible(true);                                                // show window
     }
-
+    
     public static void main(String[] args) {
         LevelOrganizer levelOrganizer = new LevelOrganizer();
         levelOrganizer.setupWindow();

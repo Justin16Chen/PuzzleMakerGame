@@ -325,6 +325,6 @@ public abstract class GameObject {
 
     @Override
     public String toString() {
-        return "GameObject((" + boardx + "," + boardy + ")|moveIdx:" + moveIndex + ")";
+        return objectType + "((" + boardx + "," + boardy + ")|moveIdx:" + moveIndex + ")";
     }
 }

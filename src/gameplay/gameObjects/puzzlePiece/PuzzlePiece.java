@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
+import utils.Print;
 import utils.direction.Direction;
 import utils.direction.Directions;
 import utils.drawing.sprites.Sprite;
@@ -15,12 +16,12 @@ import utils.drawing.sprites.Sprite;
 public class PuzzlePiece extends GameObject {
 
     public static Color COLOR = new Color(72, 72, 72);
+    public static Color HIGHLIGHT_COLOR = new Color(132, 132, 132);
     public static Color OUTLINE_COLOR = COLOR;
 
     public static boolean isPuzzlePiece(GameObject gameObject) {
-        if (gameObject == null) {
+        if (gameObject == null) 
             return false;
-        }
         return gameObject.getObjectType() == GameObject.ObjectType.PLAYER_PIECE || gameObject.getObjectType() == GameObject.ObjectType.PUZZLE_PIECE;
     }
 
@@ -28,14 +29,8 @@ public class PuzzlePiece extends GameObject {
         return new PuzzlePiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
     }
 
-    // whether this piece can connect to another puzzle piece or not
-    public static boolean canConnect(ConnectInfo connectInfo) {
-        Side side1 = connectInfo.getPiece1Side();
-        Side side2 = connectInfo.getPiece2Side();
-        return Side.isCompatible(side1, side2);
-    }
     public static void disconnect(DisconnectInfo disconnectInfo) {
-        //Print.println("disconnecting " + disconnectInfo, Print.YELLOW);
+        //System.out.println("disconnecting " + disconnectInfo);
         Side side1 = disconnectInfo.getPiece1().getSide(disconnectInfo.getPiece1Direction());
         Side side2 = disconnectInfo.getPiece2().getSide(disconnectInfo.getPiece2Direction());
         side1.disconnect();
@@ -55,11 +50,11 @@ public class PuzzlePiece extends GameObject {
 
     @Override
     public void setup() {
+
         sprite = new Sprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObjects1") {
-            
             @Override
             public void draw(Graphics2D g) {
-                g.setColor(areAllSidesConnected() ? getHighlightedColor() : COLOR);
+                g.setColor(getDrawColor());
                 g.fillRect(getX(), getY(), gameBoard.getTileSize(), gameBoard.getTileSize());
 
                 for (int i=0; i<4; i++)
@@ -242,31 +237,28 @@ public class PuzzlePiece extends GameObject {
     // also look for any new connections to attach puzzle pieces
     @Override
     public void move(MoveInfo moveInfo, boolean isMover) {
-        if(movedThisFrame() || queuedMovedThisFrame()) return;
+        if(movedThisFrame() || queuedMovedThisFrame()) 
+            return;
         setQueuedMovedThisFrame(true);
-        //Print.println("MOVE ALL ATTACHED", Print.BLUE);
-        //System.out.println("for " + this);
+        //Print.println("MOVE ALL ATTACHED FOR " + this, Print.BLUE);
         //System.out.println("direction: (" + moveInfo.getHdir() + ", " + moveInfo.getVdir() + ")");
-
-        // check if this puzzle piece can move
-        boolean canMove = getMoveInfo(moveInfo.getHdir(), moveInfo.getVdir()).canMove();
         
-        if (canMove) {
-            // move connected puzzle pieces or disconnect them
-            for (Direction direction : Directions.getAllDirections()) {
-                Side side = getSide(direction);
-                if (side.isConnected())
-                        side.getPiece2().move(moveInfo, false);
-            }
-            // move self
-            moveSelf(moveInfo);
+        // move connected puzzle pieces
+        for (Direction direction : Directions.getAllDirections()) {
+            Side side = getSide(direction);
+            if (side.isConnected())
+                    side.getPiece2().move(moveInfo, false);
         }
+        // move self
+        moveSelf(moveInfo);
     }
     // move first, then check for connections
     @Override
     public void moveSelf(MoveInfo moveInfo) {
         if (movedThisFrame()) 
             return;
+
+        //System.out.println("moving self: " + this);
         
         // move
         super.moveSelf(moveInfo);
@@ -297,15 +289,13 @@ public class PuzzlePiece extends GameObject {
     @Override
     public void update(double dt) {}
 
-    public Color getHighlightedColor() {
-        int highlightAmount = 60;
-        return new Color(
-            Math.min(255, COLOR.getRed() + highlightAmount), 
-            Math.min(255, COLOR.getGreen() + highlightAmount), 
-            Math.min(255, COLOR.getBlue() + highlightAmount)
-        );
+    // get the color that the puzzle piece should be
+    private Color getDrawColor() {
+        if (areAllSidesConnected())
+            return HIGHLIGHT_COLOR;
+        
+        return COLOR;
     }
-
     
     @Override
     public void updateDrawList() {
