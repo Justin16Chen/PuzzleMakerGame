@@ -26,16 +26,7 @@ public class LevelOrganizer extends ParentFrame {
 
     // setup the window
     public void setupWindow() {
-
-        // setup content pane for window
-        contentPane = this.getContentPane();
-        contentPane.setPreferredSize(new Dimension(width, height));
         contentPane.setLayout(new BorderLayout());
-
-        setResizable(false);
-        setTitle(title);                                                        // title of window
-        setAlwaysOnTop(true);
-        
 
         // setup input
         KeyInput keyInput = new KeyInput();
@@ -83,10 +74,7 @@ public class LevelOrganizer extends ParentFrame {
         southContainer.add(saveButton);
         contentPane.add(southContainer, BorderLayout.SOUTH);
 
-
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);                    // setup how to close the window
-        this.pack();                                                            //  make sure window size is valid
-        this.setVisible(true);                                                // show window
+        pack();
     }
     
     public static void main(String[] args) {

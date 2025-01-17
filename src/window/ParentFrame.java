@@ -3,7 +3,7 @@ package window;
 import javax.swing.*;
 import java.awt.*;
 
-public class ParentFrame extends JFrame {
+public abstract class ParentFrame extends JFrame {
 
     // properties of the JFrame
     protected String title;
@@ -14,6 +14,18 @@ public class ParentFrame extends JFrame {
         this.title = title;
         this.width = width;
         this.height = height;
+
+        // setup content pane for window
+        contentPane = getContentPane();
+        contentPane.setPreferredSize(new Dimension(width, height));
+
+        setResizable(false);
+        setTitle(title);
+        setAlwaysOnTop(true);
+        
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setVisible(true);      
     }
     
+    public abstract void setupWindow();
 }

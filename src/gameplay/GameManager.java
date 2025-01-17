@@ -106,7 +106,7 @@ public class GameManager extends JPanel {
     }
 
     // start the game
-    public void startGame() {
+    public void startGame(int startLevel) {
 
         setupLayers();
 
@@ -122,7 +122,7 @@ public class GameManager extends JPanel {
         
         // load level
         levelManager = new LevelManager(this, gameBoard);
-        levelManager.transitionToLevel(0, false, true);
+        levelManager.transitionToLevel(startLevel, false, true);
 
         // hide info boxes to start
         gameBoard.hideObjInfoBoxes();
