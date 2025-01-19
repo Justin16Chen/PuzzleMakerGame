@@ -8,8 +8,6 @@ import javax.swing.JPanel;
 
 import gameplay.gameObjects.GameObject;
 import gameplay.gameObjects.MoveLogic;
-import gameplay.gameObjects.puzzlePiece.ConnectionLogic;
-import gameplay.gameObjects.puzzlePiece.Side;
 import gameplay.mapLoading.LevelLoader;
 import gameplay.mapLoading.LevelManager;
 import utils.drawing.InfoBox;
@@ -68,8 +66,7 @@ public class GameManager extends JPanel {
 
     // debug MoveLogic.java IN PROGRESS
     private int hdir = 0, vdir = 0;
-    private ArrayList<GameObject> breakpointBoundaries = new ArrayList<>();
-    private ArrayList<Side> breakpoints = new ArrayList<>();
+    private ArrayList<GameObject[]> breakpoints = new ArrayList<>();
 
     // get the FPS and delay based off of FPS
     public int getFPS() { return fps; }
@@ -221,12 +218,15 @@ public class GameManager extends JPanel {
 
         // IN PROGRESS: testing MoveLogic.java
         if (keyInput.keyClicked(INCREMENT_HDIR_KEY)) 
-            if (++hdir == 2) hdir = -1;
+            if (++hdir == 2) 
+                hdir = -1;
         if (keyInput.keyClicked(INCREMENT_VDIR_KEY)) 
-            if (++vdir == 2) vdir = -1;
+            if (++vdir == 2) 
+                vdir = -1;
         if (keyInput.keyClicked(FIND_BREAKPOINT_KEY)) {
-            breakpointBoundaries = MoveLogic.findBreakpointBoundaries(gameBoard, gameBoard.getPlayerPiece().getBoardX(), gameBoard.getPlayerPiece().getBoardY(), hdir, vdir);
-            breakpoints = ConnectionLogic.findBreakpoints(gameBoard, breakpointBoundaries, hdir, vdir);
+            breakpoints = MoveLogic.findBreakpoints(gameBoard, gameBoard.getPlayerPiece(), hdir, vdir);
+            System.out.println("finding breakpoints");
+            System.out.println(breakpoints.size());
         }
 
         // print the game board
@@ -289,11 +289,11 @@ public class GameManager extends JPanel {
         addDebugGeneral(drawList);
         //addDebugInput(drawList); // more advanced stuff, separated
         addDebugControls(drawList);
-        addDebugUpdatables(drawList);
-        addDebugSprites(drawList);
-        addDebugLevel(drawList);
+        //addDebugUpdatables(drawList);
+        //addDebugSprites(drawList);
+        //addDebugLevel(drawList);
         //addDebugGameObjects(drawList);
-        //addDebugMovement(drawList);
+        addDebugMovement(drawList);
         
         debugInfoBox.setDrawList(drawList);
     }
@@ -385,13 +385,10 @@ public class GameManager extends JPanel {
     private void addDebugMovement(ArrayList<String> drawList) {
         drawList.add("===MOVEMENT===");
         drawList.add("dir to check: (" + hdir + ", " + vdir + ")");
-        drawList.add("breakpoint boundaries: ");
-        for (GameObject gameObject : breakpointBoundaries)
-            drawList.add("index: " + gameObject.getMoveIndex() + " | game object: " + gameObject);
         if (breakpoints != null) {
             drawList.add("breakpoints: ");
-            for (Side side : breakpoints)
-                drawList.add("breakpoint side: " + side);
+            for (GameObject[] gameObjects : breakpoints)
+                drawList.add("breakpoint: " + gameObjects[0] + ", " + gameObjects[1]);
         }
         else 
             drawList.add("breakpoints: none - invalid movement");

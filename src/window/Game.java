@@ -27,8 +27,6 @@ public class Game extends ParentFrame {
 
     // setup the window
     public void setupWindow() {
-
-        
         
         // setup input
         KeyInput keyInput = new KeyInput();

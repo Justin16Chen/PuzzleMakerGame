@@ -93,20 +93,8 @@ public class GameBoard {
     }
     // get the game object at a certain position
     public GameObject getGameObject(int boardx, int boardy) {
-        if (!inBounds(boardx, boardy)) { 
+        if (!inBounds(boardx, boardy))
             throw new RuntimeException(boardx + ", " + boardy + " is out of bounds");
-        }
-
-        /*
-        // first check next board
-        if (nextBoard[boardy][boardx] != null) {
-            return nextBoard[boardy][boardx];
-        }
-        // empty cell or if the object at old board moved, cell must be empty
-        if (board[boardy][boardx] == null || board[boardy][boardx].movedThisFrame()) return null;
-        // object at old board has not moved
-        */
-        
         return board[boardy][boardx];
     }
 
@@ -160,23 +148,14 @@ public class GameBoard {
     // update loop
     public void update(double dt) {
 
-        ArrayList<GameObject> updatedGameObjects = new ArrayList<>();
-
         // update current board
         for (int i=0; i<gameObjects.size(); i++) {
 
             // update game object
             GameObject gameObject = gameObjects.get(i);
 
-            // skip if already updated
-            if (updatedGameObjects.contains(gameObject))
-                continue;
-
             gameObject.resetMovedThisFrame();
-            gameObject.resetQueuedMovedThisFrame();
             gameObject.update(dt);
-
-            updatedGameObjects.add(gameObject);
 
             // update game object info box
             if (mouseInput.clicked()
@@ -188,8 +167,6 @@ public class GameBoard {
                 gameObject.updateDrawList();
             }
         }
-        // set the old board to the new board for next frame
-        board = updateGameObjectPositions(board);
     }
 
     // update the positions of the game objects on the 2d grid to match their instance data
@@ -204,6 +181,9 @@ public class GameBoard {
                     newBoard[gameObject.getBoardY() + y][gameObject.getBoardX() + x] = gameObject;
         }
         return newBoard;
+    }
+    public void updateGameObjectPositions() {
+        board = updateGameObjectPositions(board);
     }
 
     // checks if all of the puzzle pieces are connected (win condition)

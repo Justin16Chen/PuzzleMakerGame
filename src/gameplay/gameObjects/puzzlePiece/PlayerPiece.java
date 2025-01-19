@@ -63,19 +63,24 @@ public class PlayerPiece extends PuzzlePiece {
             // first check if movement is valid
             ArrayList<GameObject> selfList = new ArrayList<GameObject>(); // keeps track of what has already moved
             MoveInfo moveInfo = getAllMoveInfo(selfList, hdir, vdir);
+            // System.out.println("final move info: " + moveInfo);
             if (moveInfo.canMove()) {
 
                 // update the move indecies of all game objects
-                MoveLogic.updateMoveIndecies(gameBoard, getBoardX(), getBoardY());
+                //MoveLogic.updateMoveIndecies(gameBoard, getBoardX(), getBoardY());
 
                 // find any potential breakpoint boundaries for movement
-                ArrayList<GameObject> breakpointBoundaries = MoveLogic.findBreakpointBoundaries(gameBoard, getBoardX(), getBoardY(), hdir, vdir);
+                //ArrayList<GameObject> breakpointBoundaries = MoveLogic.findBreakpointBoundaries(gameBoard, getBoardX(), getBoardY(), hdir, vdir);
         
                 // find breakpoints given the breakpoint boundaries (IN PROGRESS - not fully tested, may be some bugs)
-                ArrayList<Side> breakpointSides = ConnectionLogic.findBreakpoints(gameBoard, breakpointBoundaries, hdir, vdir);
+                //ArrayList<Side> breakpointSides = ConnectionLogic.findBreakpoints(gameBoard, breakpointBoundaries, hdir, vdir);
 
-                // TO DO: disconnect breakpoints before movement
-                ConnectionLogic.disconnectBreakpoints(breakpointSides);
+                // disconnect breakpoints before movement
+                //ConnectionLogic.disconnectBreakpoints(breakpointSides);
+
+                // disconnect any breakpoints
+                ArrayList<GameObject[]> breakpoints = MoveLogic.findBreakpoints(gameBoard, this, hdir, vdir);
+                MoveLogic.disconnectBreakpoints(breakpoints);
 
                 // move all connected pieces
                 move(moveInfo, true);

@@ -15,6 +15,10 @@ import utils.drawing.sprites.Sprite;
 
 public class PuzzlePiece extends GameObject {
 
+    public static GameObject loadPuzzlePiece(JSONObject jsonObject, GameBoard gameBoard) {
+        return new PuzzlePiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
+    }
+
     public static Color COLOR = new Color(72, 72, 72);
     public static Color HIGHLIGHT_COLOR = new Color(132, 132, 132);
     public static Color OUTLINE_COLOR = COLOR;
@@ -25,16 +29,10 @@ public class PuzzlePiece extends GameObject {
         return gameObject.getObjectType() == GameObject.ObjectType.PLAYER_PIECE || gameObject.getObjectType() == GameObject.ObjectType.PUZZLE_PIECE;
     }
 
-    public static GameObject loadPuzzlePiece(JSONObject jsonObject, GameBoard gameBoard) {
-        return new PuzzlePiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
-    }
-
-    public static void disconnect(DisconnectInfo disconnectInfo) {
-        //System.out.println("disconnecting " + disconnectInfo);
-        Side side1 = disconnectInfo.getPiece1().getSide(disconnectInfo.getPiece1Direction());
-        Side side2 = disconnectInfo.getPiece2().getSide(disconnectInfo.getPiece2Direction());
-        side1.disconnect();
-        side2.disconnect();
+    public static void disconnect(PuzzlePiece p1, PuzzlePiece p2) {
+        Direction p1Dir = Directions.getDirectionBetweenGameObjects(p1, p2);
+        p1.getSide(p1Dir).disconnect();
+        p2.getSide(Directions.getOppositeDirection(p1Dir)).disconnect();
     }
 
     private Side[] sides;
@@ -78,6 +76,14 @@ public class PuzzlePiece extends GameObject {
         return super.equals(puzzlePiece) && hasSameSides;
     }
 
+    // should consider any connected puzzle pieces when checking for breakpoints
+    @Override
+    public boolean shouldConsider(GameObject gameObject) {
+        if (!isPuzzlePiece(gameObject) || !Directions.areGameObjectsAdjacent(this, gameObject))
+            return false;
+        return getSide(Directions.getDirectionBetweenGameObjects(this, gameObject)).isConnected();
+    }
+
     // gets the type of side based on a direction
     public Side getSide(Direction direction) {
         return sides[Directions.getMoveIndex(direction)];
@@ -90,200 +96,100 @@ public class PuzzlePiece extends GameObject {
         }
         return true;
     }
-    // connect a side
-    public void connectSide(Direction direction, ConnectInfo connectInfo, boolean playAnimation) {
-        getSide(direction).connect(connectInfo, playAnimation);
-        // System.out.println("CONNECTING SIDES");
-        // System.out.println(connectInfo);
-    }
-    
-    // get the connection info between two puzzle pieces
-    public ConnectInfo getConnectInfo(int movex, int movey, int hdir, int vdir) {
-        // Print.println("GET CONNECT INFO", Print.RED);
-        // System.out.println("for " + this);
-
-        int movePosx = getBoardX() + movex;
-        int movePosy = getBoardY() + movey;
-        int targetx = movePosx + hdir;
-        int targety = movePosy + vdir;
-
-        // System.out.println("look for connect pos: " + targetx + ", " + targety);
-
-        // make sure it is in bounds
-        if (!gameBoard.inBounds(targetx, targety) || !gameBoard.inBounds(movePosx, movePosy)) {
-            //System.out.println("out of bounds, line 96");
-            return ConnectInfo.makeInvalidConnection("out of bounds");
-        }
-
-        // make sure no blocks are in the way
-        if (movex != 0 && movey != 0) {
-            GameObject gameObject = gameBoard.getGameObject(movePosx, movePosy);
-            if (gameObject != null) return ConnectInfo.makeInvalidConnection("block is in the way");
-        }
-
-        // get game object at target location
-        GameObject gameObject = gameBoard.getGameObject(targetx, targety);
-
-        // can only connect with puzzle pieces
-        if (gameObject == null) {
-            //System.out.println("null gameObject, line 105");
-            //System.out.println("target pos: " + targetx + ", " + targety);
-            //System.out.println("move offset: " + movex + ", " + movey);
-            //System.out.println("side to get connect info on: " + hdir + ", " + vdir);
-            return ConnectInfo.makeInvalidConnection("empty cell");
-        }
-        if (gameObject.getObjectType() != GameObject.ObjectType.PUZZLE_PIECE && gameObject.getObjectType() != GameObject.ObjectType.PLAYER_PIECE) {
-            //System.out.println("gameObject other than puzzle/player, line 109");
-            return ConnectInfo.makeInvalidConnection("not a puzzle piece");
-        }
-
-        // get the other puzzle piece
-        PuzzlePiece piece2 = (PuzzlePiece) gameObject;
-
-        // out facing edges can only connect with in facing edges
-        // flat edges cannot connect with anything
-            // find the direction from self to piece and direction from piece to self
-        Direction directionToPiece = Directions.getDirection(hdir, vdir);
-        Direction directionToSelf = Directions.getDirection(-hdir, -vdir);
-            // find the type of sides that correspond with directions
-        Side piece1Side = getSide(directionToPiece);
-        Side piece2Side = piece2.getSide(directionToSelf);
-
-        //System.out.println("connection info(dir to piece: " + directionToPiece + " | dir to self: " + directionToSelf + " | side: " + piece1Side + " | other side: " + piece2Side + ")");
-
-            // can only connect if one is out edge and one is in edge
-        if (Side.isCompatible(piece1Side, piece2Side) && !piece1Side.isConnected() && !piece2Side.isConnected()) {
-            //System.out.println("compatible puzzle pieces, line 129");
-            //System.out.println("puzzle piece sides: " + piece1Side.getType() + " " + piece2Side.getType());
-            // System.out.println("piece1: " + this + " piece 2: " + piece2);
-            // System.out.println("connect info" + ConnectInfo.makeValidConnection(this, piece2, directionToPiece));
-            return ConnectInfo.makeValidConnection(this, piece2, directionToPiece);
-        }
-        //System.out.println("incompatible puzzle pieces, line 132");
-        return ConnectInfo.makeInvalidConnection("incompatible puzzle pieces");
-    }
 
     // gets the moveinfo based on all of the attached puzzle pieces
     // that are in the direction of movement
     // or only checks puzzle pieces that have strong connections and that have the correct hierarchy structure
     public MoveInfo getAllMoveInfo(ArrayList<GameObject> callerList, int hdir, int vdir) {
         callerList.add(this);
-        // Print.println("GET ALL MOVE INFO", Print.PURPLE);
-        // System.out.println("for " + this);
-        // System.out.println("dir of motion: " + hdir + ", " + vdir);
-        //System.out.println(Print.PURPLE + "GET ALL MOVE INFO FOR " + this + Print.RESET);
+        //Print.println("GET ALL MOVE INFO for " + this + ", dir: " + hdir + ", " + vdir, Print.PURPLE);
         // make sure movement is in bounds and is valid
         // currently using base GameObject.getMoveInfo
         // need to create PuzzlePiece.getMoveInfo to account for any connected PuzzlePieces
 
-        // get the move info for all four sides (if they are connected) to make sure anything connected can also move
-        MoveInfo[] moveInfoList = new MoveInfo[5];
-
-        for (int i=0; i<4; i++) {
-            Direction selfToPiece = Directions.getDirection(i);
-            Direction pieceToSelf = Directions.getDirection(Directions.getOppositeDirectionIndex(i));
-            
+        for (Direction selfToPiece : Directions.getAllDirections()) {
             int offsetx = Directions.getDirectionX(selfToPiece);
             int offsety = Directions.getDirectionY(selfToPiece);
 
-            if (!gameBoard.inBounds(getBoardX() + offsetx, getBoardY() + offsety)) continue;
+            if (!gameBoard.inBounds(getBoardX() + offsetx, getBoardY() + offsety))
+                continue;
 
             GameObject gameObject = gameBoard.getGameObject(getBoardX() + offsetx, getBoardY() + offsety);
 
+            //System.out.println(selfToPiece + ": " + gameObject);
+
             // empty cell
-            if (gameObject == null) continue;
+            if (gameObject == null)
+                continue;
 
             // already found moveInfo, ignore
-            boolean inCallerList = false;
-            for (GameObject caller : callerList) {
-                if (caller.equals(gameObject)) {
-                    inCallerList = true;
-                    break;
-                }
-            }
-            if (inCallerList) continue;
+            if (callerList.contains(gameObject))
+                continue;
 
-            // get the move info if it is in the direction of movement
+            // only get the move info if it is in the direction of movement
             // or if the object is a strong connected puzzle piece
+            MoveInfo moveInfo = null;
             if (offsetx == hdir && offsety == vdir) {
                 // call the proper function
-                if (isPuzzlePiece(gameObject)) moveInfoList[i] = ((PuzzlePiece) gameObject).getAllMoveInfo(callerList, hdir, vdir);
-                else moveInfoList[i] = gameObject.getMoveInfo(hdir, vdir);
+                if (isPuzzlePiece(gameObject)) 
+                    moveInfo = ((PuzzlePiece) gameObject).getAllMoveInfo(callerList, hdir, vdir);
+                else 
+                    moveInfo = gameObject.getMoveInfo(hdir, vdir);
             }
-            else if (isPuzzlePiece(gameObject)) {
+            else if (getSide(selfToPiece).isConnected() && getSide(selfToPiece).getType() == Side.Type.STRONG) {
                 PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
-                Side selfSide = getSide(selfToPiece), otherSide = puzzlePiece.getSide(pieceToSelf);
-
-                if (selfSide.isConnected() && Side.getConnectionType(selfSide.getType(), otherSide.getType()) == Side.Type.STRONG) {
-                    moveInfoList[i] = puzzlePiece.getAllMoveInfo(callerList, hdir, vdir);
-                }
+                moveInfo = puzzlePiece.getAllMoveInfo(callerList, hdir, vdir);
             }
+            if (moveInfo != null && !moveInfo.canMove())
+                return MoveInfo.makeInvalidMove();
         }
-
-        // System.out.println("finished checking");
 
         // also always get move info for base piece with no side offsets
-        moveInfoList[4] = getMoveInfo(hdir, vdir);
-
-        // can only move if all of the moveInfos are valid
-        for (int i=0; i<5; i++) {
-            if (moveInfoList[i] != null && !moveInfoList[i].canMove()) {
-                return MoveInfo.makeInvalidMove();
-            }
-        }
-        return moveInfoList[4];
+        return getMoveInfo(hdir, vdir);
     }
     // moves itself and any attached puzzle pieces
     // also look for any new connections to attach puzzle pieces
     @Override
-    public void move(MoveInfo moveInfo, boolean isMover) {
-        if(movedThisFrame() || queuedMovedThisFrame()) 
-            return;
-        setQueuedMovedThisFrame(true);
-        //Print.println("MOVE ALL ATTACHED FOR " + this, Print.BLUE);
-        //System.out.println("direction: (" + moveInfo.getHdir() + ", " + moveInfo.getVdir() + ")");
+    public void customMove(MoveInfo moveInfo) {
+        // Print.println("MOVE ALL ATTACHED FOR " + this, Print.BLUE);
+        // System.out.println("direction: (" + moveInfo.getHdir() + ", " + moveInfo.getVdir() + ")");
         
         // move connected puzzle pieces
         for (Direction direction : Directions.getAllDirections()) {
             Side side = getSide(direction);
             if (side.isConnected())
-                    side.getPiece2().move(moveInfo, false);
+                gameBoard.getGameObject(getBoardX() + Directions.getDirectionX(direction), getBoardY() + Directions.getDirectionY(direction)).move(moveInfo, false);
         }
         // move self
         moveSelf(moveInfo);
     }
-    // move first, then check for connections
+
+    // check for connections when everything has finished moving
     @Override
-    public void moveSelf(MoveInfo moveInfo) {
-        if (movedThisFrame()) 
-            return;
-
-        //System.out.println("moving self: " + this);
-        
-        // move
-        super.moveSelf(moveInfo);
-
-        // check if it can connect with other puzzle pieces
+    protected void performAfterMovement(MoveInfo moveInfo) {
         checkForConnections(moveInfo, true);
     }
 
     // update connected state for all sides
     public void checkForConnections(MoveInfo moveInfo, boolean playAnimation) {
-        ConnectInfo[] connectInfoList = new ConnectInfo[4];
-
-        for (int i=0; i<4; i++) {
-            Direction direction = Directions.getDirection(i);
-            if (getSide(direction).isConnected() || !getSide(direction).canConnect()) 
+        for (Direction dir : Directions.getAllDirections()) {
+            if (getSide(dir).isConnected() || !getSide(dir).canConnect()) 
                 continue;
-            int connectDirx = Directions.getDirectionX(direction), connectDiry = Directions.getDirectionY(direction);
+            int connectDirx = Directions.getDirectionX(dir);
+            int connectDiry = Directions.getDirectionY(dir);
             if (connectDirx == -moveInfo.getHdir() && connectDiry == -moveInfo.getVdir()) 
                 continue;
-            connectInfoList[i] = getConnectInfo(0, 0, connectDirx, connectDiry);
-        }
-        for (ConnectInfo connectInfo : connectInfoList) {
-            if (connectInfo == null) continue;
-            if (connectInfo.canConnect())
-                connectInfo.connect(playAnimation);
+            
+            int x = getBoardX() + connectDirx;
+            int y = getBoardY() + connectDiry;
+            if (!gameBoard.inBounds(x, y))
+                continue;
+            GameObject gameObject = gameBoard.getGameObject(x, y);
+            if (PuzzlePiece.isPuzzlePiece(gameObject)) {
+                getSide(dir).connect(playAnimation);
+                ((PuzzlePiece) gameObject).getSide(Directions.getOppositeDirection(dir)).connect(playAnimation);
+            }
+
         }
     }
     @Override
@@ -302,16 +208,10 @@ public class PuzzlePiece extends GameObject {
         ArrayList<String> drawList = new ArrayList<String>();
 
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
-        drawList.add("index: " + getMoveIndex());
-        drawList.add("must move: " + mustCheck());
         drawList.add("sides: ");
         for (int i=0; i<4; i++) {
             Direction direction = Directions.getDirection(i);
             drawList.add(direction + ": " + getSide(direction));
-        }
-        drawList.add("parents: ");
-        for (GameObject parent: getParents()) {
-            drawList.add(parent.toString());
         }
 
         infoBox.setDrawList(drawList);

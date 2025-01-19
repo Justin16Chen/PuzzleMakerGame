@@ -76,12 +76,7 @@ public abstract class GameObject {
     private int objectIndex;
     private int boardx, boardy, cellWidth, cellHeight;
     private boolean movable;
-    private boolean queuedMoveThisFrame;
-    private boolean movedThisFrame;
-    private int moveIndex = 0;
-    private boolean mustCheck = false;
-    private boolean[] checkedSides;
-    private ArrayList<GameObject> parents;
+    protected boolean movedThisFrame;
     protected Sprite sprite;
     protected InfoBox infoBox;
     public GameObject(GameBoard gameBoard, ObjectType objectType, int boardx, int boardy, int width, int height) {
@@ -96,11 +91,8 @@ public abstract class GameObject {
         this.cellHeight = height;
 
         this.movedThisFrame = false;
-        this.queuedMoveThisFrame = false;
 
         this.movable = GameObject.getMovable(objectType);
-        this.checkedSides = new boolean[4];
-        this.parents = new ArrayList<>();
     }
 
     // setup function called after all game objects are created
@@ -122,6 +114,14 @@ public abstract class GameObject {
             getObjectType() == gameObject.getObjectType();
     }
 
+    // can specify move relation ships
+    // subclasses can override
+    // specifies if gameObject should be considered when moving this
+    // used in MoveLogic
+    public boolean shouldConsider(GameObject gameObject) {
+        return false;
+    }
+
     // getters
     public ObjectType getObjectType() { return objectType; }
     public int getObjectIndex() { return objectIndex; }
@@ -131,44 +131,12 @@ public abstract class GameObject {
     public int getCellHeight() { return cellHeight; }
     public boolean isMovable() { return movable; }
     public boolean movedThisFrame() { return movedThisFrame; }
-    public boolean queuedMovedThisFrame() { return queuedMoveThisFrame; }
-    public void setQueuedMovedThisFrame(boolean bool) { queuedMoveThisFrame = bool; }
     public Sprite getSprite() { return sprite; }
     public InfoBox getInfoBox() { return infoBox; }
-
-    // whether or not the puzzle piece is the mover (initiates the motion)
-    public boolean isMover() { return moveIndex == 0; }
-    
-    // get the index of the puzzle piece in relation to the mover
-    public int getMoveIndex() { return moveIndex; }
-    public void setMoveIndex(int moveIndex) { this.moveIndex = moveIndex; }
-
-    // if the game object must move
-    public boolean mustCheck() { return mustCheck; }
-    public void setMustCheck(boolean mustCheck) { this.mustCheck = mustCheck; }
-
-    // get if MoveLogic has checked the side yet
-    public boolean[] getCheckedSides() { return checkedSides; }
-    public boolean getCheckedSide(int i) { return checkedSides[i]; }
-    public boolean getCheckedSide(Direction direction) { return checkedSides[Directions.getMoveIndex(direction)]; }
-    public void clearCheckedSides() {
-        for (int i=0; i<4; i++)
-            checkedSides[i] = false;
-    }
-    public void checkSide(int i) { checkedSides[i] = true; }
-    public void checkSide(Direction direction) {checkedSides[Directions.getMoveIndex(direction)] = true; }
-
-    // add a parent
-    public void addParent(GameObject gameObject) { parents.add(gameObject); }
-    public void clearParents() { parents.clear(); }
-    public ArrayList<GameObject> getParents() { return parents; }
 
     // can only move once a frame - this is function to reset to allow new movement
     public void resetMovedThisFrame() {
         movedThisFrame = false;
-    }
-    public void resetQueuedMovedThisFrame() {
-        queuedMoveThisFrame = false;
     }
     // move the game object and also move any subsequent game objects
     public void moveBoardX(int x) {
@@ -196,6 +164,10 @@ public abstract class GameObject {
 
     // check if the game object and any subsequent game objects can move in a certain direction
     public MoveInfo getMoveInfo(int hdir, int vdir) {
+
+        // cannot move immovable game objects
+        if (!isMovable()) return MoveInfo.makeInvalidMove();
+        
         int[][] offsets = getOffsetsToCheckMovement(hdir, vdir);
 
         MoveInfo validMoveInfo = MoveInfo.makeInvalidMove();
@@ -236,20 +208,31 @@ public abstract class GameObject {
         
     }
 
+    // handles back end movement management
+    public void move(MoveInfo moveInfo, boolean isMover) {
+        if (movedThisFrame)
+            return;
+        movedThisFrame = true;
+        
+        customMove(moveInfo);
+
+        if (isMover) {
+            gameBoard.updateGameObjectPositions();
+            for (GameObject gameObject : gameBoard.getGameObjects())
+                gameObject.performAfterMovement(moveInfo);
+        }
+    }
+
     // meant to be overridden by any moving objects
     // other gameobjects can create more complex movement behaviors
-    public void move(MoveInfo moveInfo, boolean isMover) {
-        queuedMoveThisFrame = true;
+    protected void customMove(MoveInfo moveInfo) {
         moveSelf(moveInfo);
     }
 
     // move the game object and any subsequent objects
-    public void moveSelf(MoveInfo moveInfo) {
+    protected void moveSelf(MoveInfo moveInfo) {
         //Print.println("GAME OBJECT MOVE FUNCTION", Print.RED);
         //System.out.println("for: " + this);
-
-        if (movedThisFrame) 
-            return;
 
         //System.out.println(Print.RED + "MOVING GAME OBJECT" + Print.RESET);
         movedThisFrame = true;
@@ -274,7 +257,10 @@ public abstract class GameObject {
         // tween sprite position
         Tween.createTween("move " + objectType + " x", sprite, "x", sprite.getX(), gameBoard.findGameObjectDrawX(this), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
         Tween.createTween("move " + objectType + " y", sprite, "y", sprite.getY(), gameBoard.findGameObjectDrawY(this), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
+    }
 
+    // allows subclasses to make any checks after everything is done moving
+    protected void performAfterMovement(MoveInfo moveInfo) {
     }
 
     public HashMap<Direction, GameObject> getAdjacentGameObjects() {
@@ -325,6 +311,6 @@ public abstract class GameObject {
 
     @Override
     public String toString() {
-        return objectType + "((" + boardx + "," + boardy + ")|moveIdx:" + moveIndex + ")";
+        return objectType + "((" + boardx + "," + boardy + ")";
     }
 }

@@ -76,7 +76,6 @@ public class Side {
     private Direction direction;
     private Type type;
     private boolean connected;
-    private ConnectInfo connectInfo;
     private PuzzlePiece parent;
     private PuzzlePiece piece2;
     private Side piece2Side;
@@ -106,36 +105,20 @@ public class Side {
     public Type getType() { return type; }
     public boolean isConnected() { return connected; }
     public boolean canConnect() { return type != Type.NOTHING; }
-    public ConnectInfo getConnectInfo() { return connectInfo; }
     public PuzzlePiece getParent() { return parent; }
-    public PuzzlePiece getPiece2() { return piece2; }
-    public Side getPiece2Side() { return piece2Side; }
 
     public void disconnect() { 
         if (!connected)
             throw new IllegalCallerException("cannot disconnect a side that is not connected");
         connected = false;
-        connectInfo = null;
         piece2 = null;
         piece2Side = null;
             
     }
-    public void connect(ConnectInfo connectInfo, boolean playAnimation) {
+    public void connect(boolean playAnimation) {
         if (connected)
             throw new IllegalCallerException("cannot connect a side that is already connected");
         connected = true;
-        this.connectInfo = connectInfo;
-        
-        if (parent.equals(connectInfo.getPiece1())) {
-            this.piece2 = connectInfo.getPiece2();
-            this.piece2Side = connectInfo.getPiece2Side();
-        } else if (parent.equals(connectInfo.getPiece2())) {
-            this.piece2 = connectInfo.getPiece1();
-            this.piece2Side = connectInfo.getPiece1Side();
-        } else {
-            Print.println("ERROR, PARENT OF " + this + " DOES NOT MATCH WITH ANY IN " + connectInfo);
-            return;
-        }
 
         if (getType() == Type.STRONG) 
             if (playAnimation) {
@@ -171,6 +154,7 @@ public class Side {
     private void fillInDrawLists(int[] xList, int[] yList, int tileSize, int offset) {
         int halfTile = tileSize / 2;
         switch (getDirection()) {
+            case INVALID: break;
             case UP: 
                 xList[0] = (int) JMath.lerp(0, halfTile, tweenPercent);               yList[0] = 0;
                 xList[1] = (int) JMath.lerp(tileSize, halfTile, tweenPercent);          yList[1] = 0;

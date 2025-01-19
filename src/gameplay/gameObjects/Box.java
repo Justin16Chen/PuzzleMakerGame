@@ -24,43 +24,5 @@ public class Box extends GameObject {
     @Override
     public void setup() {
         sprite = new Sprite("box", "res/textures/box.png", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), getCellWidth() * gameBoard.getTileSize(), getCellHeight() * gameBoard.getTileSize(), "gameObjects1");
-        /*
-         {
-            @Override
-            public void draw(Graphics2D g) {
-                g.setColor(COLOR);
-                g.fillRect(getX(), getY(), getWidth(), getHeight());
-
-                int diagonalSize = (int) (DIAGONAL_SIZE * getCellWidth() * gameBoard.getTileSize());
-                int outlineOffset = (int) (OUTLINE_OFFSET * getCellWidth() * gameBoard.getTileSize());
-                int outlineWidth = (int) (OUTLINE_WIDTH * getCellWidth() * gameBoard.getTileSize());
-                
-                // draw diagonal lines
-                g.setStroke(new BasicStroke(diagonalSize));
-                g.setColor(OUTLINE_COLOR);
-                g.drawLine(getX() + outlineOffset, getY() + outlineOffset, getX() + getWidth() - outlineOffset, getY() + getHeight() - outlineOffset);
-                g.setStroke(new BasicStroke(diagonalSize - outlineWidth * 2));
-                g.setColor(COLOR);
-                g.drawLine(getX() + outlineOffset, getY() + outlineOffset, getX() + getWidth() - outlineOffset, getY() + getHeight() - outlineOffset);
-
-                g.setStroke(new BasicStroke(diagonalSize));
-                g.setColor(OUTLINE_COLOR);
-                g.drawLine(getX() + getWidth() - outlineOffset, getY() + outlineOffset, getX() + outlineOffset, getY() + getHeight() - outlineOffset);
-                g.setStroke(new BasicStroke(diagonalSize - outlineWidth * 2));
-                g.setColor(COLOR);
-                g.drawLine(getX() + getWidth() - outlineOffset, getY() + outlineOffset, getX() + outlineOffset, getY() + getHeight() - outlineOffset);
-
-                // draw rectangular border 
-                g.setStroke(new BasicStroke(outlineOffset));
-                g.setColor(OUTLINE_COLOR);
-                g.drawRect(getX() + outlineOffset / 2, getY() + outlineOffset / 2, getWidth() - outlineOffset, getWidth() - outlineOffset);
-                g.setStroke(new BasicStroke(outlineOffset - outlineWidth));
-                g.setColor(COLOR);
-                g.drawRect(getX() + outlineOffset / 2 - outlineWidth / 2, getY() + outlineOffset / 2 - outlineWidth / 2, getWidth() - outlineOffset + outlineWidth, getWidth() - outlineOffset + outlineWidth);
-        
-                
-            }
-        };
-        */
     }
 }
