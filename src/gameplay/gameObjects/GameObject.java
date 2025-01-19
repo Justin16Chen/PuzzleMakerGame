@@ -291,9 +291,6 @@ public abstract class GameObject {
         return adjacentGameObjects;
     }
 
-    // meant to be overridden by subclasses (if needed)
-    public void update(double dt) {}
-
     public void updateDrawList() {
         ArrayList<String> drawList = new ArrayList<>();
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() +")");

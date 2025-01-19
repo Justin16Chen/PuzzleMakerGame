@@ -77,8 +77,6 @@ public class Side {
     private Type type;
     private boolean connected;
     private PuzzlePiece parent;
-    private PuzzlePiece piece2;
-    private Side piece2Side;
     private double tweenPercent; // plays animation based on this when connecting w another side
 
     public Side(PuzzlePiece parent, Direction direction, Type type) {
@@ -97,8 +95,7 @@ public class Side {
         return getString(0);
     }
     public String getString(int number) {
-        if (connected && number == 0) return "Side(" + direction + "|" + type + "|\n  p2 pos:(" + piece2.getBoardX() + "," + piece2.getBoardY() + ")\n  p2 side:" + piece2Side.getString(1) + ")";
-        return "Side(" + direction + "|" + type + "tweenAmount: " + tweenPercent + ")";
+        return "Side(" + direction + "|" + type + "|" + connected + "|tweenAmount: " + tweenPercent + ")";
     }
 
     public Direction getDirection() { return direction; }
@@ -111,8 +108,6 @@ public class Side {
         if (!connected)
             throw new IllegalCallerException("cannot disconnect a side that is not connected");
         connected = false;
-        piece2 = null;
-        piece2Side = null;
             
     }
     public void connect(boolean playAnimation) {
@@ -121,13 +116,10 @@ public class Side {
         connected = true;
 
         if (getType() == Type.STRONG) 
-            if (playAnimation) {
+            if (playAnimation)
                 Tween.createTween("connectSide", this, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(new EaseType(Ease.EASE_IN_BACK));
-                Tween.createTween("connectSide", piece2Side, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(new EaseType(Ease.EASE_IN_BACK));
-            } else {
+            else 
                 tweenPercent = 1;
-                piece2Side.tweenPercent = 1;
-            }
     }
 
     public void draw(Graphics2D g, int parentDrawx, int parentDrawy, int tileSize) {

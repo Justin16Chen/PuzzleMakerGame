@@ -224,9 +224,7 @@ public class GameManager extends JPanel {
             if (++vdir == 2) 
                 vdir = -1;
         if (keyInput.keyClicked(FIND_BREAKPOINT_KEY)) {
-            breakpoints = MoveLogic.findBreakpoints(gameBoard, gameBoard.getPlayerPiece(), hdir, vdir);
-            System.out.println("finding breakpoints");
-            System.out.println(breakpoints.size());
+            //breakpoints = MoveLogic.findBreakpoints(gameBoard, gameBoard.getPlayerPiece(), hdir, vdir);
         }
 
         // print the game board
@@ -287,13 +285,13 @@ public class GameManager extends JPanel {
     private void updateDebugDrawList() {
         ArrayList<String> drawList = new ArrayList<>();
         addDebugGeneral(drawList);
-        //addDebugInput(drawList); // more advanced stuff, separated
+        //addDebugInput(drawList);
         addDebugControls(drawList);
         //addDebugUpdatables(drawList);
         //addDebugSprites(drawList);
         //addDebugLevel(drawList);
         //addDebugGameObjects(drawList);
-        addDebugMovement(drawList);
+        //addDebugMovement(drawList);
         
         debugInfoBox.setDrawList(drawList);
     }

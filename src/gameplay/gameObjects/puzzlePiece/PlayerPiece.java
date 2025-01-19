@@ -50,44 +50,6 @@ public class PlayerPiece extends PuzzlePiece {
 
     }
 
-    // update the playerPiece
-    @Override
-    public void update(double dt) {
-        // get player input
-        int hdir = keyInput.keyClickedInt("D") - keyInput.keyClickedInt("A");
-        int vdir = keyInput.keyClickedInt("S") - keyInput.keyClickedInt("W");
-
-        // make sure there is movement
-        if (hdir != 0 || vdir != 0) {
-
-            // first check if movement is valid
-            ArrayList<GameObject> selfList = new ArrayList<GameObject>(); // keeps track of what has already moved
-            MoveInfo moveInfo = getAllMoveInfo(selfList, hdir, vdir);
-            // System.out.println("final move info: " + moveInfo);
-            if (moveInfo.canMove()) {
-
-                // update the move indecies of all game objects
-                //MoveLogic.updateMoveIndecies(gameBoard, getBoardX(), getBoardY());
-
-                // find any potential breakpoint boundaries for movement
-                //ArrayList<GameObject> breakpointBoundaries = MoveLogic.findBreakpointBoundaries(gameBoard, getBoardX(), getBoardY(), hdir, vdir);
-        
-                // find breakpoints given the breakpoint boundaries (IN PROGRESS - not fully tested, may be some bugs)
-                //ArrayList<Side> breakpointSides = ConnectionLogic.findBreakpoints(gameBoard, breakpointBoundaries, hdir, vdir);
-
-                // disconnect breakpoints before movement
-                //ConnectionLogic.disconnectBreakpoints(breakpointSides);
-
-                // disconnect any breakpoints
-                ArrayList<GameObject[]> breakpoints = MoveLogic.findBreakpoints(gameBoard, this, hdir, vdir);
-                MoveLogic.disconnectBreakpoints(breakpoints);
-
-                // move all connected pieces
-                move(moveInfo, true);
-            }
-        }
-    }
-
     @Override
     public void deleteSprites() {
         Sprites.deleteSprites(new String[]{sprite.getName(), outlineSprite.getName(), InfoBox.NAME});

@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 import gameplay.gameObjects.*;
+import gameplay.gameObjects.puzzlePiece.PlayerPiece;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
 import gameplay.mapLoading.*;
 import utils.Print;
@@ -127,9 +128,14 @@ public class GameBoard {
                 for (int x=0; x<gameObject.getCellWidth(); x++)
                     board[gameObject.getBoardY() + y][gameObject.getBoardX() + x] = gameObject;
         }
+    }
 
-        // check for any puzzle pieces already connected and update that
+    public void setupGameObjectVisuals() {
         for (GameObject gameObject : gameObjects) {
+            gameObject.setup();                // create sprites and tweens for gameobject
+            gameObject.updateVisualsAtStart(); // make sure gameobjects start in correct draw position
+
+            // check for any puzzle pieces already connected and update that
             if (!PuzzlePiece.isPuzzlePiece(gameObject)) 
                 continue;
             
@@ -138,24 +144,49 @@ public class GameBoard {
         }
     }
 
-    public void setupGameObjectVisuals() {
-        for (GameObject gameObject : gameObjects) {
-            gameObject.setup();                // create sprites and tweens for gameobject
-            gameObject.updateVisualsAtStart(); // make sure gameobjects start in correct draw position
+    // update loop
+    public void update(double dt) {
+        checkForInput();
+        updateDebugInfoBoxes();
+    }
+
+    private void checkForInput() {
+        // get player input
+        int hdir = keyInput.keyClickedInt("D") - keyInput.keyClickedInt("A");
+        int vdir = keyInput.keyClickedInt("S") - keyInput.keyClickedInt("W");
+
+        // make sure there is movement
+        if (hdir != 0 || vdir != 0) {
+
+            for (GameObject gameObject : gameObjects)
+                gameObject.resetMovedThisFrame();
+            
+            for (GameObject playerGameObject : gameObjects) {
+                if (playerGameObject.getObjectType() != GameObject.ObjectType.PLAYER_PIECE)
+                    continue;
+                
+                PlayerPiece player = (PlayerPiece) playerGameObject;
+    
+                // first check if movement is valid
+                ArrayList<GameObject> selfList = new ArrayList<GameObject>(); // keeps track of what has already moved
+                MoveInfo moveInfo = player.getAllMoveInfo(selfList, hdir, vdir);
+                
+                if (moveInfo.canMove()) {
+    
+                    // disconnect any breakpoints
+                    ArrayList<GameObject[]> breakpoints = MoveLogic.findBreakpoints(this, player, hdir, vdir);
+                    MoveLogic.disconnectBreakpoints(breakpoints);
+    
+                    // move all connected pieces
+                    player.move(moveInfo, true);
+                }
+            }
         }
     }
 
-    // update loop
-    public void update(double dt) {
-
-        // update current board
+    private void updateDebugInfoBoxes() {
         for (int i=0; i<gameObjects.size(); i++) {
-
-            // update game object
             GameObject gameObject = gameObjects.get(i);
-
-            gameObject.resetMovedThisFrame();
-            gameObject.update(dt);
 
             // update game object info box
             if (mouseInput.clicked()
@@ -203,13 +234,6 @@ public class GameBoard {
     }
     public int findGameObjectDrawY(GameObject gameObject) {
         return getBoardSprite().getY() + gameObject.getBoardY() * tileSize;
-    }
-
-    public GameObject getPlayerPiece() {
-        for (GameObject gameObject : gameObjects) 
-            if (gameObject.getObjectType() == GameObject.ObjectType.PLAYER_PIECE) 
-                return gameObject;
-        return null;
     }
 
     // removes all game object sprites 

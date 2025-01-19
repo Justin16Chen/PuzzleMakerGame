@@ -186,14 +186,16 @@ public class PuzzlePiece extends GameObject {
                 continue;
             GameObject gameObject = gameBoard.getGameObject(x, y);
             if (PuzzlePiece.isPuzzlePiece(gameObject)) {
-                getSide(dir).connect(playAnimation);
-                ((PuzzlePiece) gameObject).getSide(Directions.getOppositeDirection(dir)).connect(playAnimation);
+                Side ownSide = getSide(dir);
+                Side otherSide = ((PuzzlePiece) gameObject).getSide(Directions.getOppositeDirection(dir));
+                if (Side.isCompatible(ownSide, otherSide)) {
+                    ownSide.connect(playAnimation);
+                    otherSide.connect(playAnimation);
+                }
             }
 
         }
     }
-    @Override
-    public void update(double dt) {}
 
     // get the color that the puzzle piece should be
     private Color getDrawColor() {
