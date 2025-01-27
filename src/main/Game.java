@@ -1,8 +1,7 @@
-package window;
-
-import javax.swing.*;
+package main;
 
 import gameplay.*;
+import utils.ParentFrame;
 import utils.input.*;
 
 public class Game extends ParentFrame {
@@ -25,23 +24,19 @@ public class Game extends ParentFrame {
         gameManager.startGame(startLevel);
     }
 
-    // setup the window
     public void setupWindow() {
         
-        // setup input
         KeyInput keyInput = new KeyInput();
         MouseInput mouseInput = new MouseInput(getInsets());
         this.addKeyListener(keyInput);
         this.addMouseListener(mouseInput);
         this.addMouseMotionListener(mouseInput);
 
-        // setup and add the game manager (JPanel)
         gameManager = new GameManager(this, framesPerSecond, keyInput, mouseInput);
         contentPane.add(gameManager);
         gameManager.setContentPaneInsets(contentPane.getInsets());
         
-        // setup how to close the window
-        this.pack();                                                           // show window
+        this.pack();
     }
 
     public static void main(String[] args) {

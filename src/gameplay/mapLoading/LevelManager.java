@@ -34,7 +34,7 @@ public class LevelManager {
 
     // sets the general level info
     public void updateGeneralLevelInfo() {
-        GeneralLevelInfo newInfo = LevelLoader.getGeneralLevelInfo("levelInfo.json");
+        GeneralLevelInfo newInfo = LevelLoader.getGeneralLevelInfo("res/levels/levelInfo.json");
         if (newInfo != null)
             generalLevelInfo = newInfo;
     }
@@ -94,7 +94,7 @@ public class LevelManager {
     // returns if it is successful or not
     private boolean setLevelInfo(int level) {
         // load in the level
-        LevelInfo levelInfo = LevelLoader.getLevelInfo(level + ".json", gameBoard);
+        LevelInfo levelInfo = LevelLoader.getLevelInfo("res/levels/" + level + ".json", gameBoard);
         if (levelInfo != null) {
             currentLevel = level;
 

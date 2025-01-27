@@ -1,4 +1,10 @@
 {
+    "gameObjects": [
+        "playerPiece",
+        "puzzlePiece",
+        "wall",
+        "box"
+    ],
     "required": {
         "gameObject": ["name", "x", "y"],
         "puzzlePiece": ["sideData"],

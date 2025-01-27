@@ -16,8 +16,6 @@ import utils.Print;
 
 public class LevelLoader {
 
-    final private static String ROOT_PATH = "res/levels";
-
     private static HashMap<String, ArrayList<String>> requiredObjectData = new HashMap<>();
     private static HashMap<String, ArrayList<String>> optionalObjectData = new HashMap<>();
     private static HashMap<String, ArrayList<String>> totalObjectData    = new HashMap<>();
@@ -69,13 +67,13 @@ public class LevelLoader {
     }
 
     // gets the required object data
-    public static void getObjectData(String fileName) {
+    public static void updateObjectData(String filePath) {
         //System.out.println("GETTING OBJECT DATA");
         requiredObjectData.clear();
         optionalObjectData.clear();
         totalObjectData.clear();
 
-        File file = new File(ROOT_PATH + "/" + fileName);
+        File file = new File(filePath);
         try {
             String content = new String(Files.readAllBytes(Paths.get(file.toURI())));
             JSONObject objectData = new JSONObject(content);
@@ -111,7 +109,7 @@ public class LevelLoader {
             Print.println("INVALID JSON FILE", Print.RED);
             e.printStackTrace();
         } catch (IOException e) {
-            Print.println("COULD NOT FIND FILE", Print.RED);
+            Print.println("COULD NOT FIND FILE" + filePath, Print.RED);
             
         }
     }
@@ -125,21 +123,21 @@ public class LevelLoader {
     }
 
     // gets the general info about the levels
-    public static GeneralLevelInfo getGeneralLevelInfo(String fileName) {
+    public static GeneralLevelInfo getGeneralLevelInfo(String filePath) {
         try {
-            return new GeneralLevelInfo(ROOT_PATH + "/" + fileName);
+            return new GeneralLevelInfo(filePath);
         } catch (JSONException e) {
-            Print.println(fileName + " is not formatted correctly", Print.RED);
+            Print.println(filePath + " is not formatted correctly", Print.RED);
         } catch (IOException e) {
-            Print.println("COULD NOT FIND FILE", Print.RED);
+            Print.println("COULD NOT FIND FILE" + filePath, Print.RED);
         }
         return null;
     }
 
     // gets all the info to create a map from a json file
-    public static LevelInfo getLevelInfo(String fileName, GameBoard gameBoard) {
+    public static LevelInfo getLevelInfo(String filePath, GameBoard gameBoard) {
 
-        File file = new File(ROOT_PATH + "/" + fileName);
+        File file = new File(filePath);
         try {
             int mapWidth = 0;
             int mapHeight = 0;
@@ -180,7 +178,7 @@ public class LevelLoader {
             }
             return new LevelInfo(mapWidth, mapHeight, gameObjects);
         } catch (IOException e) {
-            Print.println("CANNOT FIND FILE " + fileName, Print.RED);
+            Print.println("COULD NOT FIND FILE " + filePath, Print.RED);
         } catch (JSONException e) {
             Print.println("INVALID JSON FILE", Print.RED);
             e.printStackTrace();

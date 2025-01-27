@@ -7,15 +7,14 @@ import java.awt.*;
 import javax.swing.JPanel;
 
 import gameplay.gameObjects.GameObject;
-import gameplay.gameObjects.MoveLogic;
 import gameplay.mapLoading.LevelLoader;
 import gameplay.mapLoading.LevelManager;
+import utils.ParentFrame;
 import utils.drawing.InfoBox;
 import utils.drawing.sprites.Sprite;
 import utils.drawing.sprites.Sprites;
 import utils.input.*;
 import utils.tween.*;
-import window.ParentFrame;
 
 public class GameManager extends JPanel {
 
@@ -112,7 +111,7 @@ public class GameManager extends JPanel {
         debugInfoBox.setVisible(false);
 
         // setup base level properties
-        LevelLoader.getObjectData("requiredObjectData.json");
+        LevelLoader.updateObjectData("res/levels/gameObjectData.json");
 
         // create game board
         gameBoard = new GameBoard(keyInput, mouseInput);

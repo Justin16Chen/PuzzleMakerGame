@@ -1,4 +1,4 @@
-package window.levelOrganizer;
+package levelOrganizer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -14,9 +14,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 
+import utils.ParentFrame;
 import utils.input.KeyInput;
 import utils.input.MouseInput;
-import window.ParentFrame;
 
 public class LevelOrganizer extends ParentFrame {
 

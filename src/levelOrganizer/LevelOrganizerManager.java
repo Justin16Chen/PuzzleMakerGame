@@ -1,4 +1,4 @@
-package window.levelOrganizer;
+package levelOrganizer;
 
 import java.io.IOException;
 import java.nio.file.Files;

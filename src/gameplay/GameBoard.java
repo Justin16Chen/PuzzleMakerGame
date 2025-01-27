@@ -130,6 +130,13 @@ public class GameBoard {
         }
     }
 
+    public void deleteGameObject(GameObject gameObject) {
+        gameObjects.removeIf(go -> go.equals(gameObject));
+    }
+    public void addGameObject(GameObject gameObject) {
+        gameObjects.add(gameObject);
+    }
+
     public void setupGameObjectVisuals() {
         for (GameObject gameObject : gameObjects) {
             gameObject.setup();                // create sprites and tweens for gameobject

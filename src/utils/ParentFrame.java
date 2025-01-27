@@ -1,4 +1,4 @@
-package window;
+package utils;
 
 import javax.swing.*;
 import java.awt.*;

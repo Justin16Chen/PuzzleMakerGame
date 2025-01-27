@@ -1,4 +1,4 @@
-package window;
+package main;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import utils.ParentFrame;
 import utils.Print;
 
 public class MainMenu extends ParentFrame {
