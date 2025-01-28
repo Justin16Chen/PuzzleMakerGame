@@ -48,7 +48,6 @@ public class PuzzlePiece extends GameObject {
 
     @Override
     public void setup() {
-
         sprite = new Sprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObjects1") {
             @Override
             public void draw(Graphics2D g) {

@@ -115,6 +115,7 @@ public class GameManager extends JPanel {
 
         // create game board
         gameBoard = new GameBoard(keyInput, mouseInput);
+        gameBoard.setup();
         
         // load level
         levelManager = new LevelManager(this, gameBoard);

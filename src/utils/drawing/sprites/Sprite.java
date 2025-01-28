@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
@@ -18,7 +19,7 @@ public class Sprite {
     private int x, y, width, height;
     private boolean visible;
     private Color color;
-
+    private ArrayList<Sprite> children;
 
     public Sprite(String name, String layerName) {
         this.name = name;
@@ -32,6 +33,7 @@ public class Sprite {
         image = null;
         visible = true;
         color = Color.BLACK;
+        children = new ArrayList<>();
         Sprites.addSprite(this, layerName);
     }
 
@@ -44,6 +46,7 @@ public class Sprite {
             e.printStackTrace();
             Print.println("Failed to load image " + imagePath, Print.RED);
         }
+        children = new ArrayList<>();
         this.layerName = layerName;
 
         x = 0;
@@ -62,6 +65,7 @@ public class Sprite {
         this.height = height;
         this.layerName = layerName;
 
+        children = new ArrayList<>();
         imagePath = "";
         image = null;
         visible = true;
@@ -83,6 +87,7 @@ public class Sprite {
         this.height = height;
         this.layerName = layerName;
 
+        children = new ArrayList<>();
         visible = true;
         color = Color.BLACK;
         Sprites.addSprite(this, layerName);
@@ -116,6 +121,11 @@ public class Sprite {
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 
+    public void moveToLayer(String layerName) {
+        Sprites.addSprite(this, layerName);
+        Sprites.deleteSprite(this);
+    }
+    
     public void draw(Graphics2D g) {
         if (isVisible()) {
             if (image == null) {

@@ -48,7 +48,9 @@ public class GameBoard {
 
         gameObjects = new ArrayList<>();
         board = new GameObject[1][1];
+    }
 
+    public void setup() {
         boardSprite = new Sprite("board", 0, 0, 1, 1, "gameBoard") {
             @Override
             public void draw(Graphics2D g) {

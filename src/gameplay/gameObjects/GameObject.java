@@ -11,7 +11,6 @@ import utils.direction.Directions;
 import utils.drawing.InfoBox;
 import utils.drawing.sprites.Sprite;
 import utils.drawing.sprites.Sprites;
-import utils.input.*;
 import utils.tween.Ease;
 import utils.tween.EaseType;
 import utils.tween.Tween;
@@ -70,8 +69,6 @@ public abstract class GameObject {
     final public static double MOVE_RATE = 0.2;
     
     protected GameBoard gameBoard;
-    protected KeyInput keyInput;
-    protected MouseInput mouseInput;
     private ObjectType objectType;
     private int objectIndex;
     private int boardx, boardy, cellWidth, cellHeight;
@@ -81,8 +78,6 @@ public abstract class GameObject {
     protected InfoBox infoBox;
     public GameObject(GameBoard gameBoard, ObjectType objectType, int boardx, int boardy, int width, int height) {
         this.gameBoard = gameBoard;
-        this.keyInput = gameBoard.getKeyInput();
-        this.mouseInput = gameBoard.getMouseInput();
         this.objectType = objectType;
         this.objectIndex = GameObject.getObjectIndex(objectType);
         this.boardx = boardx;

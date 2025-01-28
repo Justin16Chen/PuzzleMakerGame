@@ -47,7 +47,6 @@ public class PlayerPiece extends PuzzlePiece {
         };
 
         Tween.createTween("playerOutline", this, "outlineColor", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1);
-
     }
 
     @Override

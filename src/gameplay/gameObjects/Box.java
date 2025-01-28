@@ -23,6 +23,10 @@ public class Box extends GameObject {
     
     @Override
     public void setup() {
-        sprite = new Sprite("box", "res/textures/box.png", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), getCellWidth() * gameBoard.getTileSize(), getCellHeight() * gameBoard.getTileSize(), "gameObjects1");
+        sprite = makeSprite(gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), getCellWidth() * gameBoard.getTileSize(), getCellHeight() * gameBoard.getTileSize());
+    }
+
+    public static Sprite makeSprite(int x, int y, int width, int height) {
+        return new Sprite("box", "res/textures/box.png", x, y, width, height, "gameObjects1");
     }
 }

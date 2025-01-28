@@ -31,6 +31,7 @@ public class LevelEditor extends ParentFrame {
     public static void main(String[] args) {
         LevelEditor levelEditor = new LevelEditor();
         levelEditor.setupWindow();
+        levelEditor.levelEditorManager.start();
     }
     
 }

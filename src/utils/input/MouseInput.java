@@ -5,6 +5,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import utils.drawing.sprites.Sprite;
+
 public class MouseInput extends InputBase implements MouseListener, MouseMotionListener {
 
     final public static MouseInput NOTHING_INPUT = new MouseInput(Type.NOTHING);
@@ -56,6 +58,9 @@ public class MouseInput extends InputBase implements MouseListener, MouseMotionL
 
     public boolean isOver(int x, int y, int w, int h) {
         return this.x >= x && this.y >= y && this.x <= x + w && this.y <= y + h;
+    }
+    public boolean isOver(Sprite sprite) {
+        return isOver(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
     }
 
     // detect mouse input
