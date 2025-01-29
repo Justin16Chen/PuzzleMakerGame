@@ -96,6 +96,7 @@ public abstract class GameObject {
 
     // gameboard decides when to do this - only after it is properly setup
     public void updateVisualsAtStart() {
+        sprite.addTag("main");
         this.infoBox = new InfoBox(0, 0);
         infoBox.setVisible(false);
         infoBox.setFont(new Font("Arial", Font.PLAIN, 10));

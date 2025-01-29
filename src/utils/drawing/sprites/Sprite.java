@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 
 import utils.Print;
 
-public class Sprite {
+public class Sprite extends TaggableChild<Sprite> {
 
     private String name, layerName;
     private String imagePath;
@@ -19,7 +19,6 @@ public class Sprite {
     private int x, y, width, height;
     private boolean visible;
     private Color color;
-    private ArrayList<Sprite> children;
 
     public Sprite(String name, String layerName) {
         this.name = name;
@@ -33,7 +32,6 @@ public class Sprite {
         image = null;
         visible = true;
         color = Color.BLACK;
-        children = new ArrayList<>();
         Sprites.addSprite(this, layerName);
     }
 
@@ -46,7 +44,6 @@ public class Sprite {
             e.printStackTrace();
             Print.println("Failed to load image " + imagePath, Print.RED);
         }
-        children = new ArrayList<>();
         this.layerName = layerName;
 
         x = 0;
@@ -65,7 +62,6 @@ public class Sprite {
         this.height = height;
         this.layerName = layerName;
 
-        children = new ArrayList<>();
         imagePath = "";
         image = null;
         visible = true;
@@ -87,7 +83,6 @@ public class Sprite {
         this.height = height;
         this.layerName = layerName;
 
-        children = new ArrayList<>();
         visible = true;
         color = Color.BLACK;
         Sprites.addSprite(this, layerName);
@@ -113,7 +108,10 @@ public class Sprite {
     public int getHeight() { return height; }
     public void setHeight(int height) { this.height = height; }
     public boolean isVisible() { return visible; }
-    public void setVisible(boolean visible) { this.visible = visible; }
+
+    public void setVisible(boolean visible) { 
+        this.visible = visible; 
+    }
     public String getLayerName() { return layerName; }
     
     public Color getColor() { return color; }
@@ -121,9 +119,29 @@ public class Sprite {
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 
+    // only moves this to layerName
     public void moveToLayer(String layerName) {
         Sprites.addSprite(this, layerName);
         Sprites.deleteSprite(this);
+    }
+    // sets the visibility of this and all of its children
+    public void setAllChildrenVisible(boolean visible) { 
+        setVisible(visible);
+        for (Sprite child : getDirectChildren())
+            child.setAllChildrenVisible(visible);
+    }
+    // sets the visibility of this and all of its children with matching tag
+    public void setAllChildrenVisible(boolean visible, String tag) {
+        if (hasTag(tag))
+            setVisible(visible);
+        for (Sprite child : getDirectChildren())
+            child.setAllChildrenVisible(visible, tag);
+    }
+    // moves this and all children to layerName
+    public void moveAllChildrenToLayer(String layerName) {
+        moveToLayer(layerName);
+        for (Sprite child : getDirectChildren())
+            child.moveAllChildrenToLayer(layerName);
     }
     
     public void draw(Graphics2D g) {

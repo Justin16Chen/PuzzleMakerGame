@@ -1,20 +1,25 @@
 package levelEditor;
 
-import utils.ParentFrame;
+import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
+import javax.swing.JTextField;
+
 import utils.input.KeyInput;
 import utils.input.MouseInput;
 
-public class LevelEditor extends ParentFrame {
+public class LevelEditor extends JFrame {
 
     LevelEditorManager levelEditorManager;
 
-    public LevelEditor() {
-        super("Level Editor", 600, 600);
-    }
-
-    @Override
     public void setupWindow() {
         
+        setTitle("Level Editor");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(500, 500);
+
+        JLayeredPane layeredPane = new JLayeredPane();
+        setContentPane(layeredPane);
+
         // setup input
         KeyInput keyInput = new KeyInput();
         MouseInput mouseInput = new MouseInput(getInsets());
@@ -23,9 +28,17 @@ public class LevelEditor extends ParentFrame {
         addMouseMotionListener(mouseInput);
 
         levelEditorManager = new LevelEditorManager(keyInput, mouseInput);
-        contentPane.add(levelEditorManager);
+        levelEditorManager.setBounds(0, 0, getWidth(), getHeight());
+        layeredPane.add(levelEditorManager, JLayeredPane.DEFAULT_LAYER);
+
+        JTextField boardWidthTextBox = new JTextField("5");
+        boardWidthTextBox.setBounds(5, 20, 30, 15);
+        layeredPane.add(boardWidthTextBox, JLayeredPane.PALETTE_LAYER);
+        JTextField boardHeightTextBox = new JTextField("5");
+        boardHeightTextBox.setBounds(50, 20, 30, 15);
+        layeredPane.add(boardHeightTextBox, JLayeredPane.PALETTE_LAYER);
         
-        pack();
+        setVisible(true);
     }
 
     public static void main(String[] args) {

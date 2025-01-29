@@ -21,10 +21,11 @@ import utils.Print;
 import utils.drawing.sprites.Sprites;
 import utils.input.KeyInput;
 import utils.input.MouseInput;
+import utils.tween.Updatables;
 
 public class LevelEditorManager extends JPanel {
 
-    private static int PANEL_WIDTH = 64, PANEL_HEIGHT = 200;
+    private static int PANEL_WIDTH = 100, PANEL_HEIGHT = 400;
     private static Color PANEL_COLOR = new Color(30, 30, 30);
     private KeyInput keyInput;
     private MouseInput mouseInput;
@@ -66,11 +67,19 @@ public class LevelEditorManager extends JPanel {
                 int fps = 60;
                 long sleepInterval = (long) (1000. / fps);
 
+                long prevTime = System.currentTimeMillis();
+                long currentTime = System.currentTimeMillis();
+                double dt = 0;
+
                 while (true) {
+                    prevTime = currentTime;
+                    currentTime = System.currentTimeMillis();
+                    dt = (currentTime - prevTime) / 1000.;
 
                     keyInput.update();
                     mouseInput.update();
 
+                    Updatables.updateUpdatables(dt);
                     update();
                     repaint();
 

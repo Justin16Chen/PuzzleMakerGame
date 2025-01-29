@@ -45,6 +45,8 @@ public class PlayerPiece extends PuzzlePiece {
                 g.drawRect(sprite.getX() + STROKE_INSET, sprite.getY() + STROKE_INSET, gameBoard.getTileSize() - STROKE_INSET * 2, gameBoard.getTileSize() - STROKE_INSET * 2);
             }
         };
+        outlineSprite.addTag("accessory");
+        sprite.addChild(outlineSprite);
 
         Tween.createTween("playerOutline", this, "outlineColor", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1);
     }
