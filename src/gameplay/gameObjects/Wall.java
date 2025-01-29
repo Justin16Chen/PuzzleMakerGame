@@ -24,8 +24,8 @@ public class Wall extends GameObject {
     }
 
     @Override
-    public void setup() {
-        sprite = new Sprite("wall", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), getCellWidth() * gameBoard.getTileSize(), getCellHeight() * gameBoard.getTileSize(), "gameObjects1") {
+    public void setup(int x, int y, int width, int height) {
+        sprite = new Sprite("wall", x, y, width, height, "gameObjects1") {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(COLOR);

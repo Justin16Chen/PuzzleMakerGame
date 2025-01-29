@@ -47,15 +47,15 @@ public class PuzzlePiece extends GameObject {
     }
 
     @Override
-    public void setup() {
-        sprite = new Sprite("puzzlePieceSprite", gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), gameBoard.getTileSize(), gameBoard.getTileSize(), "gameObjects1") {
+    public void setup(int x, int y, int width, int height) {
+        sprite = new Sprite("puzzlePieceSprite", x, y, width, height, "gameObjects1") {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(getDrawColor());
-                g.fillRect(getX(), getY(), gameBoard.getTileSize(), gameBoard.getTileSize());
+                g.fillRect(getX(), getY(), width, height);
 
                 for (int i=0; i<4; i++)
-                    getSide(Directions.getDirection(i)).draw(g, getX(), getY(), gameBoard.getTileSize());
+                    getSide(Directions.getDirection(i)).draw(g, getX(), getY(), width);
             }
         };
     }

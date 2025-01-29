@@ -92,7 +92,7 @@ public abstract class GameObject {
 
     // setup function called after all game objects are created
     // supposed to create sprites and tweens here - NOT in constructor
-    public abstract void setup();
+    public abstract void setup(int x, int y, int width, int height);
 
     // gameboard decides when to do this - only after it is properly setup
     public void updateVisualsAtStart() {

@@ -9,8 +9,8 @@ import utils.drawing.sprites.Sprite;
 import utils.input.MouseInput;
 
 public class Panel {
-    private final static int V_BORDER_PADDING = 70, H_BORDER_PADDING = 12;
-    private final static int SELECTED_PADDING = 4;
+    private final static int V_BORDER_PADDING = 70, H_BORDER_PADDING = 40;
+    private final static int SELECTED_PADDING = 8;
     private final static int OPTION_SIZE = 32;
     private final static int OPTION_SPACING = 64;
     private final static int TEXT_SPACING = 10;
@@ -72,13 +72,15 @@ public class Panel {
             sprite.setHeight(OPTION_SIZE);
             sprite.moveAllChildrenToLayer("ui");
             sprite.setAllChildrenVisible(false, "accessory"); // only show main part of sprite
-            System.out.println(i + ": " + sprite);
         }
         selectedGameObject = gameObjects.get(0);
     }
 
-    public void setDrawSprites(ArrayList<GameObject> gameObjects) {
+    public void setOptions(ArrayList<GameObject> gameObjects) {
+        System.out.println("resizing game object options");
         this.gameObjects = gameObjects;
+        for (int i=0; i<gameObjects.size(); i++)
+            gameObjects.get(i).setup(H_BORDER_PADDING, V_BORDER_PADDING + i * OPTION_SPACING, OPTION_SIZE, OPTION_SIZE);
     }
 
     public GameObject getSelectedGameObject() {

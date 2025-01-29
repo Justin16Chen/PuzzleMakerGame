@@ -34,15 +34,15 @@ public class PlayerPiece extends PuzzlePiece {
     }
 
     @Override
-    public void setup() {
-        super.setup();
+    public void setup(int x, int y, int width, int height) {
+        super.setup(x, y, width, height);
 
-        outlineSprite = new Sprite("playerOutline", sprite.getX(), sprite.getY(), gameBoard.getTileSize(), gameBoard.getTileSize(), "effects") {
+        outlineSprite = new Sprite("playerOutline", sprite.getX(), sprite.getY(), width, height, "effects") {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(new Color((int) outlineColor, (int) outlineColor, (int) outlineColor));
                 g.setStroke(new BasicStroke(STROKE_WIDTH));
-                g.drawRect(sprite.getX() + STROKE_INSET, sprite.getY() + STROKE_INSET, gameBoard.getTileSize() - STROKE_INSET * 2, gameBoard.getTileSize() - STROKE_INSET * 2);
+                g.drawRect(sprite.getX() + STROKE_INSET, sprite.getY() + STROKE_INSET, width - STROKE_INSET * 2, height * 2);
             }
         };
         outlineSprite.addTag("accessory");

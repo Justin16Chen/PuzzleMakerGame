@@ -272,14 +272,7 @@ public class GameManager extends JPanel {
 
     // update game board visuals when map reloads
     public void updateGameBoardVisuals() {
-        gameBoard.setTileSize((int) (getWidth() * BOARD_SCALE_RATIO), (int) (getWidth() * BOARD_SCALE_RATIO));
-        gameBoard.getBoardSprite().setWidth(gameBoard.getTileSize() * gameBoard.getBoardWidth());
-        gameBoard.getBoardSprite().setHeight(gameBoard.getTileSize() * gameBoard.getBoardHeight());
-        gameBoard.getBoardSprite().setCenterX((int) (getWidth() * 0.5));
-        gameBoard.getBoardSprite().setCenterY((int) (getHeight() * 0.5));
-
-        // update game object visuals once game board is set
-        gameBoard.setupGameObjectVisuals();
+        gameBoard.updateBoardVisuals(getWidth() / 2, getHeight() / 2, (int) (getWidth() * BOARD_SCALE_RATIO), (int) (getWidth() * BOARD_SCALE_RATIO));
     }
 
     private void updateDebugDrawList() {

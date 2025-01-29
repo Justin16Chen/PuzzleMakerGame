@@ -16,6 +16,7 @@ import org.json.JSONObject;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.GameObject;
+import gameplay.mapLoading.LevelInfo;
 import gameplay.mapLoading.LevelLoader;
 import utils.Print;
 import utils.drawing.sprites.Sprites;
@@ -25,8 +26,9 @@ import utils.tween.Updatables;
 
 public class LevelEditorManager extends JPanel {
 
-    private static int PANEL_WIDTH = 100, PANEL_HEIGHT = 400;
-    private static Color PANEL_COLOR = new Color(30, 30, 30);
+    private final static int BOARD_X = 350, BOARD_Y = 300, BOARD_SIZE = 350;
+    private final static int PANEL_WIDTH = 120, PANEL_HEIGHT = 600;
+    private final static Color PANEL_COLOR = new Color(30, 30, 30);
     private KeyInput keyInput;
     private MouseInput mouseInput;
     private GameBoard board;
@@ -50,7 +52,7 @@ public class LevelEditorManager extends JPanel {
             JSONArray distinctJsonGameObjects = obj.getJSONArray("defaultGameObjects");
             ArrayList<GameObject> distinctGameObjects = new ArrayList<GameObject>();
             for (int i=0; i<distinctJsonGameObjects.length(); i++) 
-                distinctGameObjects.add(LevelLoader.createGameObject(distinctJsonGameObjects.getJSONObject(i), board));
+                distinctGameObjects.add(LevelLoader.createGameObject(distinctJsonGameObjects.getJSONObject(i), null));
             
             return distinctGameObjects;
         } catch (IOException e) {
@@ -105,11 +107,10 @@ public class LevelEditorManager extends JPanel {
         Sprites.addLayer("debug", 8);
 
         board.setup();
+        board.setCurrentBoard(new LevelInfo(10, 10, new ArrayList<GameObject>()));
+        board.updateBoardVisuals(BOARD_X, BOARD_Y, BOARD_SIZE, BOARD_SIZE);
         
-        for (GameObject gameObject : gameObjectOptions) {
-            gameObject.setup();
-        }
-        panel.setDrawSprites(gameObjectOptions);
+        panel.setOptions(gameObjectOptions);
         panel.setup();
     }
     private void update() {
@@ -119,6 +120,11 @@ public class LevelEditorManager extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
+        g2.clearRect(0, 0, getWidth(), getHeight());
         Sprites.drawSprites(g2);
+        
+        // draw cursor
+        // g2.setColor(Color.BLACK);
+        // g2.drawArc(mouseInput.getX(), mouseInput.getY(), 5, 5, 0, 360);
     }
 }

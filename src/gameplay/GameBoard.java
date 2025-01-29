@@ -141,7 +141,7 @@ public class GameBoard {
 
     public void setupGameObjectVisuals() {
         for (GameObject gameObject : gameObjects) {
-            gameObject.setup();                // create sprites and tweens for gameobject
+            gameObject.setup(findGameObjectDrawX(gameObject), findGameObjectDrawY(gameObject), gameObject.getCellWidth() * tileSize, gameObject.getCellHeight() * tileSize);                // create sprites and tweens for gameobject
             gameObject.updateVisualsAtStart(); // make sure gameobjects start in correct draw position
 
             // check for any puzzle pieces already connected and update that
@@ -153,6 +153,16 @@ public class GameBoard {
         }
     }
 
+    public void updateBoardVisuals(int centerx, int centery, int width, int height) {
+            setTileSize(width, height);
+            boardSprite.setWidth(tileSize * this.width);
+            boardSprite.setHeight(tileSize * this.height);
+            boardSprite.setCenterX(centerx);
+            boardSprite.setCenterY(centery);
+    
+            // update game object visuals once game board is set
+            setupGameObjectVisuals();
+    }
     // update loop
     public void update(double dt) {
         checkForInput();

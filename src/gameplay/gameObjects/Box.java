@@ -22,8 +22,8 @@ public class Box extends GameObject {
     }
     
     @Override
-    public void setup() {
-        sprite = makeSprite(gameBoard.findGameObjectDrawX(this), gameBoard.findGameObjectDrawY(this), getCellWidth() * gameBoard.getTileSize(), getCellHeight() * gameBoard.getTileSize());
+    public void setup(int x, int y, int width, int height) {
+        sprite = makeSprite(x, y, width, height);
     }
 
     public static Sprite makeSprite(int x, int y, int width, int height) {
