@@ -51,24 +51,25 @@ public class CellSelector {
 
     public void update(MouseInput mouseInput, GameBoard board, GameObject selectedGameObject) {
         if (mouseInput.isOver(board.getBoardSprite())) {
-            int boardx = board.getBoardX(mouseInput.getX());
-            int boardy = board.getBoardY(mouseInput.getY());
+            int boardX = board.getBoardX(mouseInput.getX());
+            int boardY = board.getBoardY(mouseInput.getY());
             selectSprite.setVisible(true);
-            selectSprite.setX(board.getDrawX(boardx));
-            selectSprite.setY(board.getDrawY(boardy));
+            selectSprite.setX(board.getDrawX(boardX));
+            selectSprite.setY(board.getDrawY(boardY));
             selectSprite.setWidth(board.getTileSize());
             selectSprite.setHeight(board.getTileSize());
 
             if (mouseInput.down()) {
-                if (board.getGameObject(boardx, boardy) != null)
-                    board.deleteGameObject(board.getGameObject(boardx, boardy));
+                if (board.getGameObject(boardX, boardY) != null)
+                    board.deleteGameObject(board.getGameObject(boardX, boardY));
                 JSONObject jsonGameObject = selectedGameObject.toJSONObject();
                 jsonGameObject.remove("x");
                 jsonGameObject.remove("y");
-                jsonGameObject.put("x", boardx);
-                jsonGameObject.put("y", boardy);
-                board.addGameObject(LevelLoader.createGameObject(jsonGameObject, board));
-                board.setupGameObjectVisuals();
+                jsonGameObject.put("x", boardX);
+                jsonGameObject.put("y", boardY);
+                GameObject gameObject = LevelLoader.createGameObject(jsonGameObject);
+                gameObject.updateVisualsAtStart(board);
+                board.addGameObject(gameObject);
             }
         }
         else

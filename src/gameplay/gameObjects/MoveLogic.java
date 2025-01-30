@@ -6,7 +6,6 @@ import java.util.List;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
-import gameplay.gameObjects.puzzlePiece.Side;
 import utils.Print;
 import utils.direction.Direction;
 import utils.direction.Directions;
@@ -71,11 +70,13 @@ public class MoveLogic {
                     checkedPositions.put(List.of(x, y), true); // update hash map
 
                     // skip if game object should not be considered (isn't affected by movement)
-                    if (dir != Directions.getDirection(hdir, vdir) && !current.shouldConsider(gameObject))
+                    // dir != Directions.getDirection(hdir, vdir) && 
+                    if (!current.shouldConsider(gameObject))
                         continue;
                     
-                    if (!gameObject.getMoveInfo(hdir, vdir).canMove())
-                        breakpoints.add(new GameObject[]{current, gameObject}); // that means current.canMove = true but gameObject.canMove = false so there must be a breakpoint between these game objects
+                    // if current.canMove = true but gameObject.canMove = false there must be a breakpoint between these game objects
+                    if (!gameObject.getMoveInfo(gameBoard, new ArrayList<GameObject>(), hdir, vdir).canMove() && !current.mustMoveWith(gameObject))
+                        breakpoints.add(new GameObject[]{current, gameObject}); 
                     else
                         gameObjectsToCheck.add(gameObject); // add object to be further analyzed next iteration
                 }

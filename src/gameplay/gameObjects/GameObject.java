@@ -70,20 +70,18 @@ public abstract class GameObject {
     // rate that gameobjects move between cells at
     final public static double MOVE_RATE = 0.2;
     
-    protected GameBoard gameBoard;
     private ObjectType objectType;
     private int objectIndex;
-    private int boardx, boardy, cellWidth, cellHeight;
+    private int boardX, boardY, cellWidth, cellHeight;
     private boolean movable;
     protected boolean movedThisFrame;
     protected Sprite sprite;
     protected InfoBox infoBox;
-    public GameObject(GameBoard gameBoard, ObjectType objectType, int boardx, int boardy, int width, int height) {
-        this.gameBoard = gameBoard;
+    public GameObject(ObjectType objectType, int boardX, int boardY, int width, int height) {
         this.objectType = objectType;
         this.objectIndex = GameObject.getObjectIndex(objectType);
-        this.boardx = boardx;
-        this.boardy = boardy;
+        this.boardX = boardX;
+        this.boardY = boardY;
         this.cellWidth = width;
         this.cellHeight = height;
 
@@ -99,23 +97,31 @@ public abstract class GameObject {
     public JSONObject toJSONObject() {
         JSONObject jsonGameObject = new JSONObject();
         jsonGameObject.put("name", objectTypeToName(objectType));
-        jsonGameObject.put("x", boardx);
-        jsonGameObject.put("y", boardy);
+        jsonGameObject.put("x", boardX);
+        jsonGameObject.put("y", boardY);
         return jsonGameObject;
     }
 
     // gameboard decides when to do this - only after it is properly setup
-    public void updateVisualsAtStart() {
+    public void updateVisualsAtStart(GameBoard gameBoard) {
+        if (sprite == null)
+            setup(0, 0, 1, 1);
         sprite.addTag("main");
         this.infoBox = new InfoBox(0, 0);
         infoBox.setVisible(false);
         infoBox.setFont(new Font("Arial", Font.PLAIN, 10));
 
-        forceToTargetDrawPos();
+        sprite.setX(gameBoard.getDrawX(boardX));
+        sprite.setY(gameBoard.getDrawY(boardY));
+        sprite.setWidth(cellWidth * gameBoard.getTileSize());
+        sprite.setHeight(cellHeight * gameBoard.getTileSize());
     }
 
-    public void updateVisualsToBoard() {
-        
+    public void updateVisualsToBoard(GameBoard board) {
+        sprite.setX(board.getDrawX(boardX));
+        sprite.setY(board.getDrawY(boardY));
+        sprite.setWidth(cellWidth * board.getTileSize());
+        sprite.setHeight(cellHeight * board.getTileSize());
     }
 
     public boolean equals(GameObject gameObject) {
@@ -132,11 +138,17 @@ public abstract class GameObject {
         return false;
     }
 
+    // can specify if a game object must move with another game object
+    // used in MoveLogic
+    public boolean mustMoveWith(GameObject gameObject) {
+        return false;
+    }
+
     // getters
     public ObjectType getObjectType() { return objectType; }
     public int getObjectIndex() { return objectIndex; }
-    public int getBoardX() { return boardx; }
-    public int getBoardY() { return boardy; }
+    public int getBoardX() { return boardX; }
+    public int getBoardY() { return boardY; }
     public int getCellWidth() { return cellWidth; }
     public int getCellHeight() { return cellHeight; }
     public boolean isMovable() { return movable; }
@@ -150,11 +162,11 @@ public abstract class GameObject {
     }
     // move the game object and also move any subsequent game objects
     public void moveBoardX(int x) {
-        boardx += x;
+        boardX += x;
 
     }
     public void moveBoardY(int y) {
-        boardy += y; 
+        boardY += y; 
     }
 
     private int[][] getOffsetsToCheckMovement(int hdir, int vdir) {
@@ -173,7 +185,8 @@ public abstract class GameObject {
     }
 
     // check if the game object and any subsequent game objects can move in a certain direction
-    public MoveInfo getMoveInfo(int hdir, int vdir) {
+    // can be overridden to create more complex behaviors
+    public MoveInfo getMoveInfo(GameBoard gameBoard, ArrayList<GameObject> callerList, int hdir, int vdir) {
 
         // cannot move immovable game objects
         if (!isMovable()) return MoveInfo.makeInvalidMove();
@@ -182,13 +195,13 @@ public abstract class GameObject {
 
         MoveInfo validMoveInfo = MoveInfo.makeInvalidMove();
         for (int i=0; i<offsets.length; i++) {
-            validMoveInfo = getMoveInfo(hdir, vdir, offsets[i][0], offsets[i][1]);
+            validMoveInfo = getMoveInfo(gameBoard, callerList, hdir, vdir, offsets[i][0], offsets[i][1]);
             if (!validMoveInfo.canMove())
                 return MoveInfo.makeInvalidMove();
         }  
         return validMoveInfo;
     }
-    private MoveInfo getMoveInfo(int hdir, int vdir, int xOff, int yOff) {
+    private MoveInfo getMoveInfo(GameBoard gameBoard, ArrayList<GameObject> callerList, int hdir, int vdir, int xOff, int yOff) {
 
         // cannot move immovable game objects
         if (!isMovable()) return MoveInfo.makeInvalidMove();
@@ -209,7 +222,7 @@ public abstract class GameObject {
         //System.out.println("Moving " + objectType + ": offset: " + xoff + ", " + yoff + " | target: " + targetx + ", " + targety + " | target type: " + gameObject.getObjectType());
 
         // get move info for game object this one is trying to move into
-        MoveInfo moveInfo = gameObject.getMoveInfo(hdir, vdir);
+        MoveInfo moveInfo = gameObject.getMoveInfo(gameBoard, callerList, hdir, vdir);
 
         // if that game object can move, this one can move
         if (moveInfo.canMove())
@@ -219,28 +232,28 @@ public abstract class GameObject {
     }
 
     // handles back end movement management
-    public void move(MoveInfo moveInfo, boolean isMover) {
+    public void move(GameBoard gameBoard, MoveInfo moveInfo, boolean isMover) {
         if (movedThisFrame)
             return;
         movedThisFrame = true;
         
-        customMove(moveInfo);
+        customMove(gameBoard, moveInfo);
 
         if (isMover) {
             gameBoard.updateGameObjectPositions();
             for (GameObject gameObject : gameBoard.getGameObjects())
-                gameObject.performAfterMovement(moveInfo);
+                gameObject.performAfterMovement(gameBoard, moveInfo);
         }
     }
 
     // meant to be overridden by any moving objects
     // other gameobjects can create more complex movement behaviors
-    protected void customMove(MoveInfo moveInfo) {
-        moveSelf(moveInfo);
+    protected void customMove(GameBoard gameBoard, MoveInfo moveInfo) {
+        moveSelf(gameBoard, moveInfo);
     }
 
     // move the game object and any subsequent objects
-    protected void moveSelf(MoveInfo moveInfo) {
+    protected void moveSelf(GameBoard gameBoard, MoveInfo moveInfo) {
         //Print.println("GAME OBJECT MOVE FUNCTION", Print.RED);
         //System.out.println("for: " + this);
 
@@ -257,7 +270,7 @@ public abstract class GameObject {
     
             // move game object current object is moving into
             if (gameObject != null) 
-                gameObject.move(moveInfo, false);
+                gameObject.move(gameBoard, moveInfo, false);
         }
         
         // move self
@@ -265,51 +278,19 @@ public abstract class GameObject {
         moveBoardY(moveInfo.getVdir());
 
         // tween sprite position
-        Tween.createTween("move " + objectType + " x", sprite, "x", sprite.getX(), gameBoard.getDrawX(boardx), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
-        Tween.createTween("move " + objectType + " y", sprite, "y", sprite.getY(), gameBoard.getDrawY(boardy), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
+        Tween.createTween("move " + objectType + " x", sprite, "x", sprite.getX(), gameBoard.getDrawX(boardX), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
+        Tween.createTween("move " + objectType + " y", sprite, "y", sprite.getY(), gameBoard.getDrawY(boardY), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
     }
 
     // allows subclasses to make any checks after everything is done moving
-    protected void performAfterMovement(MoveInfo moveInfo) {
+    protected void performAfterMovement(GameBoard gameBoard, MoveInfo moveInfo) {
     }
 
-    public HashMap<Direction, GameObject> getAdjacentGameObjects() {
-        HashMap<Direction, GameObject> adjacentGameObjects = new HashMap<>();
-        for (Direction direction : Directions.getAllDirections()) {
-            int dx = Directions.getDirectionX(direction), dy = Directions.getDirectionY(direction);
-            int x = getBoardX() + dx, y = getBoardY() + dy;
-            if (!gameBoard.inBounds(x, y) || gameBoard.getGameObject(x, y) == null) continue;
-            adjacentGameObjects.put(direction, gameBoard.getGameObject(x, y));
-        }
-        return adjacentGameObjects;
-    }
-    public HashMap<Direction, GameObject> getAdjacentGameObjects(ObjectType[] types) {
-        HashMap<Direction, GameObject> adjacentGameObjects = new HashMap<>();
-        for (Direction direction : Directions.getAllDirections()) {
-            int dx = Directions.getDirectionX(direction), dy = Directions.getDirectionY(direction);
-            int x = getBoardX() + dx, y = getBoardY() + dy;
-            if (!gameBoard.inBounds(x, y) || gameBoard.getGameObject(x, y) == null) continue;
-            GameObject gameObject = gameBoard.getGameObject(x, y);
-            boolean inTypes = false;
-            for (ObjectType type : types)
-                if (gameObject.getObjectType() == type) {
-                    inTypes = true;
-                    break;
-                }
-            adjacentGameObjects.put(direction, inTypes ? gameObject : null);
-        }
-        return adjacentGameObjects;
-    }
 
     public void updateDrawList() {
         ArrayList<String> drawList = new ArrayList<>();
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() +")");
         infoBox.setDrawList(drawList);
-    }
-
-    protected void forceToTargetDrawPos() {
-        sprite.setX(gameBoard.getDrawX(boardx));
-        sprite.setY(gameBoard.getDrawY(boardy));
     }
 
     public void deleteSprites() {
@@ -318,6 +299,6 @@ public abstract class GameObject {
 
     @Override
     public String toString() {
-        return objectType + "((" + boardx + "," + boardy + ")";
+        return objectType + "((" + boardX + "," + boardY + ")";
     }
 }

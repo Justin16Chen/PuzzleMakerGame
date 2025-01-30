@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 
 import org.json.*;
 
-import gameplay.GameBoard;
 import gameplay.gameObjects.*;
 import gameplay.gameObjects.puzzlePiece.PlayerPiece;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
@@ -135,7 +134,7 @@ public class LevelLoader {
     }
 
     // gets all the info to create a map from a json file
-    public static LevelInfo getLevelInfo(String filePath, GameBoard gameBoard) {
+    public static LevelInfo getLevelInfo(String filePath) {
 
         File file = new File(filePath);
         try {
@@ -161,7 +160,7 @@ public class LevelLoader {
                     throw new JSONException("object at index " + i + " is invalid");
                 
                 // json gameobject data creates a list of game objects
-                GameObject gameObject = createGameObject(jsonObject, gameBoard);
+                GameObject gameObject = createGameObject(jsonObject);
 
                 // only 1 gameobject can be on a position
                 if (gameObject.getBoardX() < 0 || gameObject.getBoardX() >= mapWidth || gameObject.getBoardY() < 0 || gameObject.getBoardY() >= mapHeight)
@@ -187,13 +186,13 @@ public class LevelLoader {
     }
 
     // create a game object given the primitive data
-    public static GameObject createGameObject(JSONObject jsonObject, GameBoard gameBoard) {
+    public static GameObject createGameObject(JSONObject jsonObject) {
         GameObject.ObjectType objectType = GameObject.nameToObjectType(jsonObject.getString("name"));
         switch (objectType) {
-            case WALL: return Wall.loadWall(jsonObject, gameBoard);
-            case BOX: return Box.loadBox(jsonObject, gameBoard);
-            case PUZZLE_PIECE: return PuzzlePiece.loadPuzzlePiece(jsonObject, gameBoard);
-            case PLAYER_PIECE: return PlayerPiece.loadPlayerPiece(jsonObject, gameBoard);
+            case WALL: return Wall.loadWall(jsonObject);
+            case BOX: return Box.loadBox(jsonObject);
+            case PUZZLE_PIECE: return PuzzlePiece.loadPuzzlePiece(jsonObject);
+            case PLAYER_PIECE: return PlayerPiece.loadPlayerPiece(jsonObject);
             default: 
                 Print.println("GAME OBJECT TYPE NOT RECOGNIZED: " + objectType, Print.RED);
                 return null;

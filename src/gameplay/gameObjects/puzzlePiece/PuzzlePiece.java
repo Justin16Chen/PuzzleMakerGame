@@ -14,8 +14,8 @@ import utils.drawing.sprites.Sprite;
 
 public class PuzzlePiece extends GameObject {
 
-    public static GameObject loadPuzzlePiece(JSONObject jsonObject, GameBoard gameBoard) {
-        return new PuzzlePiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
+    public static GameObject loadPuzzlePiece(JSONObject jsonObject) {
+        return new PuzzlePiece(jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
     }
 
     public static Color COLOR = new Color(72, 72, 72);
@@ -36,12 +36,12 @@ public class PuzzlePiece extends GameObject {
 
     private Side[] sides;
 
-    public PuzzlePiece(GameBoard gameBoard, int boardx, int boardy, String sideString) {
-        super(gameBoard, GameObject.ObjectType.PUZZLE_PIECE, boardx, boardy, 1, 1);
+    public PuzzlePiece(int boardX, int boardY, String sideString) {
+        super(GameObject.ObjectType.PUZZLE_PIECE, boardX, boardY, 1, 1);
         this.sides = Side.getSideData(this, sideString);
     }
-    public PuzzlePiece(GameBoard gameBoard, GameObject.ObjectType objectType, int boardx, int boardy, String sideString) {
-        super(gameBoard, objectType, boardx, boardy, 1, 1);
+    public PuzzlePiece(GameObject.ObjectType objectType, int boardX, int boardY, String sideString) {
+        super(objectType, boardX, boardY, 1, 1);
         this.sides = Side.getSideData(this, sideString);
     }
 
@@ -51,10 +51,10 @@ public class PuzzlePiece extends GameObject {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(getDrawColor());
-                g.fillRect(getX(), getY(), width, height);
+                g.fillRect(getX(), getY(), getWidth(), getHeight());
 
                 for (int i=0; i<4; i++)
-                    getSide(Directions.getDirection(i)).draw(g, getX(), getY(), width);
+                    getSide(Directions.getDirection(i)).draw(g, getX(), getY(), getWidth());
             }
         };
     }
@@ -93,7 +93,17 @@ public class PuzzlePiece extends GameObject {
     public boolean shouldConsider(GameObject gameObject) {
         if (!isPuzzlePiece(gameObject) || !Directions.areGameObjectsAdjacent(this, gameObject))
             return false;
-        return getSide(Directions.getDirectionBetweenGameObjects(this, gameObject)).isConnected();
+        Direction dir = Directions.getDirectionBetweenGameObjects(this, gameObject);
+        return getSide(dir).isConnected();
+    }
+
+    @Override
+    public boolean mustMoveWith(GameObject gameObject) {
+        if (!isPuzzlePiece(gameObject) || !Directions.areGameObjectsAdjacent(this, gameObject))
+            return false;
+        Direction dir = Directions.getDirectionBetweenGameObjects(this, gameObject);
+        return getSide(dir).getType() == Side.Type.STRONG
+            && getSide(dir).isConnected();
     }
 
     // gets the type of side based on a direction
@@ -112,7 +122,8 @@ public class PuzzlePiece extends GameObject {
     // gets the moveinfo based on all of the attached puzzle pieces
     // that are in the direction of movement
     // or only checks puzzle pieces that have strong connections and that have the correct hierarchy structure
-    public MoveInfo getAllMoveInfo(ArrayList<GameObject> callerList, int hdir, int vdir) {
+    @Override
+    public MoveInfo getMoveInfo(GameBoard gameBoard, ArrayList<GameObject> callerList, int hdir, int vdir) {
         callerList.add(this);
         //Print.println("GET ALL MOVE INFO for " + this + ", dir: " + hdir + ", " + vdir, Print.PURPLE);
         // make sure movement is in bounds and is valid
@@ -144,25 +155,25 @@ public class PuzzlePiece extends GameObject {
             if (offsetx == hdir && offsety == vdir) {
                 // call the proper function
                 if (isPuzzlePiece(gameObject)) 
-                    moveInfo = ((PuzzlePiece) gameObject).getAllMoveInfo(callerList, hdir, vdir);
+                    moveInfo = ((PuzzlePiece) gameObject).getMoveInfo(gameBoard, callerList, hdir, vdir);
                 else 
-                    moveInfo = gameObject.getMoveInfo(hdir, vdir);
+                    moveInfo = gameObject.getMoveInfo(gameBoard, callerList, hdir, vdir);
             }
             else if (getSide(selfToPiece).isConnected() && getSide(selfToPiece).getType() == Side.Type.STRONG) {
                 PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
-                moveInfo = puzzlePiece.getAllMoveInfo(callerList, hdir, vdir);
+                moveInfo = puzzlePiece.getMoveInfo(gameBoard, callerList, hdir, vdir);
             }
             if (moveInfo != null && !moveInfo.canMove())
                 return MoveInfo.makeInvalidMove();
         }
 
         // also always get move info for base piece with no side offsets
-        return getMoveInfo(hdir, vdir);
+        return super.getMoveInfo(gameBoard, callerList, hdir, vdir);
     }
     // moves itself and any attached puzzle pieces
     // also look for any new connections to attach puzzle pieces
     @Override
-    public void customMove(MoveInfo moveInfo) {
+    public void customMove(GameBoard gameBoard, MoveInfo moveInfo) {
         // Print.println("MOVE ALL ATTACHED FOR " + this, Print.BLUE);
         // System.out.println("direction: (" + moveInfo.getHdir() + ", " + moveInfo.getVdir() + ")");
         
@@ -170,20 +181,20 @@ public class PuzzlePiece extends GameObject {
         for (Direction direction : Directions.getAllDirections()) {
             Side side = getSide(direction);
             if (side.isConnected())
-                gameBoard.getGameObject(getBoardX() + Directions.getDirectionX(direction), getBoardY() + Directions.getDirectionY(direction)).move(moveInfo, false);
+                gameBoard.getGameObject(getBoardX() + Directions.getDirectionX(direction), getBoardY() + Directions.getDirectionY(direction)).move(gameBoard, moveInfo, false);
         }
         // move self
-        moveSelf(moveInfo);
+        moveSelf(gameBoard, moveInfo);
     }
 
     // check for connections when everything has finished moving
     @Override
-    protected void performAfterMovement(MoveInfo moveInfo) {
-        checkForConnections(moveInfo, true);
+    protected void performAfterMovement(GameBoard gameBoard, MoveInfo moveInfo) {
+        checkForConnections(gameBoard, moveInfo, true);
     }
 
     // update connected state for all sides
-    public void checkForConnections(MoveInfo moveInfo, boolean playAnimation) {
+    public void checkForConnections(GameBoard gameBoard, MoveInfo moveInfo, boolean playAnimation) {
         for (Direction dir : Directions.getAllDirections()) {
             if (getSide(dir).isConnected() || !getSide(dir).canConnect()) 
                 continue;

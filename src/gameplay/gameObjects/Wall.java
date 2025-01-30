@@ -13,14 +13,14 @@ public class Wall extends GameObject {
 
     public static Color COLOR = GameManager.BG_COLOR;
 
-    public static GameObject loadWall(JSONObject jsonObject, GameBoard gameBoard) {
+    public static GameObject loadWall(JSONObject jsonObject) {
         int width = jsonObject.has("width") ? jsonObject.getInt("width") : 1;
         int height = jsonObject.has("height") ? jsonObject.getInt("height") : 1;
-        return new Wall(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), width, height);
+        return new Wall(jsonObject.getInt("x"), jsonObject.getInt("y"), width, height);
     }
 
-    public Wall(GameBoard gameBoard, int boardx, int boardy, int width, int height) {
-        super(gameBoard, GameObject.ObjectType.WALL, boardx, boardy, width, height);
+    public Wall(int boardX, int boardY, int width, int height) {
+        super(GameObject.ObjectType.WALL, boardX, boardY, width, height);
     }
 
     @Override

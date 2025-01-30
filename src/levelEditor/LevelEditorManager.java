@@ -55,7 +55,7 @@ public class LevelEditorManager extends JPanel {
             JSONArray distinctJsonGameObjects = obj.getJSONArray("defaultGameObjects");
             ArrayList<GameObject> distinctGameObjects = new ArrayList<GameObject>();
             for (int i=0; i<distinctJsonGameObjects.length(); i++) 
-                distinctGameObjects.add(LevelLoader.createGameObject(distinctJsonGameObjects.getJSONObject(i), null));
+                distinctGameObjects.add(LevelLoader.createGameObject(distinctJsonGameObjects.getJSONObject(i)));
             
             return distinctGameObjects;
         } catch (IOException e) {

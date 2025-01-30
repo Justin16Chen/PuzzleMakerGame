@@ -86,8 +86,8 @@ public class GameBoard {
     }
 
     // check if a position is in the board boundaries
-    public boolean inBounds(int boardx, int boardy) {
-        return boardx >= 0 && boardx < width && boardy >= 0 && boardy < height;
+    public boolean inBounds(int boardX, int boardY) {
+        return boardX >= 0 && boardX < width && boardY >= 0 && boardY < height;
     }
 
     // gets all the game objects on the board
@@ -95,16 +95,16 @@ public class GameBoard {
         return gameObjects;
     }
     // get the game object at a certain position
-    public GameObject getGameObject(int boardx, int boardy) {
-        if (!inBounds(boardx, boardy))
-            throw new RuntimeException(boardx + ", " + boardy + " is out of bounds");
-        return board[boardy][boardx];
+    public GameObject getGameObject(int boardX, int boardY) {
+        if (!inBounds(boardX, boardY))
+            throw new RuntimeException(boardX + ", " + boardY + " is out of bounds");
+        return board[boardY][boardX];
     }
 
     // get the game object type at a certain position
-    public GameObject.ObjectType getGameObjectType(int boardx, int boardy) {
-        if (!inBounds(boardx, boardy)) { return GameObject.ObjectType.WALL; }
-        GameObject gameObject = getGameObject(boardx, boardy);
+    public GameObject.ObjectType getGameObjectType(int boardX, int boardY) {
+        if (!inBounds(boardX, boardY)) { return GameObject.ObjectType.WALL; }
+        GameObject gameObject = getGameObject(boardX, boardY);
         return gameObject == null ? null : gameObject.getObjectType();
     }
 
@@ -141,26 +141,26 @@ public class GameBoard {
             }
     }
     public void addGameObject(GameObject gameObject) {
+        gameObject.updateVisualsToBoard(this);
         gameObjects.add(gameObject);
     }
 
     public void setupGameObjectVisuals() {
         for (GameObject gameObject : gameObjects) {
-            gameObject.setup(getDrawX(gameObject.getBoardX()), getDrawY(gameObject.getBoardY()), gameObject.getCellWidth() * tileSize, gameObject.getCellHeight() * tileSize);                // create sprites and tweens for gameobject
-            gameObject.updateVisualsAtStart(); // make sure gameobjects start in correct draw position
+            gameObject.updateVisualsAtStart(this); // make sure gameobjects start in correct draw position
 
             // check for any puzzle pieces already connected and update that
             if (!PuzzlePiece.isPuzzlePiece(gameObject)) 
                 continue;
             
             PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
-            puzzlePiece.checkForConnections(MoveInfo.makeValidMove(0, 0), false);
+            puzzlePiece.checkForConnections(this, MoveInfo.makeValidMove(0, 0), false);
         }
     }
 
-    public void resizeGameObjects() {
+    public void resizeAndRepositionGameObjects() {
         for (GameObject gameObject : gameObjects)
-            
+            gameObject.updateVisualsToBoard(this);
     }
 
     public void updateBoardVisuals(int centerx, int centery, int width, int height) {
@@ -198,7 +198,7 @@ public class GameBoard {
     
                 // first check if movement is valid
                 ArrayList<GameObject> selfList = new ArrayList<GameObject>(); // keeps track of what has already moved
-                MoveInfo moveInfo = player.getAllMoveInfo(selfList, hdir, vdir);
+                MoveInfo moveInfo = player.getMoveInfo(this, selfList, hdir, vdir);
                 
                 if (moveInfo.canMove()) {
     
@@ -207,7 +207,7 @@ public class GameBoard {
                     MoveLogic.disconnectBreakpoints(breakpoints);
     
                     // move all connected pieces
-                    player.move(moveInfo, true);
+                    player.move(this, moveInfo, true);
                 }
             }
         }
@@ -258,11 +258,11 @@ public class GameBoard {
         return true;
     }
 
-    public int getDrawX(int boardx) {
-        return boardSprite.getX() + boardx * tileSize;
+    public int getDrawX(int boardX) {
+        return boardSprite.getX() + boardX * tileSize;
     }
-    public int getDrawY(int boardy) {
-        return boardSprite.getY() + boardy * tileSize;
+    public int getDrawY(int boardY) {
+        return boardSprite.getY() + boardY * tileSize;
     }
     public int getBoardX(int screenX) {
         return (screenX - boardSprite.getX()) / tileSize;

@@ -94,7 +94,7 @@ public class LevelManager {
     // returns if it is successful or not
     private boolean setLevelInfo(int level) {
         // load in the level
-        LevelInfo levelInfo = LevelLoader.getLevelInfo("res/levels/" + level + ".json", gameBoard);
+        LevelInfo levelInfo = LevelLoader.getLevelInfo("res/levels/" + level + ".json");
         if (levelInfo != null) {
             currentLevel = level;
 

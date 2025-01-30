@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 
 import org.json.JSONObject;
 
-import gameplay.GameBoard;
 import gameplay.gameObjects.*;
 import utils.drawing.InfoBox;
 import utils.drawing.sprites.Sprite;
@@ -15,8 +14,8 @@ import utils.tween.Tween;
 
 public class PlayerPiece extends PuzzlePiece {
 
-    public static GameObject loadPlayerPiece(JSONObject jsonObject, GameBoard gameBoard) {
-        return new PlayerPiece(gameBoard, jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
+    public static GameObject loadPlayerPiece(JSONObject jsonObject) {
+        return new PlayerPiece(jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
     }
 
     public static int BRIGHT_OUTLINE = 200, DIM_OUTLINE = 100;
@@ -26,8 +25,8 @@ public class PlayerPiece extends PuzzlePiece {
     private Sprite outlineSprite;
     private double outlineColor;
 
-    public PlayerPiece(GameBoard gameBoard, int boardx, int boardy, String sideData) {
-        super(gameBoard, GameObject.ObjectType.PLAYER_PIECE, boardx, boardy, sideData);
+    public PlayerPiece(int boardX, int boardY, String sideData) {
+        super(GameObject.ObjectType.PLAYER_PIECE, boardX, boardY, sideData);
     }
 
     @Override
@@ -39,7 +38,7 @@ public class PlayerPiece extends PuzzlePiece {
             public void draw(Graphics2D g) {
                 g.setColor(new Color((int) outlineColor, (int) outlineColor, (int) outlineColor));
                 g.setStroke(new BasicStroke(STROKE_WIDTH));
-                g.drawRect(sprite.getX() + STROKE_INSET, sprite.getY() + STROKE_INSET, width - STROKE_INSET * 2, height * 2);
+                g.drawRect(sprite.getX() + STROKE_INSET, sprite.getY() + STROKE_INSET, sprite.getWidth() - STROKE_INSET * 2, sprite.getHeight() - STROKE_INSET * 2);
             }
         };
         outlineSprite.addTag("accessory");
