@@ -133,7 +133,12 @@ public class GameBoard {
     }
 
     public void deleteGameObject(GameObject gameObject) {
-        gameObjects.removeIf(go -> go.equals(gameObject));
+        for (GameObject go : gameObjects)
+            if (go.equals(gameObject)) {
+                go.deleteSprites();
+                gameObjects.remove(go);
+                return;
+            }
     }
     public void addGameObject(GameObject gameObject) {
         gameObjects.add(gameObject);
@@ -141,7 +146,7 @@ public class GameBoard {
 
     public void setupGameObjectVisuals() {
         for (GameObject gameObject : gameObjects) {
-            gameObject.setup(findGameObjectDrawX(gameObject), findGameObjectDrawY(gameObject), gameObject.getCellWidth() * tileSize, gameObject.getCellHeight() * tileSize);                // create sprites and tweens for gameobject
+            gameObject.setup(getDrawX(gameObject.getBoardX()), getDrawY(gameObject.getBoardY()), gameObject.getCellWidth() * tileSize, gameObject.getCellHeight() * tileSize);                // create sprites and tweens for gameobject
             gameObject.updateVisualsAtStart(); // make sure gameobjects start in correct draw position
 
             // check for any puzzle pieces already connected and update that
@@ -151,6 +156,11 @@ public class GameBoard {
             PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
             puzzlePiece.checkForConnections(MoveInfo.makeValidMove(0, 0), false);
         }
+    }
+
+    public void resizeGameObjects() {
+        for (GameObject gameObject : gameObjects)
+            
     }
 
     public void updateBoardVisuals(int centerx, int centery, int width, int height) {
@@ -248,13 +258,18 @@ public class GameBoard {
         return true;
     }
 
-    public int findGameObjectDrawX(GameObject gameObject) {
-        return getBoardSprite().getX() + gameObject.getBoardX() * tileSize;
+    public int getDrawX(int boardx) {
+        return boardSprite.getX() + boardx * tileSize;
     }
-    public int findGameObjectDrawY(GameObject gameObject) {
-        return getBoardSprite().getY() + gameObject.getBoardY() * tileSize;
+    public int getDrawY(int boardy) {
+        return boardSprite.getY() + boardy * tileSize;
     }
-
+    public int getBoardX(int screenX) {
+        return (screenX - boardSprite.getX()) / tileSize;
+    }
+    public int getBoardY(int screenY) {
+        return (screenY - boardSprite.getY()) / tileSize;
+    }
     // removes all game object sprites 
     public void clearGameObjects() {
         for (GameObject gameObject : gameObjects) 

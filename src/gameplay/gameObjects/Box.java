@@ -26,6 +26,13 @@ public class Box extends GameObject {
         sprite = makeSprite(x, y, width, height);
     }
 
+    @Override
+    public JSONObject toJSONObject() {
+        JSONObject jsonObject = super.toJSONObject();
+        jsonObject.put("size", getCellWidth());
+        return jsonObject;
+    }
+
     public static Sprite makeSprite(int x, int y, int width, int height) {
         return new Sprite("box", "res/textures/box.png", x, y, width, height, "gameObjects1");
     }

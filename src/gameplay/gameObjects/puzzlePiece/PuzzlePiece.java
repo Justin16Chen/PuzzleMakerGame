@@ -8,7 +8,6 @@ import org.json.JSONObject;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
-import utils.Print;
 import utils.direction.Direction;
 import utils.direction.Directions;
 import utils.drawing.sprites.Sprite;
@@ -73,6 +72,20 @@ public class PuzzlePiece extends GameObject {
             }
         }
         return super.equals(puzzlePiece) && hasSameSides;
+    }
+
+    @Override
+    public JSONObject toJSONObject() {
+        JSONObject jsonGameObject = super.toJSONObject();
+        String sideString = "";
+        for (Side side : sides)
+            switch (side.getType()) {
+                case NOTHING: sideString += "n"; break;
+                case STRONG: sideString += "s"; break;
+                case WEAK: sideString += "w"; break;
+            }
+        jsonGameObject.put("sideData", sideString);
+        return jsonGameObject;
     }
 
     // should consider any connected puzzle pieces when checking for breakpoints
@@ -217,4 +230,5 @@ public class PuzzlePiece extends GameObject {
 
         infoBox.setDrawList(drawList);
     }
+    
 }

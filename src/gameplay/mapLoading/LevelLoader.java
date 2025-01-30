@@ -86,7 +86,7 @@ public class LevelLoader {
             // get game object specific requirements
             GameObject.ObjectType[] objectTypes = GameObject.ObjectType.values();
             for (int i=0; i<objectTypes.length; i++) {
-                String name = GameObject.getObjectTypeName(objectTypes[i]);
+                String name = GameObject.objectTypeToName(objectTypes[i]);
                 ArrayList<String> uniqueRequiredKeys = JSONArrayToStringArrayList(requiredData.getJSONArray(name));
                 ArrayList<String> uniqueOptionalKeys = JSONArrayToStringArrayList(optionalData.getJSONArray(name));
                 uniqueObjectData.put(name, uniqueRequiredKeys);
@@ -188,7 +188,7 @@ public class LevelLoader {
 
     // create a game object given the primitive data
     public static GameObject createGameObject(JSONObject jsonObject, GameBoard gameBoard) {
-        GameObject.ObjectType objectType = GameObject.getObjectType(jsonObject.getString("name"));
+        GameObject.ObjectType objectType = GameObject.nameToObjectType(jsonObject.getString("name"));
         switch (objectType) {
             case WALL: return Wall.loadWall(jsonObject, gameBoard);
             case BOX: return Box.loadBox(jsonObject, gameBoard);

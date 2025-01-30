@@ -3,6 +3,8 @@ package gameplay.gameObjects;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.json.JSONObject;
+
 import java.awt.Font;
 
 import gameplay.GameBoard;
@@ -25,7 +27,7 @@ public abstract class GameObject {
         PUZZLE_PIECE
     }
     // get the string name of of the game object type
-    public static String getObjectTypeName(ObjectType objectType) {
+    public static String objectTypeToName(ObjectType objectType) {
         switch (objectType) {
             case PUZZLE_PIECE: return "puzzlePiece";
             case PLAYER_PIECE: return "playerPiece";
@@ -35,7 +37,7 @@ public abstract class GameObject {
         }
     }
     // get the enum given the string name of the object type
-    public static ObjectType getObjectType(String objectTypeName) {
+    public static ObjectType nameToObjectType(String objectTypeName) {
         switch (objectTypeName) {
             case "puzzlePiece": return ObjectType.PUZZLE_PIECE;
             case "playerPiece": return ObjectType.PLAYER_PIECE;
@@ -94,6 +96,14 @@ public abstract class GameObject {
     // supposed to create sprites and tweens here - NOT in constructor
     public abstract void setup(int x, int y, int width, int height);
 
+    public JSONObject toJSONObject() {
+        JSONObject jsonGameObject = new JSONObject();
+        jsonGameObject.put("name", objectTypeToName(objectType));
+        jsonGameObject.put("x", boardx);
+        jsonGameObject.put("y", boardy);
+        return jsonGameObject;
+    }
+
     // gameboard decides when to do this - only after it is properly setup
     public void updateVisualsAtStart() {
         sprite.addTag("main");
@@ -102,6 +112,10 @@ public abstract class GameObject {
         infoBox.setFont(new Font("Arial", Font.PLAIN, 10));
 
         forceToTargetDrawPos();
+    }
+
+    public void updateVisualsToBoard() {
+        
     }
 
     public boolean equals(GameObject gameObject) {
@@ -251,8 +265,8 @@ public abstract class GameObject {
         moveBoardY(moveInfo.getVdir());
 
         // tween sprite position
-        Tween.createTween("move " + objectType + " x", sprite, "x", sprite.getX(), gameBoard.findGameObjectDrawX(this), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
-        Tween.createTween("move " + objectType + " y", sprite, "y", sprite.getY(), gameBoard.findGameObjectDrawY(this), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
+        Tween.createTween("move " + objectType + " x", sprite, "x", sprite.getX(), gameBoard.getDrawX(boardx), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
+        Tween.createTween("move " + objectType + " y", sprite, "y", sprite.getY(), gameBoard.getDrawY(boardy), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
     }
 
     // allows subclasses to make any checks after everything is done moving
@@ -294,8 +308,8 @@ public abstract class GameObject {
     }
 
     protected void forceToTargetDrawPos() {
-        sprite.setX(gameBoard.findGameObjectDrawX(this));
-        sprite.setY(gameBoard.findGameObjectDrawY(this));
+        sprite.setX(gameBoard.getDrawX(boardx));
+        sprite.setY(gameBoard.getDrawY(boardy));
     }
 
     public void deleteSprites() {

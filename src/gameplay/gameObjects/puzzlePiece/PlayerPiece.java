@@ -3,14 +3,11 @@ package gameplay.gameObjects.puzzlePiece;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
 
 import org.json.JSONObject;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
-import utils.direction.Direction;
-import utils.direction.Directions;
 import utils.drawing.InfoBox;
 import utils.drawing.sprites.Sprite;
 import utils.drawing.sprites.Sprites;

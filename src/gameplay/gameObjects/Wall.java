@@ -33,4 +33,11 @@ public class Wall extends GameObject {
             }
         };
     }
+    @Override
+    public JSONObject toJSONObject() {
+        JSONObject jsonObject = super.toJSONObject();
+        jsonObject.put("width", getCellWidth());
+        jsonObject.put("height", getCellHeight());
+        return jsonObject;
+    }
 }

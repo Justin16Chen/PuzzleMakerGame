@@ -1,5 +1,6 @@
 package levelEditor;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -33,6 +34,7 @@ public class LevelEditorManager extends JPanel {
     private MouseInput mouseInput;
     private GameBoard board;
     private Panel panel;
+    private CellSelector cellSelector;
     private ArrayList<GameObject> gameObjectOptions;
 
     public LevelEditorManager(KeyInput keyInput, MouseInput mouseInput) {
@@ -40,6 +42,7 @@ public class LevelEditorManager extends JPanel {
         this.mouseInput = mouseInput;
         panel = new Panel(0, 0, PANEL_WIDTH, PANEL_HEIGHT, PANEL_COLOR, mouseInput);
         board = new GameBoard(KeyInput.NOTHING_INPUT, MouseInput.NOTHING_INPUT);
+        cellSelector = new CellSelector();
 
         // get what the user can place down
         gameObjectOptions = getDistinctGameObjects();
@@ -112,9 +115,12 @@ public class LevelEditorManager extends JPanel {
         
         panel.setOptions(gameObjectOptions);
         panel.setup();
+
+        cellSelector.setup();
     }
     private void update() {
-
+        // update cell selector
+        cellSelector.update(mouseInput, board, panel.getSelectedGameObject());
     }
 
     @Override
