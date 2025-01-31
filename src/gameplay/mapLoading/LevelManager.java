@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import gameplay.GameBoard;
 import gameplay.GameManager;
+import gameplay.gameObjects.GameObjectData;
 import utils.Print;
 import utils.drawing.sprites.Sprite;
 import utils.tween.*;
@@ -26,6 +27,7 @@ public class LevelManager {
         transitionSprite = new Sprite("transitionSprite", 0, 0, gameManager.getWidth(), gameManager.getHeight(), "transitions");
         transitionSprite.setColor(Color.BLACK);
         updateGeneralLevelInfo();
+        GameObjectData.loadObjectData();
     }
 
     public int getCurrentLevel() { return currentLevel; }
@@ -42,6 +44,7 @@ public class LevelManager {
     // transition to a specific level with optional intro/outro tweens
     public void transitionToLevel(Integer level, boolean intro, boolean outro) {
         updateGeneralLevelInfo();
+        GameObjectData.loadObjectData();
         if (!hasLevel(level)) {
             Print.println(level + " does not exist", Print.RED);
             return;

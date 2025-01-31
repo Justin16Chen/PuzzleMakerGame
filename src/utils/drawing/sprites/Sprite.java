@@ -70,13 +70,7 @@ public class Sprite extends TaggableChild<Sprite> {
     }
     public Sprite(String name, String imagePath, int x, int y, int width, int height, String layerName) {
         this.name = name;
-        this.imagePath = imagePath;
-        try {
-            image = ImageIO.read(new File(imagePath));
-        } catch (IOException e) {
-            e.printStackTrace();
-            Print.println("Failed to load image " + imagePath, Print.RED);
-        }
+        setImagePath(imagePath);
         this.x = x;
         this.y = y;
         this.width = width;
@@ -117,7 +111,15 @@ public class Sprite extends TaggableChild<Sprite> {
     public Color getColor() { return color; }
     public void setColor(Color color) { this.color = color; }
     public String getImagePath() { return imagePath; }
-    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+    public void setImagePath(String imagePath) { 
+        this.imagePath = imagePath; 
+        try {
+            image = ImageIO.read(new File(imagePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+            Print.println("Failed to load image " + imagePath, Print.RED);
+        }
+    }
 
     // only moves this to layerName
     public void moveToLayer(String layerName) {

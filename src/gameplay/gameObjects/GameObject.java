@@ -26,52 +26,11 @@ public abstract class GameObject {
         PLAYER_PIECE,
         PUZZLE_PIECE
     }
-    // get the string name of of the game object type
-    public static String objectTypeToName(ObjectType objectType) {
-        switch (objectType) {
-            case PUZZLE_PIECE: return "puzzlePiece";
-            case PLAYER_PIECE: return "playerPiece";
-            case WALL: return "wall";
-            case BOX: return "box";
-            default: throw new IllegalArgumentException(objectType + " is not valid");
-        }
-    }
-    // get the enum given the string name of the object type
-    public static ObjectType nameToObjectType(String objectTypeName) {
-        switch (objectTypeName) {
-            case "puzzlePiece": return ObjectType.PUZZLE_PIECE;
-            case "playerPiece": return ObjectType.PLAYER_PIECE;
-            case "wall": return ObjectType.WALL;
-            case "box": return ObjectType.BOX;
-            default: throw new IllegalArgumentException(objectTypeName + " is not valid");
-        }
-    }
-    // get the identifierIndex of an object given the object type
-    public static int getObjectIndex(ObjectType objectType) {
-        for (int i=0; i<ObjectType.values().length; i++) {
-            if (objectType == ObjectType.values()[i])
-                return i + 1;
-        }
-        return -1;
-    }
-    
-    // TODO: refactor this to be in json file
-    // whether or not a game object is movable
-    public static boolean getMovable(ObjectType objectType) {
-        switch (objectType) {
-            case PUZZLE_PIECE: return true;
-            case PLAYER_PIECE: return true;
-            case WALL: return false;
-            case BOX: return true;
-            default: return false;
-        }
-    }
 
     // rate that gameobjects move between cells at
     final public static double MOVE_RATE = 0.2;
     
     private ObjectType objectType;
-    private int objectIndex;
     private int boardX, boardY, cellWidth, cellHeight;
     private boolean movable;
     protected boolean movedThisFrame;
@@ -79,7 +38,6 @@ public abstract class GameObject {
     protected InfoBox infoBox;
     public GameObject(ObjectType objectType, int boardX, int boardY, int width, int height) {
         this.objectType = objectType;
-        this.objectIndex = GameObject.getObjectIndex(objectType);
         this.boardX = boardX;
         this.boardY = boardY;
         this.cellWidth = width;
@@ -87,7 +45,7 @@ public abstract class GameObject {
 
         this.movedThisFrame = false;
 
-        this.movable = GameObject.getMovable(objectType);
+        this.movable = GameObjectData.isMovable(objectType);
     }
 
     // setup function called after all game objects are created
@@ -96,7 +54,7 @@ public abstract class GameObject {
 
     public JSONObject toJSONObject() {
         JSONObject jsonGameObject = new JSONObject();
-        jsonGameObject.put("name", objectTypeToName(objectType));
+        jsonGameObject.put("name", GameObjectData.objectTypeToName(objectType));
         jsonGameObject.put("x", boardX);
         jsonGameObject.put("y", boardY);
         return jsonGameObject;
@@ -146,7 +104,6 @@ public abstract class GameObject {
 
     // getters
     public ObjectType getObjectType() { return objectType; }
-    public int getObjectIndex() { return objectIndex; }
     public int getBoardX() { return boardX; }
     public int getBoardY() { return boardY; }
     public int getCellWidth() { return cellWidth; }
@@ -168,6 +125,9 @@ public abstract class GameObject {
     public void moveBoardY(int y) {
         boardY += y; 
     }
+
+    // subclasses can override
+    public void update(GameBoard board) {}
 
     private int[][] getOffsetsToCheckMovement(int hdir, int vdir) {
         boolean horizontal = vdir == 0;
@@ -233,16 +193,27 @@ public abstract class GameObject {
 
     // handles back end movement management
     public void move(GameBoard gameBoard, MoveInfo moveInfo, boolean isMover) {
+        System.out.println(this + " moved this frame: " + movedThisFrame);
         if (movedThisFrame)
             return;
         movedThisFrame = true;
         
+        if (isMover) {
+            gameBoard.printGameObjects();
+            gameBoard.updateGameObjectPositions();
+            for (GameObject gameObject : gameBoard.getGameObjects())
+                gameObject.performBeforeMovement(gameBoard, moveInfo);
+            gameBoard.updateGameObjectPositions();
+            //gameBoard.printGameObjects();
+        }
+
         customMove(gameBoard, moveInfo);
 
         if (isMover) {
             gameBoard.updateGameObjectPositions();
             for (GameObject gameObject : gameBoard.getGameObjects())
                 gameObject.performAfterMovement(gameBoard, moveInfo);
+            gameBoard.updateGameObjectPositions();
         }
     }
 
@@ -282,9 +253,10 @@ public abstract class GameObject {
         Tween.createTween("move " + objectType + " y", sprite, "y", sprite.getY(), gameBoard.getDrawY(boardY), MOVE_RATE).setEaseType(new EaseType(Ease.EASE_OUT));
     }
 
+    // allows subclasses to make any checks right before everything has moved
+    protected void performBeforeMovement(GameBoard gameBoard, MoveInfo moveInfo) {}
     // allows subclasses to make any checks after everything is done moving
-    protected void performAfterMovement(GameBoard gameBoard, MoveInfo moveInfo) {
-    }
+    protected void performAfterMovement(GameBoard gameBoard, MoveInfo moveInfo) {}
 
 
     public void updateDrawList() {

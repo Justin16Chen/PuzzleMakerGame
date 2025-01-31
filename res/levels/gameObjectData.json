@@ -1,4 +1,22 @@
 {
+    "data": {
+        "playerPiece": {
+            "movable": true,
+            "resizable": false
+        },
+        "puzzlePiece": {
+            "movable": true,
+            "resizable": false
+        },
+        "box": {
+            "movable": true,
+            "resizable": true
+        },
+        "wall": {
+            "movable": false,
+            "resizable": true
+        }
+    },
     "defaultGameObjects": [
         { "name": "playerPiece", "x": 0, "y": 0, "sideData": "nnnn" },
         { "name": "puzzlePiece", "x": 0, "y": 0, "sideData": "nnnn" },

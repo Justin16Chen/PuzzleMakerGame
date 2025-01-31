@@ -17,9 +17,11 @@ import org.json.JSONObject;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.GameObject;
+import gameplay.gameObjects.GameObjectData;
 import gameplay.mapLoading.LevelInfo;
 import gameplay.mapLoading.LevelLoader;
 import utils.Print;
+import utils.drawing.sprites.Sprite;
 import utils.drawing.sprites.Sprites;
 import utils.input.KeyInput;
 import utils.input.MouseInput;
@@ -35,7 +37,7 @@ public class LevelEditorManager extends JPanel {
     private GameBoard board;
     private Panel panel;
     private CellSelector cellSelector;
-    private ArrayList<GameObject> gameObjectOptions;
+    private ArrayList<Option> options;
 
     public LevelEditorManager(KeyInput keyInput, MouseInput mouseInput) {
         this.keyInput = keyInput;
@@ -43,21 +45,20 @@ public class LevelEditorManager extends JPanel {
         panel = new Panel(0, 0, PANEL_WIDTH, PANEL_HEIGHT, PANEL_COLOR, mouseInput);
         board = new GameBoard(KeyInput.NOTHING_INPUT, MouseInput.NOTHING_INPUT);
         cellSelector = new CellSelector();
-
-        // get what the user can place down
-        gameObjectOptions = getDistinctGameObjects();
     }
 
-    private ArrayList<GameObject> getDistinctGameObjects() {
+    private ArrayList<Option> getDistinctGameObjectOptions() {
         try {
             String content = new String(Files.readAllBytes(Paths.get(new File("res/levels/gameObjectData.json").toURI())));
             JSONObject obj = new JSONObject(content);
             JSONArray distinctJsonGameObjects = obj.getJSONArray("defaultGameObjects");
-            ArrayList<GameObject> distinctGameObjects = new ArrayList<GameObject>();
-            for (int i=0; i<distinctJsonGameObjects.length(); i++) 
-                distinctGameObjects.add(LevelLoader.createGameObject(distinctJsonGameObjects.getJSONObject(i)));
+            ArrayList<Option> distinctGameObjectOptions = new ArrayList<>();
+            for (int i=0; i<distinctJsonGameObjects.length(); i++) {
+                GameObject gameObject = LevelLoader.createGameObject(distinctJsonGameObjects.getJSONObject(i));
+                distinctGameObjectOptions.add(new Option(GameObjectData.objectTypeToName(gameObject.getObjectType()), gameObject));
+            }
             
-            return distinctGameObjects;
+            return distinctGameObjectOptions;
         } catch (IOException e) {
             Print.println("CANNOT FIND FILE " + "res/levels/gameObjectData.json", Print.RED);
         }
@@ -109,18 +110,26 @@ public class LevelEditorManager extends JPanel {
         Sprites.addLayer("ui2", 7);
         Sprites.addLayer("debug", 8);
 
+        // setup board
         board.setup();
         board.setCurrentBoard(new LevelInfo(10, 10, new ArrayList<GameObject>()));
         board.updateBoardVisuals(BOARD_X, BOARD_Y, BOARD_SIZE, BOARD_SIZE);
-        
-        panel.setOptions(gameObjectOptions);
-        panel.setup();
 
+        // get what the user can place down
+        options = getDistinctGameObjectOptions();
+        
+        Option erasor = new Option("erasor", null);
+        erasor.setSprite(new Sprite("erasor", "res/textures/erasor.png", "ui"));
+        options.add(0, erasor);
+        
+        // setup panel and cell selector
+        panel.setOptions(options);
+        panel.setup();
         cellSelector.setup();
     }
     private void update() {
         // update cell selector
-        cellSelector.update(mouseInput, board, panel.getSelectedGameObject());
+        cellSelector.update(mouseInput, board, panel.getSelectedOption());
     }
 
     @Override

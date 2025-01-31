@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JTextField;
 
+import gameplay.gameObjects.GameObjectData;
 import utils.input.KeyInput;
 import utils.input.MouseInput;
 
@@ -54,6 +55,7 @@ public class LevelEditor extends JFrame {
     }
 
     public static void main(String[] args) {
+        GameObjectData.loadObjectData();
         LevelEditor levelEditor = new LevelEditor();
         levelEditor.setupWindow();
         levelEditor.levelEditorManager.start();

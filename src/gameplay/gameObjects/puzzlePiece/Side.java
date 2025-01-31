@@ -45,7 +45,6 @@ public class Side {
     // whether the side types can connect to each other
     public static boolean isCompatible(Side side1, Side side2) {
         return side1.getType() != Side.Type.NOTHING && side2.getType() != Side.Type.NOTHING  // neither can be a nothing type
-            && !side1.isConnected() && !side2.isConnected() // both cannot already be connected
             && side1.getType() == side2.getType(); // both have to be of same type
     }
 
@@ -105,14 +104,13 @@ public class Side {
     public PuzzlePiece getParent() { return parent; }
 
     public void disconnect() { 
-        if (!connected)
-            throw new IllegalCallerException("cannot disconnect a side that is not connected");
         connected = false;
             
     }
     public void connect(boolean playAnimation) {
+        // ignore if already connected
         if (connected)
-            throw new IllegalCallerException("cannot connect a side that is already connected");
+            return;
         connected = true;
 
         if (getType() == Type.STRONG) 

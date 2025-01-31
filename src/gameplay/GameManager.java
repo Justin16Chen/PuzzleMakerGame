@@ -7,6 +7,7 @@ import java.awt.*;
 import javax.swing.JPanel;
 
 import gameplay.gameObjects.GameObject;
+import gameplay.gameObjects.GameObjectData;
 import gameplay.mapLoading.LevelLoader;
 import gameplay.mapLoading.LevelManager;
 import utils.ParentFrame;
@@ -234,6 +235,7 @@ public class GameManager extends JPanel {
         // refresh map data from json files
         if (keyInput.keyClicked(RELOAD_LEVEL_KEY)) {
             levelManager.updateGeneralLevelInfo();
+            GameObjectData.loadObjectData();
             levelManager.updateLevelInfo();
         }
 

@@ -18,12 +18,12 @@ public class Panel {
     private MouseInput mouseInput;
     private int x, y;
     private int width, height;
-    private ArrayList<GameObject> gameObjects;
+    private ArrayList<Option> options;
 
     private Sprite panelSprite;
     private Color panelColor;
     private Sprite selectHighlightSprite;
-    private GameObject selectedGameObject;
+    private Option selectedOption;
 
     public Panel(int x, int y, int width, int height, Color panelColor, MouseInput mouseInput) {
         this.x = x;
@@ -49,42 +49,34 @@ public class Panel {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(SELECT_COLOR);
-                for (GameObject gameObject : gameObjects) {
-                    g.drawString(("" + gameObject.getObjectType()).toLowerCase(), x + H_BORDER_PADDING, gameObject.getSprite().getY() - TEXT_SPACING);
-                    if (mouseInput.down() && mouseInput.isOver(gameObject.getSprite())) {
-                        selectedGameObject = gameObject;
+                for (Option option : options) {
+                    g.drawString(("" + option.getName()).toLowerCase(), x + H_BORDER_PADDING, option.getSprite().getY() - TEXT_SPACING);
+                    if (mouseInput.down() && mouseInput.isOver(option.getSprite())) {
+                        selectedOption = option;
                     }
                 }
-                setWidth(selectedGameObject.getSprite().getWidth() + SELECTED_PADDING * 2);
-                setHeight(selectedGameObject.getSprite().getHeight() + SELECTED_PADDING * 2);
-                setCenterX(selectedGameObject.getSprite().getCenterX());
-                setCenterY(selectedGameObject.getSprite().getCenterY());
+                setWidth(selectedOption.getSprite().getWidth() + SELECTED_PADDING * 2);
+                setHeight(selectedOption.getSprite().getHeight() + SELECTED_PADDING * 2);
+                setCenterX(selectedOption.getSprite().getCenterX());
+                setCenterY(selectedOption.getSprite().getCenterY());
                 g.drawRect(getX(), getY(), getWidth(), getHeight());
             }
         };
-        selectHighlightSprite.setVisible(true);
         
-        for (int i=0; i<gameObjects.size(); i++) {
-            Sprite sprite = gameObjects.get(i).getSprite();
-            sprite.setX(x + H_BORDER_PADDING);
-            sprite.setY(i * (OPTION_SPACING) + y + V_BORDER_PADDING);
-            sprite.setWidth(OPTION_SIZE);
-            sprite.setHeight(OPTION_SIZE);
+        for (int i=0; i<options.size(); i++) {
+            options.get(i).setup(x + H_BORDER_PADDING, i * (OPTION_SPACING) + y + V_BORDER_PADDING, OPTION_SIZE, OPTION_SIZE);
+            Sprite sprite = options.get(i).getSprite();
             sprite.moveAllChildrenToLayer("ui");
             sprite.setAllChildrenVisible(false, "accessory"); // only show main part of sprite
         }
-        selectedGameObject = gameObjects.get(0);
+        selectedOption = options.get(0);
     }
 
-    public void setOptions(ArrayList<GameObject> gameObjects) {
-        System.out.println("resizing game object options");
-        this.gameObjects = gameObjects;
-        for (int i=0; i<gameObjects.size(); i++)
-            gameObjects.get(i).setup(H_BORDER_PADDING, V_BORDER_PADDING + i * OPTION_SPACING, OPTION_SIZE, OPTION_SIZE);
+    public void setOptions(ArrayList<Option> options) {
+        this.options = options;
     }
 
-    public GameObject getSelectedGameObject() {
-        return selectedGameObject;
+    public Option getSelectedOption() {
+        return selectedOption;
     }
-    
 }

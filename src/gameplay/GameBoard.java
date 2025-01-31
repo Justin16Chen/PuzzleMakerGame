@@ -67,10 +67,8 @@ public class GameBoard {
         for (int y=0; y<board.length; y++) {
             System.out.println();
             for (int x=0; x<board[0].length; x++) {
-                if (board[y][x] == null)
-                    System.out.print("0 ");
-                else
-                    Print.print(board[y][x].getObjectIndex() + " ", Print.BLUE);
+                if (board[y][x] != null)
+                    Print.println(board[y][x] + " ", Print.BLUE);
             }
         }
         System.out.println();
@@ -132,17 +130,29 @@ public class GameBoard {
         }
     }
 
-    public void deleteGameObject(GameObject gameObject) {
-        for (GameObject go : gameObjects)
-            if (go.equals(gameObject)) {
-                go.deleteSprites();
-                gameObjects.remove(go);
-                return;
+    public void deleteGameObject(int x, int y) {
+        if (!inBounds(x, y))
+            throw new IllegalArgumentException(x + " " + y + " is out of bounds");
+        if (board[y][x] != null)
+            board[y][x].deleteSprites();
+        board[y][x] = null;
+        for (GameObject gameObject : gameObjects)
+            if (gameObject.getBoardX() <= x && gameObject.getBoardX() + gameObject.getCellWidth() > x
+            && gameObject.getBoardY() <= y && gameObject.getBoardY() + gameObject.getCellHeight() > y) {
+                System.out.println("removing " + gameObject + " at position " + x + " " + y);
+                gameObjects.remove(gameObject);
+                break;
             }
+    }
+    public void printGameObjects() {
+        System.out.println(gameObjects);
     }
     public void addGameObject(GameObject gameObject) {
         gameObject.updateVisualsToBoard(this);
         gameObjects.add(gameObject);
+        if (!inBounds(gameObject.getBoardX(), gameObject.getBoardY()))
+            throw new IllegalArgumentException(gameObject + " is not in bounds of board");
+        board[gameObject.getBoardY()][gameObject.getBoardX()] = gameObject;
     }
 
     public void setupGameObjectVisuals() {
@@ -175,8 +185,14 @@ public class GameBoard {
     }
     // update loop
     public void update(double dt) {
-        checkForInput();
+        if (!allPuzzlePiecesConnected())
+            checkForInput();
+        
+        for (GameObject gameObject : gameObjects)
+            gameObject.update(this);
+        
         updateDebugInfoBoxes();
+
     }
 
     private void checkForInput() {
@@ -186,15 +202,19 @@ public class GameBoard {
 
         // make sure there is movement
         if (hdir != 0 || vdir != 0) {
+            //Print.println("START OF ALL MOVEMENT", Print.GREEN);
 
             for (GameObject gameObject : gameObjects)
                 gameObject.resetMovedThisFrame();
             
-            for (GameObject playerGameObject : gameObjects) {
-                if (playerGameObject.getObjectType() != GameObject.ObjectType.PLAYER_PIECE)
+            int playerIndex = 0;
+            for (GameObject gameObject : gameObjects) {
+                if (gameObject.getObjectType() != GameObject.ObjectType.PLAYER_PIECE)
                     continue;
                 
-                PlayerPiece player = (PlayerPiece) playerGameObject;
+                // if (playerIndex > 0)
+                //     continue;
+                PlayerPiece player = (PlayerPiece) gameObject;
     
                 // first check if movement is valid
                 ArrayList<GameObject> selfList = new ArrayList<GameObject>(); // keeps track of what has already moved
@@ -209,6 +229,7 @@ public class GameBoard {
                     // move all connected pieces
                     player.move(this, moveInfo, true);
                 }
+                playerIndex++;
             }
         }
     }
@@ -243,6 +264,7 @@ public class GameBoard {
         return newBoard;
     }
     public void updateGameObjectPositions() {
+        System.out.println("update game object positions");
         board = updateGameObjectPositions(board);
     }
 

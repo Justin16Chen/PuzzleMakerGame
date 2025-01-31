@@ -1,16 +1,13 @@
 package gameplay.gameObjects.puzzlePiece;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics2D;
 
 import org.json.JSONObject;
 
+import gameplay.GameBoard;
 import gameplay.gameObjects.*;
-import utils.drawing.InfoBox;
+import utils.direction.Directions;
 import utils.drawing.sprites.Sprite;
-import utils.drawing.sprites.Sprites;
-import utils.tween.Tween;
 
 public class PlayerPiece extends PuzzlePiece {
 
@@ -18,37 +15,31 @@ public class PlayerPiece extends PuzzlePiece {
         return new PlayerPiece(jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
     }
 
-    public static int BRIGHT_OUTLINE = 200, DIM_OUTLINE = 100;
-    public static double OCILLATION_TIME = 1.8;
-    public static int STROKE_WIDTH = 2, STROKE_INSET = -2;
+    private static final String SAD_IMAGE_PATH = "res/textures/playerSad.png", HAPPY_IMAGE_PATH = "res/textures/playerHappy.png";
 
-    private Sprite outlineSprite;
-    private double outlineColor;
-
+    private String currentImagePath;
     public PlayerPiece(int boardX, int boardY, String sideData) {
         super(GameObject.ObjectType.PLAYER_PIECE, boardX, boardY, sideData);
     }
 
     @Override
     public void setup(int x, int y, int width, int height) {
-        super.setup(x, y, width, height);
-
-        outlineSprite = new Sprite("playerOutline", sprite.getX(), sprite.getY(), width, height, "effects") {
+        sprite = new Sprite("puzzlePieceSprite", SAD_IMAGE_PATH, x, y, width, height, "gameObjects1") {
             @Override
             public void draw(Graphics2D g) {
-                g.setColor(new Color((int) outlineColor, (int) outlineColor, (int) outlineColor));
-                g.setStroke(new BasicStroke(STROKE_WIDTH));
-                g.drawRect(sprite.getX() + STROKE_INSET, sprite.getY() + STROKE_INSET, sprite.getWidth() - STROKE_INSET * 2, sprite.getHeight() - STROKE_INSET * 2);
+                
+                super.draw(g);
+
+                for (int i=0; i<4; i++)
+                    getSide(Directions.getDirection(i)).draw(g, getX(), getY(), getWidth());
+
             }
         };
-        outlineSprite.addTag("accessory");
-        sprite.addChild(outlineSprite);
-
-        Tween.createTween("playerOutline", this, "outlineColor", DIM_OUTLINE, BRIGHT_OUTLINE, OCILLATION_TIME).pingPong().setLoopCount(-1);
     }
 
     @Override
-    public void deleteSprites() {
-        Sprites.deleteSprites(new String[]{sprite.getName(), outlineSprite.getName(), InfoBox.NAME});
+    public void update(GameBoard board) {
+        if (board.allPuzzlePiecesConnected())
+            sprite.setImagePath(HAPPY_IMAGE_PATH);
     }
 }
