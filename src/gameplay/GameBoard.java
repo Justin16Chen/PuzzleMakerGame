@@ -207,29 +207,29 @@ public class GameBoard {
             for (GameObject gameObject : gameObjects)
                 gameObject.resetMovedThisFrame();
             
-            int playerIndex = 0;
             for (GameObject gameObject : gameObjects) {
                 if (gameObject.getObjectType() != GameObject.ObjectType.PLAYER_PIECE)
                     continue;
                 
-                // if (playerIndex > 0)
-                //     continue;
                 PlayerPiece player = (PlayerPiece) gameObject;
     
+                //Print.println("start of mover movement", Print.GREEN);
                 // first check if movement is valid
                 ArrayList<GameObject> selfList = new ArrayList<GameObject>(); // keeps track of what has already moved
                 MoveInfo moveInfo = player.getMoveInfo(this, selfList, hdir, vdir);
                 
-                if (moveInfo.canMove()) {
+                // don't move if player already moved by something else
+                if (moveInfo.canMove() && !player.movedThisFrame()) {
     
                     // disconnect any breakpoints
                     ArrayList<GameObject[]> breakpoints = MoveLogic.findBreakpoints(this, player, hdir, vdir);
                     MoveLogic.disconnectBreakpoints(breakpoints);
     
                     // move all connected pieces
+                    //System.out.println("before pre movement check");
+                    //printGameObjects();
                     player.move(this, moveInfo, true);
                 }
-                playerIndex++;
             }
         }
     }
@@ -264,7 +264,7 @@ public class GameBoard {
         return newBoard;
     }
     public void updateGameObjectPositions() {
-        System.out.println("update game object positions");
+        // System.out.println("update game object positions");
         board = updateGameObjectPositions(board);
     }
 

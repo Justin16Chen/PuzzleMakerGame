@@ -193,17 +193,17 @@ public abstract class GameObject {
 
     // handles back end movement management
     public void move(GameBoard gameBoard, MoveInfo moveInfo, boolean isMover) {
-        System.out.println(this + " moved this frame: " + movedThisFrame);
+        //System.out.println(this + " moved this frame: " + movedThisFrame);
         if (movedThisFrame)
             return;
         movedThisFrame = true;
         
         if (isMover) {
-            gameBoard.printGameObjects();
             gameBoard.updateGameObjectPositions();
             for (GameObject gameObject : gameBoard.getGameObjects())
                 gameObject.performBeforeMovement(gameBoard, moveInfo);
             gameBoard.updateGameObjectPositions();
+            //System.out.println("after pre movement check");
             //gameBoard.printGameObjects();
         }
 
@@ -214,6 +214,8 @@ public abstract class GameObject {
             for (GameObject gameObject : gameBoard.getGameObjects())
                 gameObject.performAfterMovement(gameBoard, moveInfo);
             gameBoard.updateGameObjectPositions();
+            //System.out.println("after post movement check");
+           // gameBoard.printGameObjects();
         }
     }
 

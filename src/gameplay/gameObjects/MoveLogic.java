@@ -87,7 +87,9 @@ public class MoveLogic {
     }
 
     public static void disconnectBreakpoints(ArrayList<GameObject[]> breakpoints) {
+        Print.println("DISCONNECT BREAKPOINTS", Print.YELLOW);
         for (GameObject[] breakpoint : breakpoints) {
+            System.out.println("disconnecting " + breakpoint[0] + " with " + breakpoint[1]);
             // for now, skip anything that aren't puzzle pieces
             if (!PuzzlePiece.isPuzzlePiece(breakpoint[0]) || !PuzzlePiece.isPuzzlePiece(breakpoint[1])) {
                 Print.println(breakpoint[0] + " and " + breakpoint[1] + " found in breakpoint list when disconnecting", Print.RED);

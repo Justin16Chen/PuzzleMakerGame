@@ -94,7 +94,9 @@ public class Side {
         return getString(0);
     }
     public String getString(int number) {
-        return "Side(" + direction + "|" + type + "|" + connected + "|tweenAmount: " + tweenPercent + ")";
+        if (type == Type.NOTHING)
+            return direction + "|NONE";
+        return direction + "|" + connected;
     }
 
     public Direction getDirection() { return direction; }

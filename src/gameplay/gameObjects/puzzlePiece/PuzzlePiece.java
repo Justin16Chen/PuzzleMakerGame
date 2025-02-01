@@ -179,8 +179,8 @@ public class PuzzlePiece extends GameObject {
     // also look for any new connections to attach puzzle pieces
     @Override
     public void customMove(GameBoard gameBoard, MoveInfo moveInfo) {
-        Print.println("CUSTOM MOVE FOR " + this, Print.BLUE);
-        System.out.println("direction: (" + moveInfo.getHdir() + ", " + moveInfo.getVdir() + ")");
+        //Print.println("CUSTOM MOVE FOR " + this, Print.BLUE);
+        //System.out.println("direction: (" + moveInfo.getHdir() + ", " + moveInfo.getVdir() + ")");
         
         // move connected puzzle pieces
         for (Direction direction : Directions.getAllDirections()) {
@@ -200,12 +200,13 @@ public class PuzzlePiece extends GameObject {
     // check for connections when everything has finished moving
     @Override
     protected void performAfterMovement(GameBoard gameBoard, MoveInfo moveInfo) {
+        checkForDisconnections(gameBoard);
         checkForConnections(gameBoard, moveInfo, true);
     }
 
     // checks for and disconnects any wrongly connected pieces (only for self, meant to be called for all puzzle pieces)
     public void checkForDisconnections(GameBoard gameBoard) {
-        System.out.println("check disconnections for " + this);
+        //System.out.println("check disconnections for " + this);
         for (Direction dir : Directions.getAllDirections()) {
             if (!getSide(dir).canConnect()) 
                 continue;
@@ -223,7 +224,7 @@ public class PuzzlePiece extends GameObject {
                 } 
                 
                 GameObject gameObject = gameBoard.getGameObject(x, y);
-                System.out.println(gameObject + " at " + x + " " + y);
+                // System.out.println(gameObject + " at " + x + " " + y);
                 if (!PuzzlePiece.isPuzzlePiece(gameObject)) {
                     if (getSide(dir).isConnected())
                         //System.out.println("not a puzzle piece");
