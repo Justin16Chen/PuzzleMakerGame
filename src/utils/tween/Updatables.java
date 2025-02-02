@@ -71,6 +71,10 @@ public class Updatables {
         for (int i=0; i<list.size(); i++) {
             Updatable updatable = list.get(i);
 
+            if (updatable.shouldDelete()) {
+                list.remove(i);
+                i--;
+            }
             // update updatable
             if (!updatable.isPaused()) {
                 updatable.updateTime(dt);
@@ -99,7 +103,7 @@ public class Updatables {
 
                 if (canPrintUpdatable(updatable))
                     Print.println(updatable.getName() + " is complete", Print.BLUE);
-                list.remove(updatable);
+                list.remove(i);
                 i--;
             }
         }

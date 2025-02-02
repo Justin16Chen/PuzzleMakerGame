@@ -10,6 +10,7 @@ import utils.direction.Directions;
 import utils.tween.Ease;
 import utils.tween.EaseType;
 import utils.tween.Tween;
+import utils.tween.Updatables;
 
 public class Side {
     public enum Type {
@@ -77,6 +78,7 @@ public class Side {
     private boolean connected;
     private PuzzlePiece parent;
     private double tweenPercent; // plays animation based on this when connecting w another side
+    private Tween connectTween;
 
     public Side(PuzzlePiece parent, Direction direction, Type type) {
         this.parent = parent;
@@ -107,7 +109,9 @@ public class Side {
 
     public void disconnect() { 
         connected = false;
-            
+        tweenPercent = 0;
+        connectTween.delete();
+
     }
     public void connect(boolean playAnimation) {
         // ignore if already connected
@@ -117,7 +121,7 @@ public class Side {
 
         if (getType() == Type.STRONG) 
             if (playAnimation)
-                Tween.createTween("connectSide", this, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(new EaseType(Ease.EASE_IN_BACK));
+                connectTween = Tween.createTween("connectSide", this, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(new EaseType(Ease.EASE_IN_BACK));
             else 
                 tweenPercent = 1;
     }

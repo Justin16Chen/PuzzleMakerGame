@@ -25,6 +25,7 @@ public abstract class Updatable {
     protected boolean pingPong;
     protected boolean paused;         // if the updatable is paused or not
     protected PrintType print;          // Print values for debugging
+    private boolean delete;
 
     public Updatable(String name, Object targetObject, String propertyName, double duration, int currentLoopCount, int targetLoopCount, boolean pingPong) {
         this.name = name;
@@ -85,6 +86,11 @@ public abstract class Updatable {
     public boolean getPingPong() { return pingPong; }
     public PrintType getPrint() { return print; }
     public boolean isComplete() { return currentLoop >= targetLoopCount && elapsedTime >= duration && targetLoopCount >= 0 && !pingPong; }
-    
+    public void delete() {
+        delete = true;
+    }
+    public boolean shouldDelete() {
+        return delete;
+    }
 
 }
