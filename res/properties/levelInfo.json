@@ -2,5 +2,5 @@
     "startLevel": 0,
     "endLevel": 20,
     "transitionTime": 0.3,
-    "waitTime": 0.25
+    "waitTime": 1
 }

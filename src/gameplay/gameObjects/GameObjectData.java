@@ -11,10 +11,11 @@ import org.json.JSONObject;
 import gameplay.gameObjects.GameObject.ObjectType;
 
 public class GameObjectData {
+    public static final String OBJECT_DATA_FILE_PATH = "res/properties/gameObjectData.json";
     private static JSONObject objectData;
 
     public static void loadObjectData() {
-        File file = new File("res/levels/gameObjectData.json");
+        File file = new File(OBJECT_DATA_FILE_PATH);
         try {
             String content = new String(Files.readAllBytes(Paths.get(file.toURI())));
             objectData = new JSONObject(content).getJSONObject("data");

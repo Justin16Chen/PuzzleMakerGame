@@ -47,7 +47,7 @@ public class LevelOrganizerManager extends JPanel {
         this.keyInput = keyInput;
         this.mouseInput = mouseInput;
         mouseInput.setInsets(new Insets(90, 197, 0, 0));
-        levelFileNames = loadLevelFileNames("res/levels/levelInfo.json");
+        levelFileNames = loadLevelFileNames("res/properties/levelInfo.json");
 
         start();
     }
@@ -219,7 +219,7 @@ public class LevelOrganizerManager extends JPanel {
             levelFile.renameTo(new File(LEVELS_FOLDER_PATH + levelNum + ".json"));
         }
 
-        levelFileNames = loadLevelFileNames("res/levels/levelInfo.json");
+        levelFileNames = loadLevelFileNames("res/properties/levelInfo.json");
 
     }
 }

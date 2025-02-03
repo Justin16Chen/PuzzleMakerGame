@@ -66,13 +66,13 @@ public class LevelLoader {
     }
 
     // gets the required object data
-    public static void updateObjectData(String filePath) {
+    public static void updateObjectData() {
         //System.out.println("GETTING OBJECT DATA");
         requiredObjectData.clear();
         optionalObjectData.clear();
         totalObjectData.clear();
 
-        File file = new File(filePath);
+        File file = new File(GameObjectData.OBJECT_DATA_FILE_PATH);
         try {
             String content = new String(Files.readAllBytes(Paths.get(file.toURI())));
             JSONObject objectData = new JSONObject(content);
@@ -108,7 +108,7 @@ public class LevelLoader {
             Print.println("INVALID JSON FILE", Print.RED);
             e.printStackTrace();
         } catch (IOException e) {
-            Print.println("COULD NOT FIND FILE" + filePath, Print.RED);
+            Print.println("COULD NOT FIND FILE" + GameObjectData.OBJECT_DATA_FILE_PATH, Print.RED);
             
         }
     }

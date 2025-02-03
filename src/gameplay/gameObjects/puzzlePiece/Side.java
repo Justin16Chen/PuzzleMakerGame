@@ -110,7 +110,8 @@ public class Side {
     public void disconnect() { 
         connected = false;
         tweenPercent = 0;
-        connectTween.delete();
+        if (connectTween != null)
+            connectTween.delete();
 
     }
     public void connect(boolean playAnimation) {

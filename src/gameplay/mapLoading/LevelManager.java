@@ -36,7 +36,7 @@ public class LevelManager {
 
     // sets the general level info
     public void updateGeneralLevelInfo() {
-        GeneralLevelInfo newInfo = LevelLoader.getGeneralLevelInfo("res/levels/levelInfo.json");
+        GeneralLevelInfo newInfo = LevelLoader.getGeneralLevelInfo("res/properties/levelInfo.json");
         if (newInfo != null)
             generalLevelInfo = newInfo;
     }
@@ -70,7 +70,7 @@ public class LevelManager {
         
         // load level
         if (intro) 
-            Timer.createCallTimer("updateGameToNewLevel", this, generalLevelInfo.getTransitionTime(), "setLevelInfo", level).setPrint(Updatable.PrintType.ON_COMPLETE); // this causes the bug
+            Timer.createCallTimer("updateGameToNewLevel", this, generalLevelInfo.getTransitionTime(), "setLevelInfo", level);
         else
             setLevelInfo(level);
 
@@ -90,7 +90,7 @@ public class LevelManager {
             return;
         }
         currentLevel++;
-        transitionToLevel(currentLevel, true, true);
+        transitionToLevel(currentLevel, intro, outro);
     }
 
     // sets the level info of the gameboard to a level

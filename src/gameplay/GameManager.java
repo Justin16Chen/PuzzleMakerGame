@@ -35,7 +35,7 @@ public class GameManager extends JPanel {
             FIND_BREAKPOINT_KEY = "0",
             PRINT_BOARD_KEY = "P";
 
-    final double LEVEL_FINISH_BUFFER_TIME = 0.4;
+    public static final double BUFFER_TRANSITION_TIME = 0.6;
     
     // window
     private ParentFrame window;
@@ -112,7 +112,7 @@ public class GameManager extends JPanel {
         debugInfoBox.setVisible(false);
 
         // setup base level properties
-        LevelLoader.updateObjectData("res/levels/gameObjectData.json");
+        LevelLoader.updateObjectData();
 
         // create game board
         gameBoard = new GameBoard(keyInput, mouseInput);
@@ -207,15 +207,10 @@ public class GameManager extends JPanel {
         gameBoard.update(dt);
 
         // go to next level
-        if (gameBoard.allPuzzlePiecesConnected() && !levelManager.transitioningBetweenLevels() && levelManager.hasLevel(levelManager.getCurrentLevel() + 1)) 
-            if (keyInput.keyClicked(ALLOW_TRANSITION_KEY)) {
-                levelManager.transitionToNextLevel(true, true);
-                Updatables.deleteUpdatables(new String[]{"queueLevelTransition"});
-            }
-            // go after a timer if user does not manually transition
-            else if (!Updatables.hasUpdatable("queueLevelTransition")) {
-                Timer.createCallTimer("queueLevelTransition", levelManager, LEVEL_FINISH_BUFFER_TIME, "transitionToNextLevel", true, true);
-            }
+        if (gameBoard.allPuzzlePiecesConnected() 
+        && !levelManager.transitioningBetweenLevels() && levelManager.hasLevel(levelManager.getCurrentLevel() + 1)
+        && !Updatables.hasUpdatable("call level transition")) 
+            Timer.createCallTimer("call level transition", levelManager, BUFFER_TRANSITION_TIME, "transitionToNextLevel", true, true);
 
         // IN PROGRESS: testing MoveLogic.java
         if (keyInput.keyClicked(INCREMENT_HDIR_KEY)) 
@@ -241,9 +236,9 @@ public class GameManager extends JPanel {
 
         // keybinds to move through levels
         if (keyInput.keyClicked(PREV_LEVEL_KEY)) 
-            levelManager.transitionToLevel(levelManager.getCurrentLevel() - 1, true, true);
+            levelManager.transitionToLevel(levelManager.getCurrentLevel() - 1, false, false);
         if (keyInput.keyClicked(NEXT_LEVEL_KEY)) 
-            levelManager.transitionToNextLevel(true, true);
+            levelManager.transitionToNextLevel(false, false);
         
         // show/hide debug info
         if (keyInput.keyClicked(TOGGLE_DEBUG_KEY)) {

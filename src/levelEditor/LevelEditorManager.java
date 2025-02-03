@@ -49,7 +49,7 @@ public class LevelEditorManager extends JPanel {
 
     private ArrayList<Option> getDistinctGameObjectOptions() {
         try {
-            String content = new String(Files.readAllBytes(Paths.get(new File("res/levels/gameObjectData.json").toURI())));
+            String content = new String(Files.readAllBytes(Paths.get(new File(GameObjectData.OBJECT_DATA_FILE_PATH).toURI())));
             JSONObject obj = new JSONObject(content);
             JSONArray distinctJsonGameObjects = obj.getJSONArray("defaultGameObjects");
             ArrayList<Option> distinctGameObjectOptions = new ArrayList<>();
@@ -60,7 +60,7 @@ public class LevelEditorManager extends JPanel {
             
             return distinctGameObjectOptions;
         } catch (IOException e) {
-            Print.println("CANNOT FIND FILE " + "res/levels/gameObjectData.json", Print.RED);
+            Print.println("CANNOT FIND FILE " + GameObjectData.OBJECT_DATA_FILE_PATH, Print.RED);
         }
         return null;
     }
