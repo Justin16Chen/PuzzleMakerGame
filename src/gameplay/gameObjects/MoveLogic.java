@@ -38,7 +38,7 @@ public class MoveLogic {
     } while (gameObjToCheck.length > 0)
     */
 
-    public static ArrayList<GameObject[]> findBreakpoints(GameBoard gameBoard, GameObject mover, int hdir, int vdir) { 
+    public static ArrayList<GameObject[]> findBreakpoints(GameBoard gameBoard, GameObject mover, MoveInfo moveInfo) { 
         ArrayList<GameObject[]> breakpoints = new ArrayList<>();
         ArrayList<GameObject> gameObjectsToCheck = new ArrayList<>();
         gameObjectsToCheck.add(mover);
@@ -71,11 +71,11 @@ public class MoveLogic {
 
                     // skip if game object should not be considered (isn't affected by movement)
                     // dir != Directions.getDirection(hdir, vdir) && 
-                    if (!current.shouldConsider(gameObject))
+                    if (!current.shouldConsider(moveInfo, gameObject))
                         continue;
                     
                     // if current.canMove = true but gameObject.canMove = false there must be a breakpoint between these game objects
-                    if (!gameObject.getMoveInfo(gameBoard, new ArrayList<GameObject>(), hdir, vdir).canMove() && !current.mustMoveWith(gameObject))
+                    if (!gameObject.getMoveInfo(gameBoard, new ArrayList<GameObject>(), moveInfo.getHdir(), moveInfo.getVdir()).canMove() && !current.mustMoveWith(gameObject))
                         breakpoints.add(new GameObject[]{current, gameObject}); 
                     else
                         gameObjectsToCheck.add(gameObject); // add object to be further analyzed next iteration

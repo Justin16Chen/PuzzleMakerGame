@@ -9,7 +9,6 @@ import org.json.JSONObject;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
-import utils.Print;
 import utils.direction.Direction;
 import utils.direction.Directions;
 import utils.drawing.sprites.Sprite;
@@ -20,8 +19,9 @@ public class PuzzlePiece extends GameObject {
         return new PuzzlePiece(jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
     }
 
-    public static Color BG_COLOR = new Color(72, 72, 72);
-    public static Color HIGHLIGHT_COLOR = new Color(220, 220, 220, 50);
+    public static final Color BG_COLOR = new Color(72, 72, 72);
+    public static final Color HIGHLIGHT_COLOR = new Color(110, 110, 110);
+    public static final double CORNER_ROUNDED_PERCENT = 0.25;
 
     public static boolean isPuzzlePiece(GameObject gameObject) {
         if (gameObject == null) 
@@ -35,15 +35,19 @@ public class PuzzlePiece extends GameObject {
         p2.getSide(Directions.getOppositeDirection(p1Dir)).disconnect();
     }
 
+    // all puzzle pieces that need to be fully connected for this one to display its highlight color
+    private ArrayList<PuzzlePiece> adjacentPieces;
     private Side[] sides;
 
     public PuzzlePiece(int boardX, int boardY, String sideString) {
         super(GameObject.ObjectType.PUZZLE_PIECE, boardX, boardY, 1, 1);
         this.sides = Side.getSideData(this, sideString);
+        adjacentPieces = new ArrayList<>();
     }
     public PuzzlePiece(GameObject.ObjectType objectType, int boardX, int boardY, String sideString) {
         super(objectType, boardX, boardY, 1, 1);
         this.sides = Side.getSideData(this, sideString);
+        adjacentPieces = new ArrayList<>();
     }
 
     @Override
@@ -51,19 +55,62 @@ public class PuzzlePiece extends GameObject {
         sprite = new Sprite("puzzlePieceSprite", x, y, width, height, "gameObjects1") {
             @Override
             public void draw(Graphics2D g) {
-                g.setColor(BG_COLOR);
-                g.fillRect(getX(), getY(), getWidth(), getHeight());
-                if (areAllSidesConnected()) {
-                    g.setColor(HIGHLIGHT_COLOR);
-                    g.fillRect(getX(), getY(), getWidth(), getHeight());
-                }
+                Color fillColor = adjacentPiecesConnected(new ArrayList<PuzzlePiece>()) ? HIGHLIGHT_COLOR : BG_COLOR;
 
-                for (int i=0; i<4; i++)
-                    getSide(Directions.getDirection(i)).draw(g, getX(), getY(), getWidth());
+                int arcRadius = (int) (sprite.getWidth() / 2 * CORNER_ROUNDED_PERCENT);
+
+                // draw rounded corners
+                drawCorner(g, 45, arcRadius, fillColor, getSide(Direction.UP), getSide(Direction.RIGHT));
+                drawCorner(g, 135, arcRadius, fillColor, getSide(Direction.UP), getSide(Direction.LEFT));
+                drawCorner(g, 225, arcRadius, fillColor, getSide(Direction.DOWN), getSide(Direction.LEFT));
+                drawCorner(g, 315, arcRadius, fillColor, getSide(Direction.DOWN), getSide(Direction.RIGHT));
+
+                // draw center fill
+                int[] pointsX = { 
+                    sprite.getX(), sprite.getX(), 
+                    sprite.getX() + arcRadius, sprite.getRight() - arcRadius, 
+                    sprite.getRight(), sprite.getRight(), 
+                    sprite.getRight() - arcRadius, sprite.getX() + arcRadius 
+                };
+                int[] pointsY = { 
+                    sprite.getBottom() - arcRadius, sprite.getY() + arcRadius, 
+                    sprite.getY(), sprite.getY(), 
+                    sprite.getY() + arcRadius, sprite.getBottom() - arcRadius, 
+                    sprite.getBottom(), sprite.getBottom()
+                };
+                g.fillPolygon(pointsX, pointsY, pointsX.length);
+
+                for (Direction dir : Directions.getAllDirections())
+                    getSide(dir).draw(g, sprite.getX(), sprite.getY(), sprite.getWidth());
             }
         };
-    }
 
+    }
+    // pre: angle must be multiple of 90 deg
+    protected void drawCorner(Graphics2D g, int angle, int arcRadius, Color fillColor, Side s1, Side s2) {
+        
+        int floorSize = sprite.getWidth() / 2;
+        int ceilSize = (int) Math.ceil(sprite.getWidth() / 2.);
+
+        double angleRad = Math.toRadians(angle);
+        int signX = (int) Math.signum(Math.cos(angleRad));
+        int signY = (int) -Math.signum(Math.sin(angleRad)); // invert b/c y axis is inverted for coding
+        int cornerX = sprite.getCenterX() + signX * floorSize;
+        int cornerY = sprite.getCenterY() + signY * floorSize;
+
+        int left = Math.min(sprite.getCenterX(), cornerX);
+        int top = Math.min(sprite.getCenterY(), cornerY);
+
+        g.setColor(fillColor);
+        if (s1.getType() != Side.Type.NOTHING || s2.getType() != Side.Type.NOTHING)
+            g.fillRect(left, top, ceilSize, ceilSize);
+        else {
+            int arcOffsetMag = floorSize - arcRadius;
+            int arcOffsetX = signX * arcOffsetMag, arcOffsetY = signY * arcOffsetMag;
+            int arcLeft = sprite.getCenterX() + arcOffsetX - arcRadius, arcTop = sprite.getCenterY() + arcOffsetY - arcRadius;
+            g.fillArc(arcLeft, arcTop, arcRadius * 2, arcRadius * 2, angle - 45, 90);
+        }
+    }
     public boolean equals(GameObject gameObject) {
         if (gameObject == null) return false;
         if (gameObject.getObjectType() != getObjectType()) return false;
@@ -95,10 +142,12 @@ public class PuzzlePiece extends GameObject {
 
     // should consider any connected puzzle pieces when checking for breakpoints
     @Override
-    public boolean shouldConsider(GameObject gameObject) {
+    public boolean shouldConsider(MoveInfo moveInfo, GameObject gameObject) {
+        Direction dir = Directions.getDirectionBetweenGameObjects(this, gameObject);
+        if (Directions.getDirectionX(dir) == moveInfo.getHdir() && Directions.getDirectionY(dir) == moveInfo.getVdir())
+            return true;
         if (!isPuzzlePiece(gameObject) || !Directions.areGameObjectsAdjacent(this, gameObject))
             return false;
-        Direction dir = Directions.getDirectionBetweenGameObjects(this, gameObject);
         return getSide(dir).isConnected();
     }
 
@@ -116,12 +165,31 @@ public class PuzzlePiece extends GameObject {
         return sides[Directions.getMoveIndex(direction)];
     }
     // one of the sides is connected
-    public boolean areAllSidesConnected() {
+    public boolean allSidesConnected() {
         for (Direction direction : Directions.getAllDirections()) {
             if (!getSide(direction).isConnected() && getSide(direction).getType() != Side.Type.NOTHING)
                 return false;
         }
         return true;
+    }
+    public boolean adjacentPiecesConnected(ArrayList<PuzzlePiece> piecesToIgnore) {
+        if (piecesToIgnore.contains(this))
+            return true;
+        piecesToIgnore.add(this);
+        for (PuzzlePiece piece : adjacentPieces)
+            if (!piece.adjacentPiecesConnected(piecesToIgnore))
+                return false;
+        return allSidesConnected();
+    }
+    public void updateAdjacentPieces(GameBoard board) {
+        adjacentPieces.clear();
+        for (Direction dir : Directions.getAllDirections())
+            if (getSide(dir).isConnected()) {
+                int x = getBoardX() + Directions.getDirectionX(dir);
+                int y = getBoardY() + Directions.getDirectionY(dir);
+                adjacentPieces.add((PuzzlePiece) board.getGameObject(x, y));
+            }
+
     }
 
     // gets the moveinfo based on all of the attached puzzle pieces
@@ -275,6 +343,7 @@ public class PuzzlePiece extends GameObject {
         ArrayList<String> drawList = new ArrayList<String>();
 
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
+        drawList.add("right and bottom: " + getBoardRight() + ", " + getBoardBottom());
         drawList.add("sides: ");
         for (int i=0; i<4; i++) {
             Direction direction = Directions.getDirection(i);

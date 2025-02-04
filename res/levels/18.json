@@ -1,9 +1,10 @@
 {
-    "mapWidth": 9,
-    "mapHeight": 5,
+    "mapWidth": 7,
+    "mapHeight": 4,
 
     "gameObjects": [
-        { "name": "playerPiece", "x": 1, "y": 1, "sideData": "wnnn" },
-        { "name": "playerPiece", "x": 4, "y": 1, "sideData": "nnnn" }
+        { "name": "playerPiece", "x": 0, "y": 0, "sideData": "wnnn" },
+        { "name": "puzzlePiece", "x": 1, "y": 2, "sideData": "nnns" },
+        { "name": "puzzlePiece", "x": 2, "y": 2, "sideData": "nsnn" }
     ]
 }

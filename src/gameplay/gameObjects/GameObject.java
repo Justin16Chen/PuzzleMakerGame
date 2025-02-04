@@ -68,11 +68,14 @@ public abstract class GameObject {
         this.infoBox = new InfoBox(0, 0);
         infoBox.setVisible(false);
         infoBox.setFont(new Font("Arial", Font.PLAIN, 10));
+        infoBox.addTag("debug");
 
         sprite.setX(gameBoard.getDrawX(boardX));
         sprite.setY(gameBoard.getDrawY(boardY));
         sprite.setWidth(cellWidth * gameBoard.getTileSize());
         sprite.setHeight(cellHeight * gameBoard.getTileSize());
+
+        sprite.addChild(infoBox);
     }
 
     public void updateVisualsToBoard(GameBoard board) {
@@ -92,7 +95,7 @@ public abstract class GameObject {
     // subclasses can override
     // specifies if gameObject should be considered when moving this
     // used in MoveLogic
-    public boolean shouldConsider(GameObject gameObject) {
+    public boolean shouldConsider(MoveInfo moveInfo, GameObject gameObject) {
         return false;
     }
 
@@ -108,6 +111,8 @@ public abstract class GameObject {
     public int getBoardY() { return boardY; }
     public int getCellWidth() { return cellWidth; }
     public int getCellHeight() { return cellHeight; }
+    public int getBoardRight() { return boardX + cellWidth - 1; } // gets the boardx of the right most cell this gameobject occupies
+    public int getBoardBottom() { return boardY + cellHeight - 1; } // gets the boardy of the bottom most cell this gameobject occupies
     public boolean isMovable() { return movable; }
     public boolean movedThisFrame() { return movedThisFrame; }
     public Sprite getSprite() { return sprite; }
@@ -264,11 +269,13 @@ public abstract class GameObject {
     public void updateDrawList() {
         ArrayList<String> drawList = new ArrayList<>();
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() +")");
+        drawList.add("right and bottom: " + getBoardRight() + ", " + getBoardBottom());
         infoBox.setDrawList(drawList);
     }
 
     public void deleteSprites() {
-        Sprites.deleteSprites(new String[]{sprite.getName(), InfoBox.NAME});
+        ArrayList<Sprite> all = sprite.getAllChildren();
+        Sprites.deleteSprites(all);
     }
 
     @Override

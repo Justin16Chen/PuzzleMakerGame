@@ -27,7 +27,7 @@ public class GameManager extends JPanel {
             RELOAD_LEVEL_KEY = "R",
             PREV_LEVEL_KEY = "2",
             NEXT_LEVEL_KEY = "3",
-            ALLOW_TRANSITION_KEY = "Space",
+            TOGGLE_GRID_LINES_KEY = "G",
             MOVE_TO_LEVEL_KEY = "Shift",
             PRINT_UPDATABLES_KEY = "U",
             INCREMENT_HDIR_KEY = "Minus",
@@ -212,7 +212,6 @@ public class GameManager extends JPanel {
         && !Updatables.hasUpdatable("call level transition")) 
             Timer.createCallTimer("call level transition", levelManager, BUFFER_TRANSITION_TIME, "transitionToNextLevel", true, true);
 
-        // IN PROGRESS: testing MoveLogic.java
         if (keyInput.keyClicked(INCREMENT_HDIR_KEY)) 
             if (++hdir == 2) 
                 hdir = -1;
@@ -222,6 +221,11 @@ public class GameManager extends JPanel {
         if (keyInput.keyClicked(FIND_BREAKPOINT_KEY)) {
             //breakpoints = MoveLogic.findBreakpoints(gameBoard, gameBoard.getPlayerPiece(), hdir, vdir);
         }
+
+        if (keyInput.keyClicked(TOGGLE_GRID_LINES_KEY))
+            gameBoard.toggleGridVisible();
+
+
 
         // print the game board
         if (keyInput.keyClicked(PRINT_BOARD_KEY))
@@ -346,7 +350,7 @@ public class GameManager extends JPanel {
         drawList.add(RELOAD_LEVEL_KEY + ": refresh level json file");
         drawList.add(PREV_LEVEL_KEY + ": go to prev lvl");
         drawList.add(NEXT_LEVEL_KEY + ": go to next lvl");
-        drawList.add(ALLOW_TRANSITION_KEY + ": transition to next level once completed");
+        drawList.add(TOGGLE_GRID_LINES_KEY + ": toggle grid lines visibility");
         drawList.add(INCREMENT_HDIR_KEY + ": increment breakpoint hdir");
         drawList.add(INCREMENT_VDIR_KEY + ": increment breakpoint vdir");
         drawList.add(FIND_BREAKPOINT_KEY + ": find breakpoints from player pos, hdir, and vdir");

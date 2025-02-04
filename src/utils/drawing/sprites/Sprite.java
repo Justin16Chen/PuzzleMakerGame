@@ -110,7 +110,7 @@ public class Sprite extends TaggableChild<Sprite> {
     
     public Color getColor() { return color; }
     public void setColor(Color color) { this.color = color; }
-    public String getImagePath() { return imagePath; }
+    public Image getImage() { return image; }
     public void setImagePath(String imagePath) { 
         this.imagePath = imagePath; 
         try {
@@ -119,6 +119,9 @@ public class Sprite extends TaggableChild<Sprite> {
             e.printStackTrace();
             Print.println("Failed to load image " + imagePath, Print.RED);
         }
+    }
+    public void setImage(Image image) {
+        this.image = image;
     }
 
     // only moves this to layerName

@@ -42,4 +42,5 @@ public class JMath {
     public static double normalize(double min, double max, double num) {
         return (num - min) / (max - min);
     }
+    
 }

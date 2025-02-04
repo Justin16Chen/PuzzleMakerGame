@@ -40,6 +40,7 @@ public class GameBoard {
     private ArrayList<GameObject> gameObjects;
 
     private Sprite boardSprite;
+    private boolean showGridLines;
     public Sprite getBoardSprite() { return boardSprite; }
     
     public GameBoard(KeyInput keyInput, MouseInput mouseInput) {
@@ -56,10 +57,25 @@ public class GameBoard {
             public void draw(Graphics2D g) {
                 g.setColor(BOARD_COLOR);
                 g.fillRect(getX(), getY(), getWidth(), getHeight());
-                //g.setFont(new Font("Arial", Font.BOLD, 15));
-                //g.drawString("Level " + gameManager.getLevelManager().getCurrentLevel(), getX(), getY() - 10);
+
+                if (showGridLines) {
+                    g.setColor(Color.BLACK);
+                    g.setStroke(new BasicStroke(3));
+                    // draw horizontal lines
+                    for (int y=0; y<height; y++) {
+                        g.drawLine(getDrawX(0), getDrawY(y), getDrawX(width), getDrawY(y));
+                    }
+                    // draw vertical lines
+                    for (int x=0; x<width; x++) {
+                        g.drawLine(getDrawX(x), getDrawY(0), getDrawX(x), getDrawY(height));
+                    }
+                }
             }
         };
+    }
+
+    public void toggleGridVisible() {
+        showGridLines = !showGridLines;
     }
 
     public void printBoard() {
@@ -165,6 +181,7 @@ public class GameBoard {
             
             PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
             puzzlePiece.checkForConnections(this, MoveInfo.makeValidMove(0, 0), false);
+            puzzlePiece.updateAdjacentPieces(this);
         }
     }
 
@@ -222,7 +239,7 @@ public class GameBoard {
                 if (moveInfo.canMove() && !player.movedThisFrame()) {
     
                     // disconnect any breakpoints
-                    ArrayList<GameObject[]> breakpoints = MoveLogic.findBreakpoints(this, player, hdir, vdir);
+                    ArrayList<GameObject[]> breakpoints = MoveLogic.findBreakpoints(this, player, moveInfo);
                     MoveLogic.disconnectBreakpoints(breakpoints);
     
                     // move all connected pieces
@@ -274,7 +291,7 @@ public class GameBoard {
             if (!PuzzlePiece.isPuzzlePiece(gameObject)) 
                 continue;
             PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
-            if (!puzzlePiece.areAllSidesConnected())
+            if (!puzzlePiece.allSidesConnected())
                 return false;
         }
         return true;

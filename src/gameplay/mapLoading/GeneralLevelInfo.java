@@ -39,3 +39,16 @@ public class GeneralLevelInfo {
     public double getWaitTime() { return waitTime; }
     public double getTotalTransitionTime() { return transitionTime * 2 + waitTime; }
 }
+
+
+/*
+
+calc bc - 1.5
+physics c - 1.5
+english - 1
+econ - 1
+lunch - 1
+gym - 0.5
+linear algebra - 1
+
+*/

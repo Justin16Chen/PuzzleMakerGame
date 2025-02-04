@@ -6,10 +6,10 @@ import org.json.JSONObject;
 
 import gameplay.GameBoard;
 import gameplay.gameObjects.*;
-import utils.direction.Directions;
 import utils.drawing.sprites.Sprite;
 
 public class PlayerPiece extends PuzzlePiece {
+
 
     public static GameObject loadPlayerPiece(JSONObject jsonObject) {
         return new PlayerPiece(jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
@@ -17,24 +17,29 @@ public class PlayerPiece extends PuzzlePiece {
 
     private static final String SAD_IMAGE_PATH = "res/textures/playerSad.png", HAPPY_IMAGE_PATH = "res/textures/playerHappy.png";
 
-    private String currentImagePath;
+    private Sprite faceSprite;
     public PlayerPiece(int boardX, int boardY, String sideData) {
         super(GameObject.ObjectType.PLAYER_PIECE, boardX, boardY, sideData);
     }
 
     @Override
     public void setup(int x, int y, int width, int height) {
-        sprite = new Sprite("puzzlePieceSprite", SAD_IMAGE_PATH, x, y, width, height, "gameObjects1") {
+        super.setup(x, y, width, height);
+        faceSprite = new Sprite("player face", SAD_IMAGE_PATH, x, y, width, height, "gameObjects2") {
             @Override
             public void draw(Graphics2D g) {
-                
+                // reposition image
+                setX(sprite.getX());
+                setY(sprite.getY());
+                setWidth(sprite.getWidth());
+                setHeight(sprite.getHeight());
+
+                // draw image
                 super.draw(g);
-
-                for (int i=0; i<4; i++)
-                    getSide(Directions.getDirection(i)).draw(g, getX(), getY(), getWidth());
-
             }
         };
+        faceSprite.addTag("accessory");
+        sprite.addChild(faceSprite);
     }
 
     @Override

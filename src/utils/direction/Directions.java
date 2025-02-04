@@ -86,10 +86,23 @@ public class Directions {
     }
 
     // gets the direction from game object 1 to game object 2
-    public static Direction getDirectionBetweenGameObjects(GameObject gameObject1, GameObject gameObject2) {
-        Direction direction = Directions.getDirection(gameObject2.getBoardX() - gameObject1.getBoardX(), gameObject2.getBoardY() - gameObject1.getBoardY());
+    public static Direction getDirectionBetweenGameObjects(GameObject g1, GameObject g2) {
+        int xDiff = g2.getBoardX() - g1.getBoardRight();
+        int yDiff = g2.getBoardY() - g1.getBoardBottom();
+
+        if (g1.getBoardX() <= g2.getBoardRight() && g1.getBoardRight() >= g2.getBoardX()) 
+            xDiff = 0;  // overlap on x - must be vertical direction
+        else if (g2.getBoardX() < g1.getBoardX())
+            xDiff = g2.getBoardRight() - g1.getBoardX();
+        
+        if (g1.getBoardY() <= g2.getBoardBottom() && g1.getBoardBottom() >= g2.getBoardY())
+            yDiff = 0;  // overlap on x - must be vertical direction
+        else if (g2.getBoardY() < g1.getBoardY())
+            yDiff = g2.getBoardBottom() - g1.getBoardY();
+        
+        Direction direction = Directions.getDirection(xDiff, yDiff);
         if (direction == Direction.INVALID)
-            throw new IllegalArgumentException(gameObject1 + " is not adjacent to " + gameObject2);
+            throw new IllegalArgumentException(g1 + " is not adjacent to " + g2 + " | diffs = " + xDiff + ", " + yDiff);
         return direction;
     }
 

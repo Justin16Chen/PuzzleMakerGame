@@ -39,14 +39,21 @@ public class Sprites {
                 }
     }
 
-    public static void deleteSprites(String[] names) {
-        for (String name : names) 
-            for (String layerName : layers.values()) 
-                for (Sprite sprite : sprites.get(layerName)) 
-                    if (sprite.getName().equals(name)) {
-                        sprites.get(layerName).remove(sprite);
+    public static void deleteSprites(ArrayList<Sprite> spritesToDelete) {
+        for (Sprite sprite : spritesToDelete) {
+            boolean foundSprite = false;
+            for (String layerName : layers.values()) {
+                for (int i=0; i<sprites.get(layerName).size(); i++) {
+                    if (sprites.get(layerName).get(i).equals(sprite)) {
+                        sprites.get(layerName).remove(i);
+                        foundSprite = true;
                         break;
                     }
+                }
+                if (foundSprite)
+                    break;
+            }
+        }
     }
 
     public static void drawSprites(Graphics2D g) {
