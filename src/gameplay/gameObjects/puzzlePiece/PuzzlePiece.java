@@ -353,8 +353,7 @@ public class PuzzlePiece extends GameObject {
         infoBox.setDrawList(drawList);
     }
     
-    @Override
-    public String toString() {
+    public String toStringDetailed() {
         return super.toString() + " " + Arrays.toString(sides);
     }
 }

@@ -48,6 +48,7 @@ public class MoveLogic {
             // check each object for breakpoints
             for (int i=0; i<gameObjectsToCheck.size(); i++) {
                 GameObject current = gameObjectsToCheck.get(i);
+                checkedPositions.put(List.of(current.getBoardX(), current.getBoardY()), true); // update hash map
 
                 // check for breakpoints on all directions
                 for (Direction dir : Directions.getAllDirections()) {
@@ -67,11 +68,10 @@ public class MoveLogic {
                     // skip if cell has already been checked
                     if (checkedPositions.get(List.of(x, y)) != null)
                         continue;
-                    checkedPositions.put(List.of(x, y), true); // update hash map
 
                     // skip if game object should not be considered (isn't affected by movement)
                     // dir != Directions.getDirection(hdir, vdir) && 
-                    if (!current.shouldConsider(moveInfo, gameObject))
+                    if (!current.shouldConsider(moveInfo, gameObject)) 
                         continue;
                     
                     // if current.canMove = true but gameObject.canMove = false there must be a breakpoint between these game objects

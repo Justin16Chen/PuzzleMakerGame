@@ -280,6 +280,6 @@ public abstract class GameObject {
 
     @Override
     public String toString() {
-        return objectType + "((" + boardX + "," + boardY + ")";
+        return GameObjectData.objectTypeToName(objectType) + "(" + boardX + "," + boardY + ")";
     }
 }

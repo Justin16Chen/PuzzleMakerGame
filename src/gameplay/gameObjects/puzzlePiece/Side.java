@@ -18,6 +18,7 @@ public class Side {
         WEAK,
         NOTHING
     }
+    final public static Color NOTHING_COLOR = new Color(55, 55, 55);
     final public static Color STRONG_COLOR = new Color(200, 180, 20);
     final public static Color WEAK_COLOR = new Color(70, 120, 230);
     final public static Color CONNECTED_STRONG_COLOR = new Color(250, 245, 150);
@@ -128,11 +129,13 @@ public class Side {
     }
 
     public void draw(Graphics2D g, int parentDrawx, int parentDrawy, int tileSize) {
-        if (getType() == Type.NOTHING || (getType() == Type.STRONG && isConnected() && tweenPercent == 1))
+        if ((getType() == Type.STRONG && isConnected() && tweenPercent == 1))
             return;
         int offset = (int) Math.ceil((DRAW_OFF * DRAW_WIDTH_PERCENT * tileSize));
         int[] xList = new int[4], yList = new int[4];
-        if (!isConnected())
+        if (getType() == Type.NOTHING)
+            g.setColor(NOTHING_COLOR);
+        else if (!isConnected())
             g.setColor(getType() == Type.STRONG ? STRONG_COLOR : WEAK_COLOR);
         else
             g.setColor(getType() == Type.STRONG ? CONNECTED_STRONG_COLOR : CONNECTED_WEAK_COLOR);
