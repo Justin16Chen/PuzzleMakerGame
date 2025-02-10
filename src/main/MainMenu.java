@@ -6,7 +6,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -15,7 +14,6 @@ import javax.swing.JTextField;
 
 import utils.ParentFrame;
 import utils.Print;
-import utils.math.JMath;
 
 public class MainMenu extends ParentFrame {
 

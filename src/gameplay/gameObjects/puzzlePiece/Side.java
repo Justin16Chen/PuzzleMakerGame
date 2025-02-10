@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import utils.direction.Direction;
 import utils.direction.Directions;
 import utils.math.JMath;
-import utils.math.Vec;
 import utils.tween.Ease;
 import utils.tween.EaseType;
 import utils.tween.Tween;
@@ -17,7 +16,6 @@ public class Side {
         WEAK,
         NOTHING
     }
-    final private static Color NOTHING_COLOR = new Color(35, 35, 35, 80);
     final private static Color STRONG_COLOR = new Color(200, 180, 20);
     final private static Color WEAK_COLOR = new Color(70, 120, 230);
     final private static Color CONNECTED_STRONG_COLOR = new Color(250, 245, 150);
@@ -127,14 +125,17 @@ public class Side {
     private int getTweenedDrawSize(int size, double tweenPercent) {
         return (int) Math.round(size * (1 - tweenPercent));
     }
-    public void draw(Graphics2D g, int drawCenterX, int drawCenterY, int width, int height, int leftInset, int rightInset) {
+    public void draw(Graphics2D g, int drawCenterX, int drawCenterY, int width, int height) {
 
+        if (getType() == Side.Type.NOTHING)
+            return;
         // top side
         int halfWidth = width / 2;
+        int inset = (int) (height / Math.sqrt(2));
 
         int tweenedHalfWidth = getTweenedDrawSize(halfWidth, tweenPercent);
-        int leftTweenedHalfInset = getTweenedDrawSize(-halfWidth + leftInset, tweenPercent);
-        int rightTweenedHalfInset = getTweenedDrawSize(halfWidth - rightInset, tweenPercent);
+        int leftTweenedHalfInset = getTweenedDrawSize(-halfWidth + inset, tweenPercent);
+        int rightTweenedHalfInset = getTweenedDrawSize(halfWidth - inset, tweenPercent);
         int[] xList = { -tweenedHalfWidth,  tweenedHalfWidth,  rightTweenedHalfInset, leftTweenedHalfInset };
         int[] yList = { -halfWidth, -halfWidth, -halfWidth + height, -halfWidth + height };
 
@@ -147,7 +148,6 @@ public class Side {
         }
 
         switch (type) {
-            case NOTHING: g.setColor(NOTHING_COLOR); break;
             case WEAK: g.setColor(connected ? CONNECTED_WEAK_COLOR : WEAK_COLOR); break;
             case STRONG: g.setColor(connected ? CONNECTED_STRONG_COLOR : STRONG_COLOR); break;
         }

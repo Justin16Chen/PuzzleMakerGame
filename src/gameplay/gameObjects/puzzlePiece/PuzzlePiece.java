@@ -73,6 +73,9 @@ public class PuzzlePiece extends GameObject {
                     filledAdjacentCells[1 + y][1 + x] = getSide(dir).isConnected();
                 }
                 baseTilemap.drawTile(g, getX(), getY(), getWidth(), getHeight(), filledAdjacentCells);
+
+                for (Direction dir : Directions.getAllDirections())
+                    getSide(dir).draw(g, getCenterX(), getCenterY(), getWidth(), (int) (getWidth() * SIDE_DRAW_PERCENT));
             }
         };
 
