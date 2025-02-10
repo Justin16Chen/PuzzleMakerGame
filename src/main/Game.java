@@ -10,7 +10,7 @@ public class Game extends ParentFrame {
     private int framesPerSecond, startLevel;
     
     public Game(int framesPerSecond, int startLevel) {
-        super("puzzle game", 600, 600);
+        super("puzzle game", 1000, 1000);
         this.framesPerSecond = framesPerSecond;
         this.startLevel = startLevel;
     }

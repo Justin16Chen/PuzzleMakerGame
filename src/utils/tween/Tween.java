@@ -1,6 +1,6 @@
 package utils.tween;
 
-import utils.JMath;
+import utils.math.JMath;
 
 public class Tween extends Updatable {
 

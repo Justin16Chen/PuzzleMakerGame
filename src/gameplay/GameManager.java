@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 
 import gameplay.gameObjects.GameObject;
 import gameplay.gameObjects.GameObjectData;
+import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
 import gameplay.mapLoading.LevelLoader;
 import gameplay.mapLoading.LevelManager;
 import utils.ParentFrame;
@@ -114,6 +115,8 @@ public class GameManager extends JPanel {
         // setup base level properties
         LevelLoader.updateObjectData();
 
+        loadTilemaps();
+
         // create game board
         gameBoard = new GameBoard(keyInput, mouseInput);
         gameBoard.setup();
@@ -140,7 +143,7 @@ public class GameManager extends JPanel {
         startGameLoop();
     }
 
-    public void setupLayers() {
+    private void setupLayers() {
         Sprites.addLayer("default", 0);
         Sprites.addLayer("gameBoard", 1);
         Sprites.addLayer("gameObjects1", 2);
@@ -150,6 +153,10 @@ public class GameManager extends JPanel {
         Sprites.addLayer("ui", 6);
         Sprites.addLayer("transitions", 7);
         Sprites.addLayer("debug", 8);
+    }
+
+    private void loadTilemaps() {
+        PuzzlePiece.loadTilemaps();
     }
 
     // create the game loop
@@ -236,6 +243,7 @@ public class GameManager extends JPanel {
             levelManager.updateGeneralLevelInfo();
             GameObjectData.loadObjectData();
             levelManager.updateLevelInfo();
+            loadTilemaps();
         }
 
         // keybinds to move through levels

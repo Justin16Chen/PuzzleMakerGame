@@ -1,0 +1,11 @@
+{
+    "tileSize": 96,
+    "cols": 2,
+    "rows": 2,
+    "ruleWidth": 3,
+    "ruleHeight": 3,
+    "rules": [
+        [ "ana nyy aya", "ana yyn aya" ],
+        [ "aya nyy ana", "aya yyn ana" ]
+    ]
+}

@@ -1,6 +1,7 @@
 package utils.direction;
 
 import gameplay.gameObjects.GameObject;
+import utils.tween.Updatable;
 
 public class Directions {
     public static Direction[] DirectionList = getAllDirections();
@@ -62,6 +63,27 @@ public class Directions {
             case DOWN: return 1;
             case RIGHT: return 0; 
             default: return -1;
+        }
+    }
+    // gets angle in radians
+    public static double getDirectionAngle(Direction direction) {
+        switch (direction) {
+            case INVALID: return 0;
+            case UP: return Math.PI / 2;
+            case LEFT: return Math.PI;
+            case DOWN: return Math.PI * 1.5;
+            case RIGHT: return 0;
+            default: return 0;
+        }
+    }
+    public static int getDirectionIndex(Direction direction) {
+        switch (direction) {
+            case INVALID: return 0;
+            case UP: return 0;
+            case LEFT: return 1;
+            case DOWN: return 2;
+            case RIGHT: return 3;
+            default: return 0;
         }
     }
     public static Direction getOppositeDirection(Direction direction) {

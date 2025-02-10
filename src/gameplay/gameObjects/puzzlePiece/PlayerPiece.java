@@ -45,6 +45,6 @@ public class PlayerPiece extends PuzzlePiece {
     @Override
     public void update(GameBoard board) {
         if (board.allPuzzlePiecesConnected())
-            sprite.setImagePath(HAPPY_IMAGE_PATH);
+            faceSprite.setImagePath(HAPPY_IMAGE_PATH);
     }
 }

@@ -1,6 +1,6 @@
 package utils.drawing.particles;
 
-import utils.JMath;
+import utils.math.JMath;
 
 public class ParticleProperty {
     private double start, end;

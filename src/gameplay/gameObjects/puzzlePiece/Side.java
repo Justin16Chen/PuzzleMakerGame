@@ -3,14 +3,13 @@ package gameplay.gameObjects.puzzlePiece;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import utils.JMath;
-import utils.Print;
 import utils.direction.Direction;
 import utils.direction.Directions;
+import utils.math.JMath;
+import utils.math.Vec;
 import utils.tween.Ease;
 import utils.tween.EaseType;
 import utils.tween.Tween;
-import utils.tween.Updatables;
 
 public class Side {
     public enum Type {
@@ -18,15 +17,12 @@ public class Side {
         WEAK,
         NOTHING
     }
-    final public static Color NOTHING_COLOR = new Color(55, 55, 55);
-    final public static Color STRONG_COLOR = new Color(200, 180, 20);
-    final public static Color WEAK_COLOR = new Color(70, 120, 230);
-    final public static Color CONNECTED_STRONG_COLOR = new Color(250, 245, 150);
-    final public static Color CONNECTED_WEAK_COLOR = new Color(90, 185, 255);
-    final public static double DRAW_WIDTH_PERCENT = 0.15;
-    // draw offsets for x and y are the same b/c cos(45) = sin(45)
-    final public static double DRAW_OFF = Math.cos(Math.toRadians(45));
-    final public static double CONNECT_TWEEN_TIME = 0.6;
+    final private static Color NOTHING_COLOR = new Color(35, 35, 35, 80);
+    final private static Color STRONG_COLOR = new Color(200, 180, 20);
+    final private static Color WEAK_COLOR = new Color(70, 120, 230);
+    final private static Color CONNECTED_STRONG_COLOR = new Color(250, 245, 150);
+    final private static Color CONNECTED_WEAK_COLOR = new Color(90, 185, 255);
+    final private static double CONNECT_TWEEN_TIME = 0.6;
 
     // returns a list of sides based on string (from json file)
     public static Side[] getSideData(PuzzlePiece parent, String typeString) {
@@ -128,57 +124,35 @@ public class Side {
                 tweenPercent = 1;
     }
 
-    public void draw(Graphics2D g, int parentDrawx, int parentDrawy, int tileSize) {
-        if ((getType() == Type.STRONG && isConnected() && tweenPercent == 1))
-            return;
-        int offset = (int) Math.ceil((DRAW_OFF * DRAW_WIDTH_PERCENT * tileSize));
-        int[] xList = new int[4], yList = new int[4];
-        if (getType() == Type.NOTHING)
-            g.setColor(NOTHING_COLOR);
-        else if (!isConnected())
-            g.setColor(getType() == Type.STRONG ? STRONG_COLOR : WEAK_COLOR);
-        else
-            g.setColor(getType() == Type.STRONG ? CONNECTED_STRONG_COLOR : CONNECTED_WEAK_COLOR);
-        
-        fillInDrawLists(xList, yList, tileSize, offset);
-
-        for (int i=0; i<xList.length; i++) {
-            xList[i] += parentDrawx;
-            yList[i] += parentDrawy;
-        }
-        g.fillPolygon(xList, yList, xList.length);
+    private int getTweenedDrawSize(int size, double tweenPercent) {
+        return (int) Math.round(size * (1 - tweenPercent));
     }
+    public void draw(Graphics2D g, int drawCenterX, int drawCenterY, int width, int height, int leftInset, int rightInset) {
 
-    // gets the draw information for sides (relative)
-    // mutates xList and yList
-    private void fillInDrawLists(int[] xList, int[] yList, int tileSize, int offset) {
-        int halfTile = tileSize / 2;
-        switch (getDirection()) {
-            case INVALID: break;
-            case UP: 
-                xList[0] = (int) JMath.lerp(0, halfTile, tweenPercent);               yList[0] = 0;
-                xList[1] = (int) JMath.lerp(tileSize, halfTile, tweenPercent);          yList[1] = 0;
-                xList[2] = (int) JMath.lerp(tileSize - offset, halfTile, tweenPercent); yList[2] = offset;
-                xList[3] = (int) JMath.lerp(offset, halfTile, tweenPercent);            yList[3] = offset;
-                break;
-            case LEFT: 
-                xList[0] = 0;      yList[0] = (int) JMath.lerp(0, halfTile, tweenPercent);
-                xList[1] = 0;      yList[1] = (int) JMath.lerp(tileSize, halfTile, tweenPercent);
-                xList[2] = offset; yList[2] = (int) JMath.lerp(tileSize - offset, halfTile, tweenPercent);
-                xList[3] = offset; yList[3] = (int) JMath.lerp(offset, halfTile, tweenPercent);
-                break;
-            case DOWN: 
-                xList[0] = (int) JMath.lerp(0, halfTile, tweenPercent);                 yList[0] = tileSize;
-                xList[1] = (int) JMath.lerp(tileSize, halfTile, tweenPercent);          yList[1] = tileSize;
-                xList[2] = (int) JMath.lerp(tileSize - offset, halfTile, tweenPercent); yList[2] = tileSize - offset;
-                xList[3] = (int) JMath.lerp(offset, halfTile, tweenPercent);            yList[3] = tileSize - offset;
-                break;
-            case RIGHT:
-                xList[0] = tileSize;          yList[0] = (int) JMath.lerp(0, halfTile, tweenPercent);
-                xList[1] = tileSize;          yList[1] = (int) JMath.lerp(tileSize, halfTile, tweenPercent);
-                xList[2] = tileSize - offset; yList[2] = (int) JMath.lerp(tileSize - offset, halfTile, tweenPercent);
-                xList[3] = tileSize - offset; yList[3] = (int) JMath.lerp(offset, halfTile, tweenPercent);
-                break;
+        // top side
+        int halfWidth = width / 2;
+
+        int tweenedHalfWidth = getTweenedDrawSize(halfWidth, tweenPercent);
+        int leftTweenedHalfInset = getTweenedDrawSize(-halfWidth + leftInset, tweenPercent);
+        int rightTweenedHalfInset = getTweenedDrawSize(halfWidth - rightInset, tweenPercent);
+        int[] xList = { -tweenedHalfWidth,  tweenedHalfWidth,  rightTweenedHalfInset, leftTweenedHalfInset };
+        int[] yList = { -halfWidth, -halfWidth, -halfWidth + height, -halfWidth + height };
+
+        // rotate 
+        int dirIndex = Directions.getDirectionIndex(direction);
+        for (int i=0; i<4; i++) {
+            double[] rotatedPoint = JMath.rotateOrthogonalAroundPoint(xList[i], yList[i], 0, 0, dirIndex);
+            xList[i] = drawCenterX + (int) rotatedPoint[0];
+            yList[i] = drawCenterY + (int) rotatedPoint[1];
         }
+
+        switch (type) {
+            case NOTHING: g.setColor(NOTHING_COLOR); break;
+            case WEAK: g.setColor(connected ? CONNECTED_WEAK_COLOR : WEAK_COLOR); break;
+            case STRONG: g.setColor(connected ? CONNECTED_STRONG_COLOR : STRONG_COLOR); break;
+        }
+        g.fillPolygon(xList, yList, xList.length); 
     }
+    
+    
 }

@@ -4,5 +4,6 @@
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
         "c:\\Users\\jchen3\\OneDrive - North Allegheny School District\\java files\\java dependencies\\json-20240303.jar"
-    ]
+    ],
+    "java.debug.settings.onBuildFailureProceed": true
 }

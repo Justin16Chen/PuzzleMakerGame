@@ -3,9 +3,9 @@ package utils.drawing.sprites;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
@@ -14,8 +14,7 @@ import utils.Print;
 public class Sprite extends TaggableChild<Sprite> {
 
     private String name, layerName;
-    private String imagePath;
-    private Image image;
+    private BufferedImage image;
     private int x, y, width, height;
     private boolean visible;
     private Color color;
@@ -28,7 +27,6 @@ public class Sprite extends TaggableChild<Sprite> {
         y = 0;
         width = 1;
         height = 1;
-        imagePath = "";
         image = null;
         visible = true;
         color = Color.BLACK;
@@ -37,7 +35,6 @@ public class Sprite extends TaggableChild<Sprite> {
 
     public Sprite(String name, String imagePath, String layerName) {
         this.name = name;
-        this.imagePath = imagePath;
         try {
             image = ImageIO.read(new File(imagePath));
         } catch (IOException e) {
@@ -62,7 +59,6 @@ public class Sprite extends TaggableChild<Sprite> {
         this.height = height;
         this.layerName = layerName;
 
-        imagePath = "";
         image = null;
         visible = true;
         color = Color.BLACK;
@@ -110,9 +106,8 @@ public class Sprite extends TaggableChild<Sprite> {
     
     public Color getColor() { return color; }
     public void setColor(Color color) { this.color = color; }
-    public Image getImage() { return image; }
+    public BufferedImage getImage() { return image; }
     public void setImagePath(String imagePath) { 
-        this.imagePath = imagePath; 
         try {
             image = ImageIO.read(new File(imagePath));
         } catch (IOException e) {
@@ -120,7 +115,7 @@ public class Sprite extends TaggableChild<Sprite> {
             Print.println("Failed to load image " + imagePath, Print.RED);
         }
     }
-    public void setImage(Image image) {
+    public void setImage(BufferedImage image) {
         this.image = image;
     }
 

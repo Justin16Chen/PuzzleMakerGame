@@ -12,6 +12,7 @@ import gameplay.gameObjects.*;
 import utils.direction.Direction;
 import utils.direction.Directions;
 import utils.drawing.sprites.Sprite;
+import utils.drawing.tilemap.Tilemap;
 
 public class PuzzlePiece extends GameObject {
 
@@ -19,9 +20,16 @@ public class PuzzlePiece extends GameObject {
         return new PuzzlePiece(jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
     }
 
-    public static final Color BG_COLOR = new Color(72, 72, 72);
-    public static final Color HIGHLIGHT_COLOR = new Color(110, 110, 110);
-    public static final double CORNER_ROUNDED_PERCENT = 0.25;
+    private static Tilemap baseTilemap;
+    public static void loadTilemaps() {
+        baseTilemap = new Tilemap("puzzlePieceTilemap", "res/tilemaps/puzzlePieceTestSpritesheet.png", "res/tilemaps/puzzlePieceTilemap.json", "gameObjects1");
+    }
+
+    private static final Color BG_COLOR = new Color(72, 72, 72);
+    private static final Color HIGHLIGHT_COLOR = new Color(110, 110, 110);
+    private static final double SIDE_DRAW_PERCENT = 0.15;
+
+    //public static final double CORNER_ROUNDED_PERCENT = 0.25;
 
     public static boolean isPuzzlePiece(GameObject gameObject) {
         if (gameObject == null) 
@@ -38,16 +46,19 @@ public class PuzzlePiece extends GameObject {
     // all puzzle pieces that need to be fully connected for this one to display its highlight color
     private ArrayList<PuzzlePiece> adjacentPieces;
     private Side[] sides;
+    private boolean[][] filledAdjacentCells;
 
     public PuzzlePiece(int boardX, int boardY, String sideString) {
         super(GameObject.ObjectType.PUZZLE_PIECE, boardX, boardY, 1, 1);
         this.sides = Side.getSideData(this, sideString);
         adjacentPieces = new ArrayList<>();
+        filledAdjacentCells = new boolean[3][3];
     }
     public PuzzlePiece(GameObject.ObjectType objectType, int boardX, int boardY, String sideString) {
         super(objectType, boardX, boardY, 1, 1);
         this.sides = Side.getSideData(this, sideString);
         adjacentPieces = new ArrayList<>();
+        filledAdjacentCells = new boolean[3][3];
     }
 
     @Override
@@ -55,62 +66,18 @@ public class PuzzlePiece extends GameObject {
         sprite = new Sprite("puzzlePieceSprite", x, y, width, height, "gameObjects1") {
             @Override
             public void draw(Graphics2D g) {
-                Color fillColor = adjacentPiecesConnected(new ArrayList<PuzzlePiece>()) ? HIGHLIGHT_COLOR : BG_COLOR;
 
-                int arcRadius = (int) (sprite.getWidth() / 2 * CORNER_ROUNDED_PERCENT);
-
-                // draw rounded corners
-                drawCorner(g, 45, arcRadius, fillColor, getSide(Direction.UP), getSide(Direction.RIGHT));
-                drawCorner(g, 135, arcRadius, fillColor, getSide(Direction.UP), getSide(Direction.LEFT));
-                drawCorner(g, 225, arcRadius, fillColor, getSide(Direction.DOWN), getSide(Direction.LEFT));
-                drawCorner(g, 315, arcRadius, fillColor, getSide(Direction.DOWN), getSide(Direction.RIGHT));
-
-                // draw center fill
-                int[] pointsX = { 
-                    sprite.getX(), sprite.getX(), 
-                    sprite.getX() + arcRadius, sprite.getRight() - arcRadius, 
-                    sprite.getRight(), sprite.getRight(), 
-                    sprite.getRight() - arcRadius, sprite.getX() + arcRadius 
-                };
-                int[] pointsY = { 
-                    sprite.getBottom() - arcRadius, sprite.getY() + arcRadius, 
-                    sprite.getY(), sprite.getY(), 
-                    sprite.getY() + arcRadius, sprite.getBottom() - arcRadius, 
-                    sprite.getBottom(), sprite.getBottom()
-                };
-                g.fillPolygon(pointsX, pointsY, pointsX.length);
-
-                for (Direction dir : Directions.getAllDirections())
-                    getSide(dir).draw(g, sprite.getX(), sprite.getY(), sprite.getWidth());
+                filledAdjacentCells = new boolean[3][3];
+                for (Direction dir : Directions.getAllDirections()) {
+                    int x = Directions.getDirectionX(dir), y = Directions.getDirectionY(dir);
+                    filledAdjacentCells[1 + y][1 + x] = getSide(dir).isConnected();
+                }
+                baseTilemap.drawTile(g, getX(), getY(), getWidth(), getHeight(), filledAdjacentCells);
             }
         };
 
     }
-    // pre: angle must be multiple of 90 deg
-    protected void drawCorner(Graphics2D g, int angle, int arcRadius, Color fillColor, Side s1, Side s2) {
-        
-        int floorSize = sprite.getWidth() / 2;
-        int ceilSize = (int) Math.ceil(sprite.getWidth() / 2.);
 
-        double angleRad = Math.toRadians(angle);
-        int signX = (int) Math.signum(Math.cos(angleRad));
-        int signY = (int) -Math.signum(Math.sin(angleRad)); // invert b/c y axis is inverted for coding
-        int cornerX = sprite.getCenterX() + signX * floorSize;
-        int cornerY = sprite.getCenterY() + signY * floorSize;
-
-        int left = Math.min(sprite.getCenterX(), cornerX);
-        int top = Math.min(sprite.getCenterY(), cornerY);
-
-        g.setColor(fillColor);
-        if (s1.getType() != Side.Type.NOTHING || s2.getType() != Side.Type.NOTHING)
-            g.fillRect(left, top, ceilSize, ceilSize);
-        else {
-            int arcOffsetMag = floorSize - arcRadius;
-            int arcOffsetX = signX * arcOffsetMag, arcOffsetY = signY * arcOffsetMag;
-            int arcLeft = sprite.getCenterX() + arcOffsetX - arcRadius, arcTop = sprite.getCenterY() + arcOffsetY - arcRadius;
-            g.fillArc(arcLeft, arcTop, arcRadius * 2, arcRadius * 2, angle - 45, 90);
-        }
-    }
     public boolean equals(GameObject gameObject) {
         if (gameObject == null) return false;
         if (gameObject.getObjectType() != getObjectType()) return false;
@@ -348,6 +315,13 @@ public class PuzzlePiece extends GameObject {
         for (int i=0; i<4; i++) {
             Direction direction = Directions.getDirection(i);
             drawList.add(direction + ": " + getSide(direction));
+        }
+        drawList.add("filled adjacent cells");
+        for (int i=0; i<filledAdjacentCells.length; i++) {
+            String str = "";
+            for (int j=0; j<filledAdjacentCells.length; j++)
+                str += filledAdjacentCells[i][j] + " ";
+            drawList.add(str);
         }
 
         infoBox.setDrawList(drawList);
