@@ -22,7 +22,7 @@ public class PuzzlePiece extends GameObject {
 
     private static Tilemap baseTilemap;
     public static void loadTilemaps() {
-        baseTilemap = new Tilemap("puzzlePieceTilemap", "res/tilemaps/puzzlePieceTestSpritesheet.png", "res/tilemaps/puzzlePieceTilemap.json", "gameObjects1");
+        baseTilemap = new Tilemap("puzzlePieceTilemap", "res/tilemaps/puzzlePieceTestSpritesheet.png", "res/tilemaps/puzzlePieceTilemap.json");
     }
 
     private static final Color BG_COLOR = new Color(72, 72, 72);

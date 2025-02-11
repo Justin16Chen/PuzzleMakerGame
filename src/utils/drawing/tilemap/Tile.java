@@ -1,6 +1,7 @@
 package utils.drawing.tilemap;
 
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 public class Tile {
 
@@ -50,8 +51,9 @@ public class Tile {
         return true;
     }
 
-    public void drawTile(Graphics2D g, Tilemap tilemap, int x, int y, int w, int h) {
-        g.drawImage(tilemap.getImage(), x, y, x + w, y + h, tilemapDrawX, tilemapDrawy, tilemapDrawX + tileSize, tilemapDrawy + tileSize, null);
+    public void drawTile(Graphics2D g, BufferedImage image, int x, int y, int w, int h) {
+        //g.fillRect(x, y, w, h);
+        g.drawImage(image, x, y, x + w, y + h, tilemapDrawX, tilemapDrawy, tilemapDrawX + tileSize, tilemapDrawy + tileSize, null);
     }
 
     @Override
