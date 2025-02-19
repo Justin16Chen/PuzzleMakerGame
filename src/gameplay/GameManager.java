@@ -331,7 +331,7 @@ public class GameManager extends JPanel {
     private void addDebugUpdatables(ArrayList<String> drawList) {
         drawList.add("===UPDATABLES===");
         drawList.add("can print updatables: " + Updatables.getAllowPrint());
-        drawList.add("amount of updatables: " + Updatables.getUpdatableAmount());
+        drawList.add("amount of updatables: " + Updatables.getUpdatables().size());
         for (Updatable updatable : Updatables.getUpdatables()) 
             drawList.add("" + updatable.getName());
     }

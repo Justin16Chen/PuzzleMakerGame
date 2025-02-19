@@ -93,4 +93,7 @@ public abstract class Updatable {
         return delete;
     }
 
+    public boolean modifyingSameObjectProperty(Updatable updatable) {
+        return targetObject == updatable.targetObject && propertyName.equals(updatable.propertyName);
+    }
 }

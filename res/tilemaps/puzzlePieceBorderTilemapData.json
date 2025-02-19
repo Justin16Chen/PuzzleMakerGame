@@ -1,0 +1,65 @@
+{
+    "ruleWidth": 3,
+    "tileSize": 32,
+    "rules": [
+        [
+            "ana nny ayy ",
+            "ana yny yyy ",
+            "ana ynn yya ",
+            "ana nnn aya ",
+            "ayn nny ayn ",
+            "nya ynn nya "
+        ],
+        [
+            "ayy nny ayy ",
+            "yyy yny yyy ",
+            "yya ynn yya ",
+            "aya nnn aya ",
+            "ayy nny ayn ",
+            "yya ynn nya "
+        ],
+        [
+            "ayy nny ana ",
+            "yyy yny ana ",
+            "yya ynn ana ",
+            "aya nnn ana ",
+            "ayn nny ayy ",
+            "nya ynn yya "
+        ],
+        [
+            "ana nny ana ",
+            "ana yny ana ",
+            "ana ynn ana ",
+            "ana nnn ana ",
+            "nyn yny nyn ",
+            "nyy yny yyy "
+        ],
+        [
+            "ana yny nyn ",
+            "ana yny yyn ",
+            "ana yny nyy ",
+            "ana nny ayn ",
+            "ana ynn nya ",
+            "yyy yny nyy "
+        ],
+        [
+            "nyn yny ana ",
+            "yyn yny ana ",
+            "nyy yny ana ",
+            "ayn nny ana ",
+            "nya ynn ana ",
+            "yyy yny yyn "
+        ],
+        [
+            "yyn yny yyy ",
+            "nnn nnn nnn ",
+            "nnn nnn nnn ",
+            "nnn nnn nnn ",
+            "nnn nnn nnn ",
+            "nnn nnn nnn "
+        ]
+    ],
+    "rows": 7,
+    "cols": 6,
+    "ruleHeight": 3
+}

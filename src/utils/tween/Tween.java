@@ -33,9 +33,7 @@ public class Tween extends Updatable {
 
     @Override
     public String toString() {
-        double time = Math.round(getElapsedTime() * 1000) / 1000.;
-        double finishTime = Math.round(getDuration() * 1000) / 1000.;
-        return "Tween(" + getName() + " | modifying "  + targetObject.getClass() + "'s " + getPropertyName() + " | start: " + startValue + " | end: " + endValue + " | current: " + currentValue + " | " + time + "/" + finishTime + "sec | " + getCurrentLoop() + "/" + getTargetLoopCount() + " loops | ping pong: " + getPingPong() + " | loop complete: " + isLoopComplete() + " | complete: " + isComplete() + ")";
+        return "Tween(" + getName() + "|modifying " + getPropertyName() + "|current: " + currentValue+ "|complete:" + isComplete() + "|shouldDelete:" + shouldDelete() + ")";
 
     }
 

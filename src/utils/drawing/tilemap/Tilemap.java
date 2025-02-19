@@ -18,11 +18,11 @@ import utils.Print;
 
 public class Tilemap {
 
-    private Tile[] tiles;
-    private int tileSize;
-    private int rows;
-    private int cols;
-    private BufferedImage image;
+    protected Tile[] tiles;
+    protected int tileSize;
+    protected int rows;
+    protected int cols;
+    protected BufferedImage image;
 
     public Tilemap(String name, String imagePath, String rulePath) {
         try {
@@ -41,7 +41,11 @@ public class Tilemap {
             for (int y=0; y<rules.length(); y++) 
                 for (int x=0; x<rules.getJSONArray(y).length(); x++) 
                     // convert 2d grid to 1d array
-                    tiles[y * cols + x] = new Tile(tileSize, x * tileSize, y * tileSize, rules.getJSONArray(y).getString(x), ruleWidth, ruleHeight);
+                    try {
+                        tiles[y * cols + x] = new Tile(tileSize, x * tileSize, y * tileSize, rules.getJSONArray(y).getString(x), ruleWidth, ruleHeight);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException(rulePath + " is not formatted correctly: " + e.getMessage());
+                    }
         } catch (IOException e) {
             Print.println("ERROR", Print.RED);
             e.printStackTrace();
@@ -69,22 +73,6 @@ public class Tilemap {
                 }
         g.setColor(Color.BLACK);
         g.fillRect(x, y, w, h);
-    }
-
-    public void drawAllTiles(Graphics2D g, int cx, int cy, int w, int spacing) {
-        int tileSpacing = w / cols;
-        int halfSpacing = spacing / 2;
-        int tileDrawSize = tileSpacing - spacing;
-        int x = cx - w / 2;
-        int y = cy - (int) (w * rows * 1.0 / cols / 2);
-        for (int i=0; i<tiles.length; i++) {
-            int row = i / cols;
-            int col = i % cols;
-            int tileDrawX = x + tileSpacing * col + halfSpacing;
-            int tileDrawY = y + tileSpacing * row + halfSpacing;
-            //System.out.println(tileDrawX + ", " + tileDrawY + " | " + tileDrawSize);
-            tiles[i].drawTile(g, image, tileDrawX, tileDrawY, tileDrawSize, tileDrawSize);
-        }
     }
 
     @Override

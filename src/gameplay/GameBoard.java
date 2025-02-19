@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import gameplay.gameObjects.*;
 import gameplay.gameObjects.puzzlePiece.PlayerPiece;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
+import gameplay.gameObjects.puzzlePiece.Side;
 import gameplay.mapLoading.*;
 import utils.Print;
 import utils.drawing.sprites.Sprite;
@@ -49,6 +50,7 @@ public class GameBoard {
 
         gameObjects = new ArrayList<>();
         board = new GameObject[1][1];
+        showGridLines = false;
     }
 
     public void setup() {
@@ -137,7 +139,7 @@ public class GameBoard {
         
         // set the board for the current level
         gameObjects = levelInfo.getGameObjects();
-        for (int i=0; i<levelInfo.getGameObjects().size(); i++) {
+        for (int i = 0; i < levelInfo.getGameObjects().size(); i++) {
             GameObject gameObject = levelInfo.getGameObjects().get(i);
             // instiate game object on all cells that it covers
             for (int y=0; y<gameObject.getCellHeight(); y++) 
@@ -164,7 +166,7 @@ public class GameBoard {
         System.out.println(gameObjects);
     }
     public void addGameObject(GameObject gameObject) {
-        gameObject.updateVisualsToBoard(this);
+        gameObject.updateSpriteSizeToBoard(this);
         gameObjects.add(gameObject);
         if (!inBounds(gameObject.getBoardX(), gameObject.getBoardY()))
             throw new IllegalArgumentException(gameObject + " is not in bounds of board");
@@ -172,22 +174,26 @@ public class GameBoard {
     }
 
     public void setupGameObjectVisuals() {
-        for (GameObject gameObject : gameObjects) {
-            gameObject.updateVisualsAtStart(this); // make sure gameobjects start in correct draw position
 
-            // check for any puzzle pieces already connected and update that
-            if (!PuzzlePiece.isPuzzlePiece(gameObject)) 
+        // update all puzzle piece connections
+        for (GameObject gameObject : gameObjects) {
+            if (!PuzzlePiece.isPuzzlePiece(gameObject))
                 continue;
             
-            PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
-            puzzlePiece.checkForConnections(this, MoveInfo.makeValidMove(0, 0), false);
-            puzzlePiece.updateAdjacentPieces(this);
+                PuzzlePiece puzzlePiece = (PuzzlePiece) gameObject;
+                puzzlePiece.checkForConnections(this, MoveInfo.makeValidMove(0, 0), Side.ConnectType.FORCE_NO_ANIMATION);
+                puzzlePiece.updateRequired(this);
         }
+
+        // make sure gameobjects start in correct draw position
+        for (GameObject gameObject : gameObjects) 
+            gameObject.updateVisualsAtStart(this);
+        
     }
 
     public void resizeAndRepositionGameObjects() {
         for (GameObject gameObject : gameObjects)
-            gameObject.updateVisualsToBoard(this);
+            gameObject.updateSpriteSizeToBoard(this);
     }
 
     public void updateBoardVisuals(int centerx, int centery, int width, int height) {
@@ -249,10 +255,15 @@ public class GameBoard {
                 }
             }
         }
+        if (allPuzzlePiecesConnected())
+            // close all weak connections when level finished
+            for (GameObject gameObject : gameObjects)
+                if (PuzzlePiece.isPuzzlePiece(gameObject))
+                    ((PuzzlePiece) gameObject).checkForConnections(this, MoveInfo.makeValidMove(0, 0), Side.ConnectType.FORCE_ANIMATION);
     }
 
     private void updateDebugInfoBoxes() {
-        for (int i=0; i<gameObjects.size(); i++) {
+        for (int i = 0; i < gameObjects.size(); i++) {
             GameObject gameObject = gameObjects.get(i);
 
             // update game object info box
@@ -270,7 +281,7 @@ public class GameBoard {
     // update the positions of the game objects on the 2d grid to match their instance data
     private GameObject[][] updateGameObjectPositions(GameObject[][] board) {
         GameObject[][] newBoard = createEmptyBoard(board[0].length, board.length);
-        for (int i=0; i<gameObjects.size(); i++) {
+        for (int i = 0; i < gameObjects.size(); i++) {
             GameObject gameObject = gameObjects.get(i);
 
             // instiate game object on all cells that it covers

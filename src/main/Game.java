@@ -5,12 +5,11 @@ import utils.ParentFrame;
 import utils.input.*;
 
 public class Game extends ParentFrame {
-
     private GameManager gameManager;    // controls game
     private int framesPerSecond, startLevel;
     
     public Game(int framesPerSecond, int startLevel) {
-        super("puzzle game", 1000, 1000);
+        super("puzzle game", 800, 800);
         this.framesPerSecond = framesPerSecond;
         this.startLevel = startLevel;
     }
@@ -40,7 +39,7 @@ public class Game extends ParentFrame {
     }
 
     public static void main(String[] args) {
-        Game game = new Game(60, 0);
+        Game game = new Game(60, 26);
         game.startGame();
     }
 }

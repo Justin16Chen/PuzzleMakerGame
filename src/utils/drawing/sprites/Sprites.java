@@ -43,7 +43,7 @@ public class Sprites {
         for (Sprite sprite : spritesToDelete) {
             boolean foundSprite = false;
             for (String layerName : layers.values()) {
-                for (int i=0; i<sprites.get(layerName).size(); i++) {
+                for (int i = 0; i < sprites.get(layerName).size(); i++) {
                     if (sprites.get(layerName).get(i).equals(sprite)) {
                         sprites.get(layerName).remove(i);
                         foundSprite = true;

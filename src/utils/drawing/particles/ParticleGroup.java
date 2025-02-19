@@ -61,7 +61,7 @@ public class ParticleGroup extends Sprite {
     }
 
     public void createParticles() {
-        for (int i=0; i<particles.length; i++) {
+        for (int i = 0; i < particles.length; i++) {
             particles[i] = new Particle(getX(), getY());
             particles[i].setAngle(angleStart.makeValue(), angleEnd.makeValue());
             particles[i].setSpeed(speedStart.makeValue(), speedEnd.makeValue());
@@ -73,7 +73,7 @@ public class ParticleGroup extends Sprite {
     @Override
     public void draw(Graphics2D g) {
         double time = System.currentTimeMillis() / 1000.0;
-        for (int i=0; i<particles.length; i++) {
+        for (int i = 0; i < particles.length; i++) {
             particles[i].update(time);
             
         }

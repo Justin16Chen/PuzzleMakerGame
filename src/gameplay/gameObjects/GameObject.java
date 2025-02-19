@@ -16,6 +16,8 @@ import utils.drawing.sprites.Sprites;
 import utils.tween.Ease;
 import utils.tween.EaseType;
 import utils.tween.Tween;
+import utils.tween.Updatable;
+import utils.tween.Updatables;
 
 public abstract class GameObject {
     
@@ -36,6 +38,7 @@ public abstract class GameObject {
     protected boolean movedThisFrame;
     protected Sprite sprite;
     protected InfoBox infoBox;
+    protected boolean[][] filledTilemapCells;
     public GameObject(ObjectType objectType, int boardX, int boardY, int width, int height) {
         this.objectType = objectType;
         this.boardX = boardX;
@@ -44,8 +47,9 @@ public abstract class GameObject {
         this.cellHeight = height;
 
         this.movedThisFrame = false;
-
         this.movable = GameObjectData.isMovable(objectType);
+
+        filledTilemapCells = new boolean[3][3];
     }
 
     // setup function called after all game objects are created
@@ -62,6 +66,8 @@ public abstract class GameObject {
 
     // gameboard decides when to do this - only after it is properly setup
     public void updateVisualsAtStart(GameBoard gameBoard) {
+        updateTilemapToBoard(gameBoard);
+
         if (sprite == null)
             setup(0, 0, 1, 1);
         sprite.addTag("main");
@@ -78,11 +84,23 @@ public abstract class GameObject {
         sprite.addChild(infoBox);
     }
 
-    public void updateVisualsToBoard(GameBoard board) {
+    // handles sprite resizing
+    public void updateSpriteSizeToBoard(GameBoard board) {
         sprite.setX(board.getDrawX(boardX));
         sprite.setY(board.getDrawY(boardY));
         sprite.setWidth(cellWidth * board.getTileSize());
         sprite.setHeight(cellHeight * board.getTileSize());
+    }
+    // updates adjacent cells (for tilemaps)
+    public void updateTilemapToBoard(GameBoard board) {
+        filledTilemapCells = new boolean[3][3];
+        for (int i = boardY - 1; i < boardY + 2; i++) {
+            for (int j = boardX - 1; j < boardX + 2; j++) {
+                if (!board.inBounds(j, i))
+                    continue;
+                filledTilemapCells[i - boardY + 1][j - boardX + 1] = board.getGameObject(j, i) != null;
+            }
+        }
     }
 
     public boolean equals(GameObject gameObject) {
@@ -137,7 +155,7 @@ public abstract class GameObject {
     private int[][] getOffsetsToCheckMovement(int hdir, int vdir) {
         boolean horizontal = vdir == 0;
         int[][] offsets = new int[horizontal ? cellHeight : cellWidth][2];
-        for (int i=0; i<offsets.length; i++) 
+        for (int i = 0; i < offsets.length; i++) 
             if (horizontal) {
                 offsets[i][1] = i;
                 offsets[i][0] = hdir > 0 ? cellWidth - 1 : 0;
@@ -159,7 +177,7 @@ public abstract class GameObject {
         int[][] offsets = getOffsetsToCheckMovement(hdir, vdir);
 
         MoveInfo validMoveInfo = MoveInfo.makeInvalidMove();
-        for (int i=0; i<offsets.length; i++) {
+        for (int i = 0; i < offsets.length; i++) {
             validMoveInfo = getMoveInfo(gameBoard, callerList, hdir, vdir, offsets[i][0], offsets[i][1]);
             if (!validMoveInfo.canMove())
                 return MoveInfo.makeInvalidMove();
@@ -208,8 +226,6 @@ public abstract class GameObject {
             for (GameObject gameObject : gameBoard.getGameObjects())
                 gameObject.performBeforeMovement(gameBoard, moveInfo);
             gameBoard.updateGameObjectPositions();
-            //System.out.println("after pre movement check");
-            //gameBoard.printGameObjects();
         }
 
         customMove(gameBoard, moveInfo);
@@ -219,8 +235,8 @@ public abstract class GameObject {
             for (GameObject gameObject : gameBoard.getGameObjects())
                 gameObject.performAfterMovement(gameBoard, moveInfo);
             gameBoard.updateGameObjectPositions();
-            //System.out.println("after post movement check");
-           // gameBoard.printGameObjects();
+           for (GameObject gameObject : gameBoard.getGameObjects())
+                gameObject.updateTilemapToBoard(gameBoard);
         }
     }
 

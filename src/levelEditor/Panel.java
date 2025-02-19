@@ -63,7 +63,7 @@ public class Panel {
             }
         };
         
-        for (int i=0; i<options.size(); i++) {
+        for (int i = 0; i < options.size(); i++) {
             options.get(i).setup(x + H_BORDER_PADDING, i * (OPTION_SPACING) + y + V_BORDER_PADDING, OPTION_SIZE, OPTION_SIZE);
             Sprite sprite = options.get(i).getSprite();
             sprite.moveAllChildrenToLayer("ui");

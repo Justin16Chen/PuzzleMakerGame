@@ -9,23 +9,31 @@ import utils.math.JMath;
 import utils.tween.Ease;
 import utils.tween.EaseType;
 import utils.tween.Tween;
+import utils.tween.Updatable;
+import utils.tween.Updatables;
 
 public class Side {
+    public enum ConnectType {
+        FORCE_ANIMATION,
+        FORCE_NO_ANIMATION,
+        DECIDE
+    }
     public enum Type {
         STRONG,
         WEAK,
         NOTHING
     }
-    final private static Color STRONG_COLOR = new Color(200, 180, 20);
-    final private static Color WEAK_COLOR = new Color(70, 120, 230);
-    final private static Color CONNECTED_STRONG_COLOR = new Color(250, 245, 150);
-    final private static Color CONNECTED_WEAK_COLOR = new Color(90, 185, 255);
-    final private static double CONNECT_TWEEN_TIME = 0.6;
+    final private static int OPACITY = 255;
+    final private static Color STRONG_COLOR = new Color(200, 180, 20, OPACITY);
+    final private static Color WEAK_COLOR = new Color(70, 120, 230, OPACITY);
+    final private static Color CONNECTED_STRONG_COLOR = new Color(250, 245, 150, OPACITY);
+    final private static Color CONNECTED_WEAK_COLOR = new Color(90, 185, 255, OPACITY);
+    final private static double CONNECT_TWEEN_TIME = 0.5;
 
     // returns a list of sides based on string (from json file)
     public static Side[] getSideData(PuzzlePiece parent, String typeString) {
         Side[] sideData = new Side[4];
-        for (int i=0; i<4; i++) {
+        for (int i = 0; i < 4; i++) {
             Type type;
             switch (typeString.charAt(i)) {
                 case 's': type = Type.STRONG; break;
@@ -88,12 +96,9 @@ public class Side {
 
     @Override
     public String toString() {
-        return getString(0);
-    }
-    public String getString(int number) {
         if (type == Type.NOTHING)
-            return direction + "|NONE";
-        return direction + "|" + connected;
+            return direction + "|NONE" + "|" + tweenPercent;
+        return direction + "|" + connected + "|" + tweenPercent;
     }
 
     public Direction getDirection() { return direction; }
@@ -107,19 +112,30 @@ public class Side {
         tweenPercent = 0;
         if (connectTween != null)
             connectTween.delete();
-
+        System.out.println("disconnect " + this);
     }
-    public void connect(boolean playAnimation) {
+    public void connect(ConnectType connectType) {
         // ignore if already connected
-        if (connected)
+        if (connected && connectType == ConnectType.FORCE_NO_ANIMATION) {
+            if (getType() == Type.STRONG)
+                tweenPercent = 1;
             return;
+        }
         connected = true;
 
-        if (getType() == Type.STRONG) 
-            if (playAnimation)
-                connectTween = Tween.createTween("connectSide", this, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(new EaseType(Ease.EASE_IN_BACK));
-            else 
-                tweenPercent = 1;
+        boolean playAnimation = false;
+        switch (connectType) {
+            case FORCE_ANIMATION: playAnimation = tweenPercent == 0; break;
+            case FORCE_NO_ANIMATION: playAnimation = false; break;
+            case DECIDE: playAnimation = getType() == Type.STRONG && tweenPercent == 0;
+        }
+        if (playAnimation) {
+            if (connectTween != null)
+                Updatables.deleteUpdatableModifyingSameObjectProperty(connectTween);
+            connectTween = Tween.createTween("connect " + direction + " side", this, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(new EaseType(Ease.EASE_IN_BACK));
+        }
+        else if (getType() == Type.STRONG) 
+            tweenPercent = 1;
     }
 
     private int getTweenedDrawSize(int size, double tweenPercent) {
@@ -129,19 +145,19 @@ public class Side {
 
         if (getType() == Side.Type.NOTHING)
             return;
+
         // top side
         int halfWidth = width / 2;
-        int inset = (int) (height / Math.sqrt(2));
 
         int tweenedHalfWidth = getTweenedDrawSize(halfWidth, tweenPercent);
-        int leftTweenedHalfInset = getTweenedDrawSize(-halfWidth + inset, tweenPercent);
-        int rightTweenedHalfInset = getTweenedDrawSize(halfWidth - inset, tweenPercent);
+        int leftTweenedHalfInset = getTweenedDrawSize(-halfWidth + height, tweenPercent);
+        int rightTweenedHalfInset = getTweenedDrawSize(halfWidth - height, tweenPercent);
         int[] xList = { -tweenedHalfWidth,  tweenedHalfWidth,  rightTweenedHalfInset, leftTweenedHalfInset };
         int[] yList = { -halfWidth, -halfWidth, -halfWidth + height, -halfWidth + height };
 
         // rotate 
         int dirIndex = Directions.getDirectionIndex(direction);
-        for (int i=0; i<4; i++) {
+        for (int i = 0; i < 4; i++) {
             double[] rotatedPoint = JMath.rotateOrthogonalAroundPoint(xList[i], yList[i], 0, 0, dirIndex);
             xList[i] = drawCenterX + (int) rotatedPoint[0];
             yList[i] = drawCenterY + (int) rotatedPoint[1];

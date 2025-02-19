@@ -14,9 +14,6 @@ public class Updatables {
     public static void setAllowPrint(boolean allowPrint) { Updatables.allowPrint = allowPrint; }
 
     private static ArrayList<Updatable> list = new ArrayList<>();
-    private static ArrayList<Updatable> queue = new ArrayList<>();
-
-    public static int getUpdatableAmount() { return list.size(); }
 
     public static ArrayList<Updatable> getUpdatables() { return list; }
 
@@ -38,49 +35,31 @@ public class Updatables {
             valid = false;
             throw new RuntimeException(updatable + " does not have property named " + updatable.getPropertyName());
         }
-        
-
-        // // remove older tween if both have same target object and either have the same property name or the same method name
-        // for (int i=0; i<list.size(); i++) {
-
-        //     // target class is not the same - actually want to compare memory location
-        //     if (updatable.getTarget() != list.get(i).getTarget())
-        //         continue;
-            
-        //         //
-        //     if (updatable.getType() == Updatable.Type.CALL && list.get(i).getType() == Updatable.Type.CALL)
-        //         if (updatable.getMethodName().equals(list.get(i).getMethodName())) {
-        //             list.remove(i);
-        //             break;
-        //         }
-        //     else if (updatable.getType() == Updatable.Type.SET && list.get(i).getType() == Updatable.Type.SET) 
-        //         if (updatable.getPropertyName().equals(list.get(i).getPropertyName())) {
-        //             list.remove(i);
-        //             break;
-        //         }
-        // }
 
         if (valid) {
             if (allowPrint) 
                 Print.println("VALID: " + updatable, Print.GREEN);
             
-            queue.add(updatable);
+            list.add(updatable);
         } else 
             Print.println("INVALID: " + updatable, Print.RED);
     }
 
     public static void updateUpdatables(double dt) {
-        list.addAll(queue);
-        queue.clear();
-        for (int i=0; i<list.size(); i++) {
+        for (int i = 0; i < list.size(); i++) {
             Updatable updatable = list.get(i);
 
             if (updatable.shouldDelete()) {
+                if (canPrintUpdatable(updatable))
+                    Print.println("deleting " + updatable, Print.BLUE);
                 list.remove(i);
                 i--;
                 if (i >= list.size())
                     return;
             }
+            else
+                if (canPrintUpdatable(updatable))
+                    Print.println("adding " + updatable, Print.BLUE);
             // update updatable
             if (!updatable.isPaused()) {
                 updatable.updateTime(dt);
@@ -98,7 +77,7 @@ public class Updatables {
             // loop updatable
             if (updatable.isLoopComplete() && !updatable.isComplete()) {
                 if (canPrintUpdatable(updatable)) 
-                    Print.println("refreshing " + updatable, Print.GREEN);
+                    Print.println("refreshing " + updatable.getName(), Print.GREEN);
                 
                 updatable.loop();
             }
@@ -109,8 +88,6 @@ public class Updatables {
 
                 if (canPrintUpdatable(updatable)) {
                     Print.println(updatable.getName() + " is complete", Print.BLUE);
-                    System.out.println(list);
-                    System.out.println(updatable);
                 }
                 list.remove(i);
                 i--;
@@ -125,6 +102,15 @@ public class Updatables {
             if (updatable.getName().equals(name))
                 return updatable;
         return null;
+    }
+
+    public static void deleteUpdatableModifyingSameObjectProperty(Updatable updatable) {
+        for (int i=0; i<list.size(); i++) {
+            if (list.get(i).modifyingSameObjectProperty(updatable)) {
+                list.remove(i);
+                i--;
+            }
+        }
     }
 
     public static void deleteUpdatables(String[] names) {

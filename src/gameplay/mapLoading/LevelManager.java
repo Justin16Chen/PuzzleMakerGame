@@ -33,6 +33,7 @@ public class LevelManager {
     public int getCurrentLevel() { return currentLevel; }
     public boolean transitioningBetweenLevels() { return transitioning; }
     public boolean hasLevel(int level) { return level <= generalLevelInfo.getEndLevel() && level >= generalLevelInfo.getStartLevel(); }
+    public GeneralLevelInfo getGeneralLevelInfo() { return generalLevelInfo; }
 
     // sets the general level info
     public void updateGeneralLevelInfo() {
@@ -110,7 +111,7 @@ public class LevelManager {
             
             // create the new game board
             gameBoard.setCurrentBoard(levelInfo);
-
+            
             // update the visuals of the new game board
             gameManager.updateGameBoardVisuals();
             return true;

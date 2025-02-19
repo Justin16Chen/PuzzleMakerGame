@@ -1,0 +1,25 @@
+{
+    "ruleWidth": 3,
+    "tileSize": 48,
+    "rules": [
+        [
+            "ana yay aya ",
+            "aya nay aya ",
+            "ana nny aya ",
+            "ana ynn aya ",
+            "ana nnn aya ",
+            "ana ynn ana "
+        ],
+        [
+            "aya yay ana ",
+            "aya yan aya ",
+            "aya nny ana ",
+            "aya ynn ana ",
+            "aya nnn ana ",
+            "ana nny ana "
+        ]
+    ],
+    "rows": 2,
+    "cols": 6,
+    "ruleHeight": 3
+}

@@ -8,8 +8,6 @@ import java.nio.file.Paths;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import utils.Print;
-
 // stores info about transitioning between levels
 public class GeneralLevelInfo {
     
@@ -44,11 +42,12 @@ public class GeneralLevelInfo {
 /*
 
 calc bc - 1.5
+stats - 1
 physics c - 1.5
 english - 1
 econ - 1
 lunch - 1
 gym - 0.5
-linear algebra - 1
+hon art
 
 */

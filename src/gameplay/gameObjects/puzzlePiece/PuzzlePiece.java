@@ -22,14 +22,10 @@ public class PuzzlePiece extends GameObject {
 
     private static Tilemap baseTilemap;
     public static void loadTilemaps() {
-        baseTilemap = new Tilemap("puzzlePieceTilemap", "res/tilemaps/puzzlePieceTestSpritesheet.png", "res/tilemaps/puzzlePieceTilemap.json");
+        baseTilemap = new Tilemap("puzzlePieceTilemap", "res/tilemaps/puzzlePieceBorderTilemap.png", "res/tilemaps/puzzlePieceBorderTilemapData.json");
     }
 
-    private static final Color BG_COLOR = new Color(72, 72, 72);
-    private static final Color HIGHLIGHT_COLOR = new Color(110, 110, 110);
-    private static final double SIDE_DRAW_PERCENT = 0.15;
-
-    //public static final double CORNER_ROUNDED_PERCENT = 0.25;
+    private static final double SIDE_DRAW_PERCENT = 0.13;
 
     public static boolean isPuzzlePiece(GameObject gameObject) {
         if (gameObject == null) 
@@ -44,21 +40,18 @@ public class PuzzlePiece extends GameObject {
     }
 
     // all puzzle pieces that need to be fully connected for this one to display its highlight color
-    private ArrayList<PuzzlePiece> adjacentPieces;
+    private ArrayList<PuzzlePiece> requiredPieces;
     private Side[] sides;
-    private boolean[][] filledAdjacentCells;
 
     public PuzzlePiece(int boardX, int boardY, String sideString) {
         super(GameObject.ObjectType.PUZZLE_PIECE, boardX, boardY, 1, 1);
         this.sides = Side.getSideData(this, sideString);
-        adjacentPieces = new ArrayList<>();
-        filledAdjacentCells = new boolean[3][3];
+        requiredPieces = new ArrayList<>();
     }
     public PuzzlePiece(GameObject.ObjectType objectType, int boardX, int boardY, String sideString) {
         super(objectType, boardX, boardY, 1, 1);
         this.sides = Side.getSideData(this, sideString);
-        adjacentPieces = new ArrayList<>();
-        filledAdjacentCells = new boolean[3][3];
+        requiredPieces = new ArrayList<>();
     }
 
     @Override
@@ -66,21 +59,16 @@ public class PuzzlePiece extends GameObject {
         sprite = new Sprite("puzzlePieceSprite", x, y, width, height, "gameObjects1") {
             @Override
             public void draw(Graphics2D g) {
-
-                filledAdjacentCells = new boolean[3][3];
-                for (Direction dir : Directions.getAllDirections()) {
-                    int x = Directions.getDirectionX(dir), y = Directions.getDirectionY(dir);
-                    filledAdjacentCells[1 + y][1 + x] = getSide(dir).isConnected();
-                }
-                baseTilemap.drawTile(g, getX(), getY(), getWidth(), getHeight(), filledAdjacentCells);
+                baseTilemap.drawTile(g, getX(), getY(), getWidth(), getHeight(), filledTilemapCells);
 
                 for (Direction dir : Directions.getAllDirections())
-                    getSide(dir).draw(g, getCenterX(), getCenterY(), getWidth(), (int) (getWidth() * SIDE_DRAW_PERCENT));
+                    getSide(dir).draw(g, getCenterX(), getCenterY(), getWidth() + 1, (int) Math.ceil((getWidth() * SIDE_DRAW_PERCENT)));
             }
         };
 
     }
 
+    @Override
     public boolean equals(GameObject gameObject) {
         if (gameObject == null) return false;
         if (gameObject.getObjectType() != getObjectType()) return false;
@@ -142,25 +130,50 @@ public class PuzzlePiece extends GameObject {
         }
         return true;
     }
-    public boolean adjacentPiecesConnected(ArrayList<PuzzlePiece> piecesToIgnore) {
-        if (piecesToIgnore.contains(this))
-            return true;
-        piecesToIgnore.add(this);
-        for (PuzzlePiece piece : adjacentPieces)
-            if (!piece.adjacentPiecesConnected(piecesToIgnore))
-                return false;
-        return allSidesConnected();
-    }
-    public void updateAdjacentPieces(GameBoard board) {
-        adjacentPieces.clear();
+    // pieces that must be all connected for this puzzle piece to light up
+    public void updateRequired(GameBoard board) {
+        requiredPieces.clear();
         for (Direction dir : Directions.getAllDirections())
             if (getSide(dir).isConnected()) {
                 int x = getBoardX() + Directions.getDirectionX(dir);
                 int y = getBoardY() + Directions.getDirectionY(dir);
-                adjacentPieces.add((PuzzlePiece) board.getGameObject(x, y));
+                requiredPieces.add((PuzzlePiece) board.getGameObject(x, y));
             }
-
     }
+    
+    @Override
+    public void updateTilemapToBoard(GameBoard board) {
+        ArrayList<PuzzlePiece> connectedPieces = getAllConnectedPuzzlePieces(board, new ArrayList<PuzzlePiece>());
+        filledTilemapCells = new boolean[3][3];
+        for (PuzzlePiece piece : connectedPieces) {
+            int dx = piece.getBoardX() - getBoardX(), dy = piece.getBoardY() - getBoardY();
+            if (dx * dx + dy * dy <= 2) {
+                filledTilemapCells[1 + dy][1 + dx] = true;
+            }
+        }
+        // ignore cells that also aren't connected to adjacent sides
+        for (Direction dir : Directions.getAllDirections())
+            if (!getSide(dir).isConnected())
+                filledTilemapCells[1 + Directions.getDirectionY(dir)][1 + Directions.getDirectionX(dir)] = false;
+    }
+    // gets list of all puzzle pieces that are connected w this
+    private ArrayList<PuzzlePiece> getAllConnectedPuzzlePieces(GameBoard board, ArrayList<PuzzlePiece> ignoreList) {
+        ArrayList<PuzzlePiece> connectedPieces = new ArrayList<>();
+        connectedPieces.add(this);
+        ignoreList.add(this);
+
+        for (Direction dir : Directions.getAllDirections()) {
+            Side side = getSide(dir);
+            if (!side.isConnected())
+                continue;
+            
+            PuzzlePiece piece = (PuzzlePiece) board.getGameObject(getBoardX() + Directions.getDirectionX(dir), getBoardY() + Directions.getDirectionY(dir));
+            if (!ignoreList.contains(piece))
+                connectedPieces.addAll(piece.getAllConnectedPuzzlePieces(board, ignoreList));
+        }
+        return connectedPieces;
+    }
+
 
     // gets the moveinfo based on all of the attached puzzle pieces
     // that are in the direction of movement
@@ -239,7 +252,7 @@ public class PuzzlePiece extends GameObject {
     @Override
     protected void performAfterMovement(GameBoard gameBoard, MoveInfo moveInfo) {
         checkForDisconnections(gameBoard);
-        checkForConnections(gameBoard, moveInfo, true);
+        checkForConnections(gameBoard, moveInfo, Side.ConnectType.DECIDE);
     }
 
     // checks for and disconnects any wrongly connected pieces (only for self, meant to be called for all puzzle pieces)
@@ -255,9 +268,8 @@ public class PuzzlePiece extends GameObject {
                 int y = getBoardY() + connectDiry;
 
                 if (!gameBoard.inBounds(x, y)) {
-                    if (getSide(dir).isConnected())
-                        //System.out.println("out of bounds");
-                    getSide(dir).disconnect();
+                    if (getSide(dir).isConnected()) 
+                        getSide(dir).disconnect();
                     continue;
                 } 
                 
@@ -271,25 +283,25 @@ public class PuzzlePiece extends GameObject {
                 else {
                     Side otherSide = ((PuzzlePiece) gameObject).getSide(Directions.getOppositeDirection(dir));
                     if (!Side.isCompatible(getSide(dir), otherSide)) {
-                        if (getSide(dir).isConnected())
+                        if (getSide(dir).isConnected()) {
                             //System.out.println("not compatible with " + gameObject + " with side " + otherSide);
-                        getSide(dir).disconnect();
+                            getSide(dir).disconnect();
+                            System.out.println(getSide(dir) + " is disconnected");
+                        }
+                        
                     }
                 }
 
         }
     }
     // update connected state for all sides
-    public void checkForConnections(GameBoard gameBoard, MoveInfo moveInfo, boolean playAnimation) {
+    public void checkForConnections(GameBoard gameBoard, MoveInfo moveInfo, Side.ConnectType connectAnimationType) {
         //System.out.println("check connections for " + this);
         for (Direction dir : Directions.getAllDirections()) {
             if (!getSide(dir).canConnect()) 
                 continue;
             int connectDirx = Directions.getDirectionX(dir);
             int connectDiry = Directions.getDirectionY(dir);
-            // if (connectDirx == -moveInfo.getHdir() && connectDiry == -moveInfo.getVdir()) 
-            //     continue;
-
             
             int x = getBoardX() + connectDirx;
             int y = getBoardY() + connectDiry;
@@ -301,8 +313,8 @@ public class PuzzlePiece extends GameObject {
             if (PuzzlePiece.isPuzzlePiece(gameObject)) {
                 Side otherSide = ((PuzzlePiece) gameObject).getSide(Directions.getOppositeDirection(dir));
                 if (Side.isCompatible(ownSide, otherSide)) {
-                    ownSide.connect(playAnimation);
-                    otherSide.connect(playAnimation);
+                    ownSide.connect(connectAnimationType);
+                    otherSide.connect(connectAnimationType);
                 }
             }
         }
@@ -315,22 +327,22 @@ public class PuzzlePiece extends GameObject {
         drawList.add("pos: (" + getBoardX() + ", " + getBoardY() + ")");
         drawList.add("right and bottom: " + getBoardRight() + ", " + getBoardBottom());
         drawList.add("sides: ");
-        for (int i=0; i<4; i++) {
+        for (int i = 0; i < 4; i++) {
             Direction direction = Directions.getDirection(i);
             drawList.add(direction + ": " + getSide(direction));
         }
         drawList.add("filled adjacent cells");
-        for (int i=0; i<filledAdjacentCells.length; i++) {
+        for (int i = 0; i < filledTilemapCells.length; i++) {
             String str = "";
-            for (int j=0; j<filledAdjacentCells.length; j++)
-                str += filledAdjacentCells[i][j] + " ";
+            for (int j = 0; j < filledTilemapCells.length; j++)
+                str += filledTilemapCells[i][j];
             drawList.add(str);
         }
 
         infoBox.setDrawList(drawList);
     }
     
-    public String toStringDetailed() {
+    public String toString() {
         return super.toString() + " " + Arrays.toString(sides);
     }
 }

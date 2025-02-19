@@ -1,0 +1,9 @@
+{
+    "mapWidth": 9,
+    "mapHeight": 5,
+
+    "gameObjects": [
+        { "name": "playerPiece", "x": 0, "y": 0, "sideData": "nnns" },
+        { "name": "playerPiece", "x": 2, "y": 0, "sideData": "nsnn" }
+    ]
+}

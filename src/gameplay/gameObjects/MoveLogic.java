@@ -46,7 +46,7 @@ public class MoveLogic {
 
         do {
             // check each object for breakpoints
-            for (int i=0; i<gameObjectsToCheck.size(); i++) {
+            for (int i = 0; i < gameObjectsToCheck.size(); i++) {
                 GameObject current = gameObjectsToCheck.get(i);
                 checkedPositions.put(List.of(current.getBoardX(), current.getBoardY()), true); // update hash map
 

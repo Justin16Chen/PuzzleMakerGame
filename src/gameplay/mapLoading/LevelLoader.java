@@ -30,9 +30,9 @@ public class LevelLoader {
         ArrayList<String> requiredKeys = requiredObjectData.get(objectName);
 
         // make sure object has all required keys
-        for (int i=0; i<requiredKeys.size(); i++) {
+        for (int i = 0; i < requiredKeys.size(); i++) {
             boolean foundKey = false;
-            for (int j=0; j<objectKeys.length; j++) {
+            for (int j = 0; j < objectKeys.length; j++) {
                 String objectKey = (String) objectKeys[j];
                 if (objectKey.equals(requiredKeys.get(i))) {
                     foundKey = true;
@@ -49,7 +49,7 @@ public class LevelLoader {
 
         // make sure object doesn't have any unknown keys
         ArrayList<String> allKnownKeys = totalObjectData.get(objectName);
-        for (int i=0; i<objectKeys.length; i++) {
+        for (int i = 0; i < objectKeys.length; i++) {
             boolean foundKey = false;
             for (String key : allKnownKeys) {
                 if (objectKeys[i].equals(key)) {
@@ -84,7 +84,7 @@ public class LevelLoader {
 
             // get game object specific requirements
             GameObject.ObjectType[] objectTypes = GameObject.ObjectType.values();
-            for (int i=0; i<objectTypes.length; i++) {
+            for (int i = 0; i < objectTypes.length; i++) {
                 String name = GameObjectData.objectTypeToName(objectTypes[i]);
                 ArrayList<String> uniqueRequiredKeys = JSONArrayToStringArrayList(requiredData.getJSONArray(name));
                 ArrayList<String> uniqueOptionalKeys = JSONArrayToStringArrayList(optionalData.getJSONArray(name));
@@ -117,7 +117,7 @@ public class LevelLoader {
     public static ArrayList<String> JSONArrayToStringArrayList(JSONArray jsonArray) {
         ArrayList<String> list = new ArrayList<>();
         
-        for (int i=0; i<jsonArray.length(); i++) list.add(jsonArray.getString(i));
+        for (int i = 0; i < jsonArray.length(); i++) list.add(jsonArray.getString(i));
         return list;
     }
 
@@ -152,7 +152,7 @@ public class LevelLoader {
             boolean[][] filledPositions = new boolean[mapHeight][mapWidth];
             
             // add gameobjects from json file to array
-            for (int i=0; i<gameObjectsData.length(); i++) {
+            for (int i = 0; i < gameObjectsData.length(); i++) {
                 JSONObject jsonObject = gameObjectsData.getJSONObject(i);
 
                 // make sure all gameobjects have the required keys
