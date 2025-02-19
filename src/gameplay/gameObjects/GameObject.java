@@ -7,7 +7,6 @@ import org.json.JSONObject;
 
 import java.awt.Font;
 
-import gameplay.GameBoard;
 import utils.direction.Direction;
 import utils.direction.Directions;
 import utils.drawing.InfoBox;
@@ -220,24 +219,13 @@ public abstract class GameObject {
         if (movedThisFrame)
             return;
         movedThisFrame = true;
-        
-        if (isMover) {
-            gameBoard.updateGameObjectPositions();
-            for (GameObject gameObject : gameBoard.getGameObjects())
-                gameObject.performBeforeMovement(gameBoard, moveInfo);
-            gameBoard.updateGameObjectPositions();
-        }
 
+        // perform custom move function
         customMove(gameBoard, moveInfo);
 
-        if (isMover) {
+        // update all game object positions in 2d board after movement is finished
+        if (isMover) 
             gameBoard.updateGameObjectPositions();
-            for (GameObject gameObject : gameBoard.getGameObjects())
-                gameObject.performAfterMovement(gameBoard, moveInfo);
-            gameBoard.updateGameObjectPositions();
-           for (GameObject gameObject : gameBoard.getGameObjects())
-                gameObject.updateTilemapToBoard(gameBoard);
-        }
     }
 
     // meant to be overridden by any moving objects

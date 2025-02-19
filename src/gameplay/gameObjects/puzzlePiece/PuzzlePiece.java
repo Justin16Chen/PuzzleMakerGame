@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 import org.json.JSONObject;
 
-import gameplay.GameBoard;
 import gameplay.gameObjects.*;
 import utils.direction.Direction;
 import utils.direction.Directions;

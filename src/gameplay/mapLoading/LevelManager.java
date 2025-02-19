@@ -2,8 +2,8 @@ package gameplay.mapLoading;
 
 import java.awt.Color;
 
-import gameplay.GameBoard;
 import gameplay.GameManager;
+import gameplay.gameObjects.GameBoard;
 import gameplay.gameObjects.GameObjectData;
 import utils.Print;
 import utils.drawing.sprites.Sprite;

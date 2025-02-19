@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import gameplay.GameBoard;
+import gameplay.gameObjects.GameBoard;
 import gameplay.gameObjects.GameObject;
 import gameplay.gameObjects.GameObjectData;
 import gameplay.mapLoading.LevelInfo;

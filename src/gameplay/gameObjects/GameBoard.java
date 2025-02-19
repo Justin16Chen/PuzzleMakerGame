@@ -1,9 +1,8 @@
-package gameplay;
+package gameplay.gameObjects;
 
 import java.awt.*;
 import java.util.ArrayList;
 
-import gameplay.gameObjects.*;
 import gameplay.gameObjects.puzzlePiece.PlayerPiece;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;
 import gameplay.gameObjects.puzzlePiece.Side;
@@ -230,6 +229,10 @@ public class GameBoard {
             for (GameObject gameObject : gameObjects)
                 gameObject.resetMovedThisFrame();
             
+            // make sure game objects are positioned correctly in 2d board
+            updateGameObjectPositions();
+            
+            // move players
             for (GameObject gameObject : gameObjects) {
                 if (gameObject.getObjectType() != GameObject.ObjectType.PLAYER_PIECE)
                     continue;
@@ -254,6 +257,13 @@ public class GameBoard {
                     player.move(this, moveInfo, true);
                 }
             }
+            
+            // update game objects after all movement is finished
+            for (GameObject gameObject : gameObjects)
+                gameObject.performAfterMovement(this, MoveInfo.makeValidMove(0, 0));
+            updateGameObjectPositions();
+           for (GameObject gameObject : gameObjects)
+                gameObject.updateTilemapToBoard(this);
         }
         if (allPuzzlePiecesConnected())
             // close all weak connections when level finished

@@ -6,6 +6,7 @@ import java.awt.*;
 
 import javax.swing.JPanel;
 
+import gameplay.gameObjects.GameBoard;
 import gameplay.gameObjects.GameObject;
 import gameplay.gameObjects.GameObjectData;
 import gameplay.gameObjects.puzzlePiece.PuzzlePiece;

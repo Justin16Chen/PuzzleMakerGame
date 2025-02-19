@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 
 import org.json.JSONObject;
 
-import gameplay.GameBoard;
 import gameplay.gameObjects.*;
 import utils.drawing.sprites.Sprite;
 

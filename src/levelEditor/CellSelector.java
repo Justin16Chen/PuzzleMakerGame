@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 
 import org.json.JSONObject;
 
-import gameplay.GameBoard;
+import gameplay.gameObjects.GameBoard;
 import gameplay.gameObjects.GameObject;
 import gameplay.gameObjects.GameObjectData;
 import gameplay.mapLoading.LevelLoader;
