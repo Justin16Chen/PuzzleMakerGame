@@ -6,6 +6,9 @@ import java.awt.*;
 
 import javax.swing.JPanel;
 
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+
 import gameplay.gameObjects.GameBoard;
 import gameplay.gameObjects.GameObject;
 import gameplay.gameObjects.GameObjectData;
@@ -22,7 +25,7 @@ import utils.tween.*;
 public class GameManager extends JPanel {
 
     public static final Color BG_COLOR = new Color(230, 230, 230);
-    public static final double BOARD_SCALE_RATIO = 0.8;
+    public static final double BOARD_SCALE_RATIO = 0.85;
 
     // refresh level from json keybind
     public static final String TOGGLE_DEBUG_KEY = "Q",
@@ -96,6 +99,7 @@ public class GameManager extends JPanel {
 
     // game board
     GameBoard gameBoard;
+    String[] instructions;
 
     public GameManager(ParentFrame window, int framesPerSecond, KeyInput keyInput, MouseInput mouseInput) {
         this.window = window;
@@ -130,14 +134,33 @@ public class GameManager extends JPanel {
         gameBoard.hideObjInfoBoxes();
 
         // level text
-        new Sprite("levelText", "ui") {
+        new Sprite("uiText", "ui") {
             @Override
             public void draw(Graphics2D g) {
                 g.setColor(Color.BLACK);
                 g.setFont(new Font("Arial", Font.BOLD, 15));
                 g.drawString("Level " + levelManager.getCurrentLevel(), gameBoard.getBoardSprite().getX(), gameBoard.getBoardSprite().getY() - 12);
+
+                if (instructions != null) {
+                    int fontSize =  (int) ((gameBoard.getBoardSprite().getY() * 0.3) / instructions.length);
+                    g.setFont(new Font("Arial", Font.PLAIN, fontSize));
+                    int totalSize = instructions.length * g.getFontMetrics().getHeight();
+                    int startY = gameBoard.getBoardSprite().getY() / 2 - totalSize / 2;
+                    for (int i=0; i<instructions.length; i++) {
+                        int xOffset = g.getFontMetrics().stringWidth(instructions[i]) / 2;
+                        g.drawString(instructions[i], gameBoard.getBoardSprite().getCenterX() - xOffset, startY + g.getFontMetrics().getHeight() * i);
+                    }
+                }
             }
         };
+
+        // resize window listener
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                updateGameBoardVisuals();
+            }
+        });
         
         // create and start the game loop
         createGameLoop();
@@ -158,6 +181,10 @@ public class GameManager extends JPanel {
 
     private void loadTilemaps() {
         PuzzlePiece.loadTilemaps();
+    }
+
+    public void setInstructions(String[] instructions) {
+        this.instructions = instructions;
     }
 
     // create the game loop
@@ -282,7 +309,7 @@ public class GameManager extends JPanel {
 
     // update game board visuals when map reloads
     public void updateGameBoardVisuals() {
-        gameBoard.updateBoardVisuals(getWidth() / 2, getHeight() / 2, (int) (getWidth() * BOARD_SCALE_RATIO), (int) (getWidth() * BOARD_SCALE_RATIO));
+        gameBoard.updateBoardVisuals(getWidth() / 2, getHeight() / 2, (int) (getWidth() * BOARD_SCALE_RATIO), (int) (getHeight() * BOARD_SCALE_RATIO));
     }
 
     private void updateDebugDrawList() {
@@ -368,7 +395,7 @@ public class GameManager extends JPanel {
     private void addDebugLevel(ArrayList<String> drawList) {
         drawList.add("===LEVEL===");
         drawList.add("current level: " + levelManager.getCurrentLevel());
-        drawList.add("Map Size: (" + gameBoard.getBoardWidth() + ", " + gameBoard.getBoardHeight() + ")");
+        drawList.add("Map Size: (" + gameBoard.getBoardColumns() + ", " + gameBoard.getBoardRows() + ")");
         drawList.add("level succeeded: " + gameBoard.allPuzzlePiecesConnected());
         drawList.add("transitioning: " + levelManager.transitioningBetweenLevels());
         drawList.add("tile size: " + gameBoard.getTileSize());

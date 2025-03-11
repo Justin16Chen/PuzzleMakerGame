@@ -112,7 +112,7 @@ public class LevelEditorManager extends JPanel {
 
         // setup board
         board.setup();
-        board.setCurrentBoard(new LevelInfo(10, 10, new ArrayList<GameObject>()));
+        board.setCurrentBoard(new LevelInfo(null, 10, 10, new ArrayList<GameObject>()));
         board.updateBoardVisuals(BOARD_X, BOARD_Y, BOARD_SIZE, BOARD_SIZE);
 
         // get what the user can place down

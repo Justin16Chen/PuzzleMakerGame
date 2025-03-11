@@ -138,12 +138,22 @@ public class LevelLoader {
 
         File file = new File(filePath);
         try {
+            String[] instructions;
             int mapWidth = 0;
             int mapHeight = 0;
             ArrayList<GameObject> gameObjects = new ArrayList<GameObject>();
 
             String content = new String(Files.readAllBytes(Paths.get(file.toURI())));
             JSONObject mapObject = new JSONObject(content);
+
+            try {
+                JSONArray instructionData = mapObject.getJSONArray("instructions");
+                instructions = new String[instructionData.length()];
+                for (int i=0; i<instructions.length; i++)
+                    instructions[i] = instructionData.getString(i);
+            } catch (JSONException e) {
+                instructions = null;
+            }
 
             mapWidth = mapObject.getInt("mapWidth");
             mapHeight = mapObject.getInt("mapHeight");
@@ -175,7 +185,7 @@ public class LevelLoader {
                 // add game object to list
                 gameObjects.add(gameObject);
             }
-            return new LevelInfo(mapWidth, mapHeight, gameObjects);
+            return new LevelInfo(instructions, mapWidth, mapHeight, gameObjects);
         } catch (IOException e) {
             Print.println("COULD NOT FIND FILE " + filePath, Print.RED);
         } catch (JSONException e) {

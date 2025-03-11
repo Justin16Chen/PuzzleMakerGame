@@ -39,7 +39,7 @@ public class Game extends ParentFrame {
     }
 
     public static void main(String[] args) {
-        Game game = new Game(60, 26);
+        Game game = new Game(60, 0);
         game.startGame();
     }
 }

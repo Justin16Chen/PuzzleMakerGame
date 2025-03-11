@@ -19,7 +19,6 @@ public abstract class ParentFrame extends JFrame {
         contentPane = getContentPane();
         contentPane.setPreferredSize(new Dimension(width, height));
 
-        setResizable(false);
         setTitle(title);
         setAlwaysOnTop(true);
         

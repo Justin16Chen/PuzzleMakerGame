@@ -70,9 +70,11 @@ public class LevelManager {
             Tween.createTween("moveTransitionSpriteUpTween", transitionSprite, "height", gameManager.getHeight(), 1, generalLevelInfo.getTransitionTime()).setEaseType(new EaseType(Ease.EASE_OUT, 2));
         
         // load level
-        if (intro) 
+        if (intro) {
+            transitionSprite.setWidth(gameManager.getWidth());
+            transitionSprite.setHeight(gameManager.getHeight());
             Timer.createCallTimer("updateGameToNewLevel", this, generalLevelInfo.getTransitionTime(), "setLevelInfo", level);
-        else
+        } else 
             setLevelInfo(level);
 
         // update transition variable
@@ -112,8 +114,12 @@ public class LevelManager {
             // create the new game board
             gameBoard.setCurrentBoard(levelInfo);
             
+            // set any instructions for the level (not all levels have instructions)
+            gameManager.setInstructions(levelInfo.getInstructions());
+
             // update the visuals of the new game board
             gameManager.updateGameBoardVisuals();
+
             return true;
         }
         return false;

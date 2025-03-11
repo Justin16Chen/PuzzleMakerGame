@@ -24,14 +24,9 @@ public class GameBoard {
     // board properties
     private int tileSize = 32;
     public int getTileSize() { return tileSize; }
-    public void setTileSize(int drawWidth, int drawHeight) {
-        tileSize = (int) Math.min(drawWidth / width, 
-                                  drawHeight / height);
-    }
-    private int width = 10;
-    public int getBoardWidth() { return width; }
-    private int height = 10;
-    public int getBoardHeight() { return height; }
+    public void setTileSize(int drawWidth, int drawHeight) { tileSize = (int) Math.min(drawWidth / board[0].length, drawHeight / board.length); }
+    public int getBoardColumns() { return board[0].length; }
+    public int getBoardRows() { return board.length; }
 
     // list of all game objects represented with a 2D grid
     private GameObject[][] board;
@@ -63,12 +58,12 @@ public class GameBoard {
                     g.setColor(Color.BLACK);
                     g.setStroke(new BasicStroke(3));
                     // draw horizontal lines
-                    for (int y=0; y<height; y++) {
-                        g.drawLine(getDrawX(0), getDrawY(y), getDrawX(width), getDrawY(y));
+                    for (int y=0; y<board.length; y++) {
+                        g.drawLine(getDrawX(0), getDrawY(y), getDrawX(board[0].length), getDrawY(y));
                     }
                     // draw vertical lines
-                    for (int x=0; x<width; x++) {
-                        g.drawLine(getDrawX(x), getDrawY(0), getDrawX(x), getDrawY(height));
+                    for (int x=0; x<board[0].length; x++) {
+                        g.drawLine(getDrawX(x), getDrawY(0), getDrawX(x), getDrawY(board[0].length));
                     }
                 }
             }
@@ -102,7 +97,7 @@ public class GameBoard {
 
     // check if a position is in the board boundaries
     public boolean inBounds(int boardX, int boardY) {
-        return boardX >= 0 && boardX < width && boardY >= 0 && boardY < height;
+        return boardX >= 0 && boardX < board[0].length && boardY >= 0 && boardY < board.length;
     }
 
     // gets all the game objects on the board
@@ -132,9 +127,7 @@ public class GameBoard {
     public void setCurrentBoard(LevelInfo levelInfo) {
         
         // map size and board setup
-        width = levelInfo.getMapWidth();
-        height = levelInfo.getMapHeight();
-        board = new GameObject[height][width];
+        board = new GameObject[levelInfo.getMapRows()][levelInfo.getMapCols()];
         
         // set the board for the current level
         gameObjects = levelInfo.getGameObjects();
@@ -197,8 +190,8 @@ public class GameBoard {
 
     public void updateBoardVisuals(int centerx, int centery, int width, int height) {
             setTileSize(width, height);
-            boardSprite.setWidth(tileSize * this.width);
-            boardSprite.setHeight(tileSize * this.height);
+            boardSprite.setWidth(tileSize * board[0].length);
+            boardSprite.setHeight(tileSize * board.length);
             boardSprite.setCenterX(centerx);
             boardSprite.setCenterY(centery);
     
@@ -219,8 +212,19 @@ public class GameBoard {
 
     private void checkForInput() {
         // get player input
-        int hdir = keyInput.keyClickedInt("D") - keyInput.keyClickedInt("A");
-        int vdir = keyInput.keyClickedInt("S") - keyInput.keyClickedInt("W");
+        int hdir = 0;
+        int vdir = 0;
+        if (keyInput.keyClicked("D") || keyInput.keyClicked("Right"))
+            hdir++;
+        if (keyInput.keyClicked("A") || keyInput.keyClicked("Left"))
+            hdir--;
+        if (keyInput.keyClicked("S") || keyInput.keyClicked("Down"))
+            vdir++;
+        if (keyInput.keyClicked("W") || keyInput.keyClicked("Up"))
+            vdir--;
+        
+        //int hdir = keyInput.keyClickedInt("D") - keyInput.keyClickedInt("A");
+        //int vdir = keyInput.keyClickedInt("S") - keyInput.keyClickedInt("W");
 
         // make sure there is movement
         if (hdir != 0 || vdir != 0) {
@@ -318,6 +322,7 @@ public class GameBoard {
         return true;
     }
 
+    // converts board x and y to screen x and y
     public int getDrawX(int boardX) {
         return boardSprite.getX() + boardX * tileSize;
     }

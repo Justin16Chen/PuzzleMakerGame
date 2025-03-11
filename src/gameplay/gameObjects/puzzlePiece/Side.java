@@ -129,12 +129,13 @@ public class Side {
             case FORCE_NO_ANIMATION: playAnimation = false; break;
             case DECIDE: playAnimation = getType() == Type.STRONG && tweenPercent == 0;
         }
-        if (playAnimation) {
-            if (connectTween != null)
-                Updatables.deleteUpdatableModifyingSameObjectProperty(connectTween);
-            connectTween = Tween.createTween("connect " + direction + " side", this, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(new EaseType(Ease.EASE_IN_BACK));
-        }
-        else if (getType() == Type.STRONG) 
+        
+        // tween side connect animation
+        if (playAnimation & connectTween == null)
+                connectTween = Tween.createTween("connect " + direction + " side", this, "tweenPercent", 0, 1, CONNECT_TWEEN_TIME).setEaseType(new EaseType(Ease.EASE_IN_BACK));
+        
+        // immediately connect side (no animation)
+        if (!playAnimation && getType() == Type.STRONG) 
             tweenPercent = 1;
     }
 
