@@ -1,0 +1,66 @@
+{
+    "instructions": ["", "Congratulations!", "You beat the game!!!!", ""],
+    "mapWidth": 19,
+    "mapHeight": 19,
+
+    "gameObjects": [
+        { "name": "playerPiece", "x": 1, "y": 1, "sideData": "nnnn" },
+
+        { "name": "puzzlePiece", "x": 4, "y": 4, "sideData": "wnns" },
+        { "name": "puzzlePiece", "x": 5, "y": 4, "sideData": "wsss" },
+        { "name": "puzzlePiece", "x": 6, "y": 4, "sideData": "wsnn" },
+        { "name": "puzzlePiece", "x": 5, "y": 5, "sideData": "snsn" },
+        { "name": "puzzlePiece", "x": 5, "y": 6, "sideData": "snsn" },
+        { "name": "puzzlePiece", "x": 5, "y": 7, "sideData": "snwn" },
+        
+        { "name": "puzzlePiece", "x": 8, "y": 4, "sideData": "wnsn" },
+        { "name": "puzzlePiece", "x": 8, "y": 5, "sideData": "snsn" },
+        { "name": "puzzlePiece", "x": 8, "y": 6, "sideData": "snss" },
+        { "name": "puzzlePiece", "x": 8, "y": 7, "sideData": "snwn" },
+        { "name": "puzzlePiece", "x": 9, "y": 6, "sideData": "nsns" },
+        { "name": "puzzlePiece", "x": 10, "y": 4, "sideData": "wnsn" },
+        { "name": "puzzlePiece", "x": 10, "y": 5, "sideData": "snsn" },
+        { "name": "puzzlePiece", "x": 10, "y": 6, "sideData": "sssn" },
+        { "name": "puzzlePiece", "x": 10, "y": 7, "sideData": "snwn" },
+        
+        { "name": "puzzlePiece", "x": 12, "y": 4, "sideData": "wnss" },
+        { "name": "puzzlePiece", "x": 12, "y": 5, "sideData": "snsn" },
+        { "name": "puzzlePiece", "x": 12, "y": 6, "sideData": "snss" },
+        { "name": "puzzlePiece", "x": 12, "y": 7, "sideData": "snws" },
+        { "name": "puzzlePiece", "x": 13, "y": 4, "sideData": "wsns" },
+        { "name": "puzzlePiece", "x": 14, "y": 4, "sideData": "wsnn" },
+        { "name": "puzzlePiece", "x": 13, "y": 6, "sideData": "nssn" },
+        { "name": "puzzlePiece", "x": 13, "y": 7, "sideData": "ssws" },
+        { "name": "puzzlePiece", "x": 14, "y": 7, "sideData": "nswn" },
+        
+        { "name": "puzzlePiece", "x": 4, "y": 10, "sideData": "wnss" },
+        { "name": "puzzlePiece", "x": 4, "y": 11, "sideData": "snsn" },
+        { "name": "puzzlePiece", "x": 4, "y": 12, "sideData": "snss" },
+        { "name": "puzzlePiece", "x": 4, "y": 13, "sideData": "snws" },
+        { "name": "puzzlePiece", "x": 5, "y": 10, "sideData": "wsns" },
+        { "name": "puzzlePiece", "x": 6, "y": 10, "sideData": "wsnn" },
+        { "name": "puzzlePiece", "x": 5, "y": 12, "sideData": "nssn" },
+        { "name": "puzzlePiece", "x": 5, "y": 13, "sideData": "ssws" },
+        { "name": "puzzlePiece", "x": 6, "y": 13, "sideData": "nswn" },
+        
+        { "name": "puzzlePiece", "x": 8, "y": 10, "sideData": "wnsn" },
+        { "name": "puzzlePiece", "x": 8, "y": 11, "sideData": "snss" },
+        { "name": "puzzlePiece", "x": 8, "y": 12, "sideData": "snsn" },
+        { "name": "puzzlePiece", "x": 8, "y": 13, "sideData": "snwn" },
+        { "name": "puzzlePiece", "x": 9, "y": 11, "sideData": "nsnn" },
+        { "name": "puzzlePiece", "x": 10, "y": 12, "sideData": "nnns" },
+        { "name": "puzzlePiece", "x": 11, "y": 10, "sideData": "wnsn" },
+        { "name": "puzzlePiece", "x": 11, "y": 11, "sideData": "snsn" },
+        { "name": "puzzlePiece", "x": 11, "y": 12, "sideData": "sssn" },
+        { "name": "puzzlePiece", "x": 11, "y": 13, "sideData": "snwn" },
+
+        { "name": "puzzlePiece", "x": 13, "y": 10, "sideData": "wnss" },
+        { "name": "puzzlePiece", "x": 13, "y": 11, "sideData": "snsn" },
+        { "name": "puzzlePiece", "x": 13, "y": 12, "sideData": "snsn" },
+        { "name": "puzzlePiece", "x": 13, "y": 13, "sideData": "snws" },
+        { "name": "puzzlePiece", "x": 14, "y": 10, "sideData": "wsnn" },
+        { "name": "puzzlePiece", "x": 15, "y": 11, "sideData": "nnsn" },
+        { "name": "puzzlePiece", "x": 15, "y": 12, "sideData": "snnn" },
+        { "name": "puzzlePiece", "x": 14, "y": 13, "sideData": "nsnn" }
+    ]
+}

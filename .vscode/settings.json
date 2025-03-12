@@ -5,5 +5,6 @@
         "lib/**/*.jar",
         "c:\\Users\\jchen3\\OneDrive - North Allegheny School District\\java files\\java dependencies\\json-20240303.jar"
     ],
+    "editor.suggestOnTriggerCharacters": false,
     "java.debug.settings.onBuildFailureProceed": true
 }
