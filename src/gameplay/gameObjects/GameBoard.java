@@ -206,7 +206,7 @@ public class GameBoard {
         for (GameObject gameObject : gameObjects)
             gameObject.update(this);
         
-        updateDebugInfoBoxes();
+        // updateDebugInfoBoxes();
 
     }
 
@@ -222,9 +222,6 @@ public class GameBoard {
             vdir++;
         if (keyInput.keyClicked("W") || keyInput.keyClicked("Up"))
             vdir--;
-        
-        //int hdir = keyInput.keyClickedInt("D") - keyInput.keyClickedInt("A");
-        //int vdir = keyInput.keyClickedInt("S") - keyInput.keyClickedInt("W");
 
         // make sure there is movement
         if (hdir != 0 || vdir != 0) {

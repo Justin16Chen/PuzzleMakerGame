@@ -1,4 +1,5 @@
 {
+    "instructions": ["There cannot be any unconnected sides left"],
     "mapWidth": 5,
     "mapHeight": 5,
 

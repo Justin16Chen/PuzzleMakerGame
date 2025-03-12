@@ -1,4 +1,5 @@
 {
+    "instructions": ["The player can be different sizes too!"],
     "mapWidth": 4,
     "mapHeight": 4,
 

@@ -1,15 +1,11 @@
 {
-    "mapWidth": 6,
+    "instructions": ["Whaa... There's TWO of them!"],
+    "mapWidth": 5,
     "mapHeight": 4,
 
     "gameObjects": [
-        { "name": "playerPiece", "x": 0, "y": 0, "sideData": "nnss" },
-        { "name": "playerPiece", "x": 2, "y": 0, "sideData": "nssn" },
-
-        { "name": "puzzlePiece", "x": 3, "y": 3, "sideData": "snns" },
-        { "name": "puzzlePiece", "x": 5, "y": 3, "sideData": "ssnn" },
-        { "name": "wall", "x": 3, "y": 0, "width": 3 },
-        { "name": "wall", "x": 0, "y": 2, "width": 3, "height": 2 },
-        { "name": "wall", "x": 4, "y": 3 }
+        { "name": "playerPiece", "x": 1, "y": 2, "sideData": "nnsn" },
+        { "name": "playerPiece", "x": 3, "y": 2, "sideData": "snnn" },
+        { "name": "wall", "x": 1, "y": 0, "width": 4, "height": 1 }
     ]
 }

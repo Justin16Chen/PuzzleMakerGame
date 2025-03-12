@@ -26,6 +26,7 @@ public class GameManager extends JPanel {
 
     public static final Color BG_COLOR = new Color(230, 230, 230);
     public static final double BOARD_SCALE_RATIO = 0.85;
+    public static final int INSTRUCTION_LINE_HEIGHT = 30, INSTRUCTION_FONT_SIZE = 25;
 
     // refresh level from json keybind
     public static final String TOGGLE_DEBUG_KEY = "Q",
@@ -142,13 +143,13 @@ public class GameManager extends JPanel {
                 g.drawString("Level " + levelManager.getCurrentLevel(), gameBoard.getBoardSprite().getX(), gameBoard.getBoardSprite().getY() - 12);
 
                 if (instructions != null) {
-                    int fontSize =  (int) ((gameBoard.getBoardSprite().getY() * 0.3) / instructions.length);
+                    int fontSize = INSTRUCTION_FONT_SIZE;
                     g.setFont(new Font("Arial", Font.PLAIN, fontSize));
-                    int totalSize = instructions.length * g.getFontMetrics().getHeight();
-                    int startY = gameBoard.getBoardSprite().getY() / 2 - totalSize / 2;
+                    int totalSize = instructions.length * INSTRUCTION_LINE_HEIGHT;
+                    int startY = gameBoard.getBoardSprite().getY() / 2 - totalSize / 2 + INSTRUCTION_FONT_SIZE;
                     for (int i=0; i<instructions.length; i++) {
                         int xOffset = g.getFontMetrics().stringWidth(instructions[i]) / 2;
-                        g.drawString(instructions[i], gameBoard.getBoardSprite().getCenterX() - xOffset, startY + g.getFontMetrics().getHeight() * i);
+                        g.drawString(instructions[i], gameBoard.getBoardSprite().getCenterX() - xOffset, startY + INSTRUCTION_LINE_HEIGHT * i);
                     }
                 }
             }
@@ -309,7 +310,23 @@ public class GameManager extends JPanel {
 
     // update game board visuals when map reloads
     public void updateGameBoardVisuals() {
-        gameBoard.updateBoardVisuals(getWidth() / 2, getHeight() / 2, (int) (getWidth() * BOARD_SCALE_RATIO), (int) (getHeight() * BOARD_SCALE_RATIO));
+        int boardCenterX = getWidth() / 2;
+        int boardCenterY = getHeight() / 2;
+        int boardWidth = (int) (getWidth() * BOARD_SCALE_RATIO);
+        int boardHeight = (int) (getHeight() * BOARD_SCALE_RATIO);
+
+        // making sure there is enough room for any possible instructions
+        if (instructions != null) {
+            int neededInstructionSpace = INSTRUCTION_LINE_HEIGHT * instructions.length;
+
+            int currentInstructionSpace = (getHeight() - boardHeight) / 2;
+            if (currentInstructionSpace < neededInstructionSpace) {
+                int yOffset = neededInstructionSpace - currentInstructionSpace;
+                boardHeight -= yOffset;
+            }
+        }
+        
+        gameBoard.updateBoardVisuals(boardCenterX, boardCenterY, boardWidth, (int) boardHeight);
     }
 
     private void updateDebugDrawList() {
