@@ -8,7 +8,7 @@ import utils.Print;
 
 public class Updatables {
 
-    private static boolean allowPrint = false;
+    private static boolean allowPrint = true;
 
     public static boolean getAllowPrint() { return allowPrint; }
     public static void setAllowPrint(boolean allowPrint) { Updatables.allowPrint = allowPrint; }

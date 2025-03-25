@@ -112,7 +112,6 @@ public class Side {
         tweenPercent = 0;
         if (connectTween != null)
             connectTween.delete();
-        System.out.println("disconnect " + this);
     }
     public void connect(ConnectType connectType) {
         // ignore if already connected

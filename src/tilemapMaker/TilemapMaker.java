@@ -24,7 +24,7 @@ import utils.input.MouseInput;
 
 public class TilemapMaker extends JFrame {
 
-    private static final double TM_X_OFFSET = 0.5, TM_Y_OFFSET = 0.5, TM_WIDTH_PERCENT = 0.8, TM_SPACING_PERCENT = 0.05;
+    private static final double TM_X_OFFSET = 0.5, TM_Y_OFFSET = 0.5, TM_WIDTH_PERCENT = 0.6, TM_SPACING_PERCENT = 0.05;
     private static final String ANYTHING_KEY = "A", FILLED_KEY = "F", EMPTY_KEY = "E";
     private static final String[] SAVE_KEYS = {"Ctrl", "S" };
     private MouseInput mouseInput;

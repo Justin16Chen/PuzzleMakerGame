@@ -47,6 +47,11 @@ public class Timer extends Updatable {
 
     public Object getFinalPropertyValue() { return finalPropertyValue; }
 
+    // timer doesn't need to do anything special while it is waiting
+    @Override
+    public void update() {}
+
+    
     @Override
     public void loop() {
         elapsedTime = 0;

@@ -27,7 +27,9 @@ public class Tween extends Updatable {
     public Number getEndValue() { return endValue;}
 
     public Tween setLoopCount(int loopCount) { targetLoopCount = loopCount; return this; }
-    public Tween pingPong() { pingPong = true; return this; }
+    public Tween pingPong() { pingPong = true; pingPongDelay = -1; return this; }
+    @Deprecated
+    public Tween pingPong(double pingPongDelay) { pingPong = true; this.pingPongDelay = pingPongDelay; return this; }
     public Tween setPrint(PrintType print) { this.print = print; return this; }
     public Tween setEaseType(EaseType easeType) { this.easeType = easeType; return this; }
 
@@ -64,6 +66,13 @@ public class Tween extends Updatable {
             Number temp = startValue;
             startValue = endValue;
             endValue = temp;
+
+            // set delay - DOES NOT WORK
+            if (pingPongDelay > 0) {
+                setPaused(true);
+                System.out.println("PAUSING TIMER");
+                Timer.createSetTimer("unpause " + getName(), this, pingPongDelay, "paused", false);
+            }
         }
     }
 

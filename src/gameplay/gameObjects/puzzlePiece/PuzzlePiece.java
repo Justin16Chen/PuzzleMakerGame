@@ -1,6 +1,5 @@
 package gameplay.gameObjects.puzzlePiece;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,12 +7,14 @@ import java.util.Arrays;
 import org.json.JSONObject;
 
 import gameplay.gameObjects.*;
+import utils.SFXPlayer;
 import utils.direction.Direction;
 import utils.direction.Directions;
 import utils.drawing.sprites.Sprite;
 import utils.drawing.tilemap.Tilemap;
 
 public class PuzzlePiece extends GameObject {
+    private static final String[] CONNECT_SFX_PATH = { "res/sfx/connect sides0.wav", "res/sfx/connect sides1.wav", "res/sfx/connect sides2.wav" };
 
     public static GameObject loadPuzzlePiece(JSONObject jsonObject) {
         return new PuzzlePiece(jsonObject.getInt("x"), jsonObject.getInt("y"), jsonObject.getString("sideData")); 
@@ -312,11 +313,18 @@ public class PuzzlePiece extends GameObject {
             if (PuzzlePiece.isPuzzlePiece(gameObject)) {
                 Side otherSide = ((PuzzlePiece) gameObject).getSide(Directions.getOppositeDirection(dir));
                 if (Side.isCompatible(ownSide, otherSide)) {
+                    if (!ownSide.isConnected())
+                        playConnectSfx();
                     ownSide.connect(connectAnimationType);
                     otherSide.connect(connectAnimationType);
                 }
             }
         }
+    }
+
+    private void playConnectSfx() {
+        int rand = (int) (Math.random() * 3);
+        SFXPlayer.play(CONNECT_SFX_PATH[rand], -20);
     }
     
     @Override

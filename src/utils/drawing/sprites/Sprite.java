@@ -145,7 +145,7 @@ public class Sprite extends TaggableChild<Sprite> {
     }
     
     public void draw(Graphics2D g) {
-        if (isVisible()) {
+        if (isVisible() && width > 0 && height > 0) {
             if (image == null) {
                 g.setColor(color);
                 g.fillRect(getX(), getY(), getWidth(), getHeight());

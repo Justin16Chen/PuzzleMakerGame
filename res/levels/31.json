@@ -61,6 +61,6 @@
         { "name": "puzzlePiece", "x": 14, "y": 10, "sideData": "wsnn" },
         { "name": "puzzlePiece", "x": 15, "y": 11, "sideData": "nnsn" },
         { "name": "puzzlePiece", "x": 15, "y": 12, "sideData": "snnn" },
-        { "name": "puzzlePiece", "x": 14, "y": 13, "sideData": "nsnn" }
+        { "name": "puzzlePiece", "x": 14, "y": 13, "sideData": "nswn" }
     ]
 }

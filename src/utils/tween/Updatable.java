@@ -23,6 +23,8 @@ public abstract class Updatable {
     protected int currentLoop;        // Current loop count
     protected int targetLoopCount;          // Number of times to loop the updatable
     protected boolean pingPong;
+    @Deprecated
+    protected double pingPongDelay;
     protected boolean paused;         // if the updatable is paused or not
     protected PrintType print;          // Print values for debugging
     private boolean delete;
@@ -63,10 +65,10 @@ public abstract class Updatable {
         elapsedTime += deltaTime;
     }
 
-    public void update() {} // meant to be overridden
+    public abstract void update(); // meant to be overridden
+    public abstract void loop(); // resets the updatable to the beginning of the loop
     public void performOnLoopComplete() {} // meant to be overridden if an updatable wants to perform an action when the loop is complete
     public void performOnComplete() {} // meant to be overridden if an updatable wants to perform an action when the updatable is complete
-    public abstract void loop(); // resets the updatable to the beginning of the loop
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

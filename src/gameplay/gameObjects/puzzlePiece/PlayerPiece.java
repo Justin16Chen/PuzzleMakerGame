@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import org.json.JSONObject;
 
 import gameplay.gameObjects.*;
+import utils.SFXPlayer;
 import utils.drawing.sprites.Sprite;
 
 public class PlayerPiece extends PuzzlePiece {
@@ -15,6 +16,7 @@ public class PlayerPiece extends PuzzlePiece {
     }
 
     private static final String SAD_IMAGE_PATH = "res/textures/playerSad.png", HAPPY_IMAGE_PATH = "res/textures/playerHappy.png";
+    private static final String MOVE_SFX1_PATH = "res/sfx/synth (2).wav", MOVE_SFX2_PATH = "res/sfx/click (1).wav";
 
     private Sprite faceSprite;
     public PlayerPiece(int boardX, int boardY, String sideData) {
@@ -39,6 +41,18 @@ public class PlayerPiece extends PuzzlePiece {
         };
         faceSprite.addTag("accessory");
         sprite.addChild(faceSprite);
+    }
+
+    private void playMoveSfx() {
+        SFXPlayer.play(MOVE_SFX1_PATH, -8);
+        SFXPlayer.play(MOVE_SFX2_PATH, -32);
+    }
+
+    @Override
+    public void move(GameBoard gameBoard, MoveInfo moveInfo, boolean isMover) {
+        if (isMover && !movedThisFrame) 
+            playMoveSfx();
+        super.move(gameBoard, moveInfo, isMover);
     }
 
     @Override

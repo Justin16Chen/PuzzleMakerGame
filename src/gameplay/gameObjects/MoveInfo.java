@@ -48,6 +48,4 @@ public class MoveInfo {
     public int getVdir() { return vdir; }
     public boolean canMove() { return canMove; }
     public Type getType() { return type; }
-
-
 }
