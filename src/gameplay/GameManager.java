@@ -43,11 +43,16 @@ public class GameManager extends JPanel {
 
     public static final double BUFFER_TRANSITION_TIME = 0.6;
     
+    
+    public static enum GameState { MAIN_MENU, TRANSITION, PLAYING }
+
     // window
     private ParentFrame window;
     private Insets contentPaneInsets;
     
     // game loop
+    private GameState gameState;
+    private MainMenuManager mainMenuManager;
     private int fps;
     private boolean hasGameLoopInterval;
     private long gameLoopInterval;
@@ -67,8 +72,8 @@ public class GameManager extends JPanel {
     // input
     private KeyInput keyInput;
     public KeyInput getKeyInput() { return keyInput; }
-    private MouseInput mouseInput;
-    public MouseInput getMouseInput() { return mouseInput; }
+    private Mouse mouse;
+    public Mouse getMouseInput() { return mouse; }
 
     // debug MoveLogic.java IN PROGRESS
     private int hdir = 0, vdir = 0;
@@ -84,13 +89,6 @@ public class GameManager extends JPanel {
         return gameLoopInterval; 
     }
     
-    // get window size
-    public int getWindowWidth() {
-        return window.getWidth();
-    }
-    public int getWindowHeight() {
-        return window.getHeight();
-    }
     public Insets getContentPaneInsets() {
         return contentPaneInsets;
     }
@@ -102,34 +100,74 @@ public class GameManager extends JPanel {
     GameBoard gameBoard;
     String[] instructions;
 
-    public GameManager(ParentFrame window, int framesPerSecond, KeyInput keyInput, MouseInput mouseInput) {
+    public GameManager(ParentFrame window, int framesPerSecond, KeyInput keyInput, Mouse mouse) {
         this.window = window;
         this.fps = framesPerSecond;
         this.keyInput = keyInput;
-        this.mouseInput = mouseInput;
+        this.mouse = mouse;
+        gameState = GameState.MAIN_MENU;
     }
 
     // start the game
-    public void startGame(int startLevel) {
-
+    public void startEverything(int startLevel, GameState gameState) {
         setupLayers();
+        gameBoard = new GameBoard(keyInput, mouse);
+        levelManager = new LevelManager(this, gameBoard);
+        levelManager.setup();
 
+        if (gameState == GameState.TRANSITION)
+            throw new IllegalArgumentException("cannot pass in TRANSITION as a starting GameState");
+        if (gameState == GameState.MAIN_MENU)
+            setupMainMenu();
+        else
+            setupGame(startLevel);
+        
+        // create and start the game loop
+        createGameLoop();
+        startGameLoop();
+    }
+
+    private void setupLayers() {
+        Sprites.addLayer("default", 0);
+        Sprites.addLayer("gameBoard", 1);
+        Sprites.addLayer("gameObjects1", 2);
+        Sprites.addLayer("gameObjects2", 3);
+        Sprites.addLayer("gameObjects3", 4);
+        Sprites.addLayer("effects", 5);
+        Sprites.addLayer("ui", 6);
+        Sprites.addLayer("transitions", 7);
+        Sprites.addLayer("debug", 8);
+    }
+
+    private void setupMainMenu() {
+        mainMenuManager = new MainMenuManager(mouse) {
+            @Override
+            public void onButtonClicked(int buttonIndex) {
+                gameState = GameState.TRANSITION;
+            }
+        };
+        mainMenuManager.setup(getWidth(), getHeight(), "ui");
+    }
+
+    private void setupGame(int startLevel) {
+        Sprites.deleteExceptTags(new String[] { "necessary" });
+        gameState = GameState.PLAYING;
+
+        System.out.println("SETUP GAME");
         // debug info box drawer
         debugInfoBox = new InfoBox("debugInfoBox", 0, 0);
         debugInfoBox.setVisible(false);
 
         // setup base level properties
         LevelLoader.updateObjectData();
-
         loadTilemaps();
 
-        // create game board
-        gameBoard = new GameBoard(keyInput, mouseInput);
+        // setup game board
         gameBoard.setup();
         
         // load level
-        levelManager = new LevelManager(this, gameBoard);
-        levelManager.transitionToLevel(startLevel, false, true);
+        levelManager.setLevelInfo(startLevel);
+        levelManager.transitionUpSlow();
 
         // hide info boxes to start
         gameBoard.hideObjInfoBoxes();
@@ -159,25 +197,17 @@ public class GameManager extends JPanel {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                updateGameBoardVisuals();
+                switch (gameState) {
+                    case MAIN_MENU: 
+                    case TRANSITION:
+                        if (mainMenuManager != null) 
+                            mainMenuManager.resizeComponents(getWidth(), getHeight()); 
+                        break;
+                    case PLAYING: 
+                        updateGameBoardVisuals(); break;
+                }
             }
         });
-        
-        // create and start the game loop
-        createGameLoop();
-        startGameLoop();
-    }
-
-    private void setupLayers() {
-        Sprites.addLayer("default", 0);
-        Sprites.addLayer("gameBoard", 1);
-        Sprites.addLayer("gameObjects1", 2);
-        Sprites.addLayer("gameObjects2", 3);
-        Sprites.addLayer("gameObjects3", 4);
-        Sprites.addLayer("effects", 5);
-        Sprites.addLayer("ui", 6);
-        Sprites.addLayer("transitions", 7);
-        Sprites.addLayer("debug", 8);
     }
 
     private void loadTilemaps() {
@@ -204,8 +234,8 @@ public class GameManager extends JPanel {
 
                     // update input
                     keyInput.update();
-                    mouseInput.update();
-                    mouseInput.setInsets(window.getInsets());
+                    mouse.update();
+                    mouse.setInsets(window.getInsets());
 
                     // update background systems
                     Updatables.updateUpdatables(dt);
@@ -238,14 +268,27 @@ public class GameManager extends JPanel {
     }
 
     public void updateGame(double dt) {
+        switch (gameState) {
+            case MAIN_MENU: updateMainMenu(dt); break;
+            case TRANSITION: updateMainMenu(dt); break;
+            case PLAYING: updatePlaying(dt); break;
+        }
+    }
+    private void updateMainMenu(double dt) {
+        if (gameState == GameState.TRANSITION && !Updatables.hasUpdatable("setup game")) {
+            levelManager.transitionDown("testing");
+            Timer.createCallTimer("setup game", this, levelManager.getGeneralLevelInfo().getTransitionTime() + levelManager.getGeneralLevelInfo().getWaitTime("testing"), "setupGame", 0);
+        }
+    }
+    private void updatePlaying(double dt) {
 
         // update game board and game objects
         gameBoard.update(dt);
 
         // go to next level
-        if (gameBoard.allPuzzlePiecesConnected() 
-        && !levelManager.transitioningBetweenLevels() && levelManager.hasLevel(levelManager.getCurrentLevel() + 1)
-        && !Updatables.hasUpdatable("call level transition")) 
+        if (gameBoard.allPuzzlePiecesConnected() && levelManager.hasLevel(levelManager.getCurrentLevel() + 1)
+        && !Updatables.hasUpdatable("call level transition")
+        && !levelManager.transitioningBetweenLevels()) 
             Timer.createCallTimer("call level transition", levelManager, BUFFER_TRANSITION_TIME, "transitionToNextLevel", true, true);
 
         if (keyInput.keyClicked(INCREMENT_HDIR_KEY)) 
@@ -301,7 +344,7 @@ public class GameManager extends JPanel {
         if (createdGameLoop) {
             // clear screen
             g.setColor(BG_COLOR);
-            g.fillRect(0, 0, getWindowWidth(), getWindowHeight());
+            g.fillRect(0, 0, getWidth(), getHeight());
 
             // draw game sprites
             Sprites.drawSprites(g2);
@@ -347,7 +390,7 @@ public class GameManager extends JPanel {
         drawList.add("===GENERAL===");
         drawList.add("dt: " + dt);
         drawList.add("window size: (" + getWidth() + ", " + getHeight() + ")");
-         drawList.add("mouse pos: (" + mouseInput.getX() + ", " + mouseInput.getY() + ")");
+         drawList.add("mouse pos: (" + mouse.getX() + ", " + mouse.getY() + ")");
         drawList.add("gameManager insets: " + getInsets().left + ", " + getInsets().top);
         drawList.add("contentPane insets: " + getContentPaneInsets().left + ", " + getContentPaneInsets().top);
         drawList.add("main insets: " + window.getInsets().left + ", " + window.getInsets().top);
@@ -414,7 +457,6 @@ public class GameManager extends JPanel {
         drawList.add("current level: " + levelManager.getCurrentLevel());
         drawList.add("Map Size: (" + gameBoard.getBoardColumns() + ", " + gameBoard.getBoardRows() + ")");
         drawList.add("level succeeded: " + gameBoard.allPuzzlePiecesConnected());
-        drawList.add("transitioning: " + levelManager.transitioningBetweenLevels());
         drawList.add("tile size: " + gameBoard.getTileSize());
         drawList.add("game board draw pos: (" + gameBoard.getBoardSprite().getX() + ", " + gameBoard.getBoardSprite().getY() + ")");
     }

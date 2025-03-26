@@ -16,7 +16,7 @@ import javax.swing.JScrollBar;
 
 import utils.ParentFrame;
 import utils.input.KeyInput;
-import utils.input.MouseInput;
+import utils.input.Mouse;
 
 public class LevelOrganizer extends ParentFrame {
 
@@ -30,10 +30,10 @@ public class LevelOrganizer extends ParentFrame {
 
         // setup input
         KeyInput keyInput = new KeyInput();
-        MouseInput mouseInput = new MouseInput(getInsets());
+        Mouse mouse = new Mouse(getInsets());
         this.addKeyListener(keyInput);
-        this.addMouseListener(mouseInput);
-        this.addMouseMotionListener(mouseInput);
+        this.addMouseListener(mouse);
+        this.addMouseMotionListener(mouse);
 
         JPanel northContainer = new JPanel(new FlowLayout());
         northContainer.setBorder(BorderFactory.createEmptyBorder(25, 0, 0, 0));
@@ -43,7 +43,7 @@ public class LevelOrganizer extends ParentFrame {
         northContainer.add(title);
         contentPane.add(northContainer, BorderLayout.NORTH);
 
-        LevelOrganizerManager levelOrganizerManager = new LevelOrganizerManager(keyInput, mouseInput);
+        LevelOrganizerManager levelOrganizerManager = new LevelOrganizerManager(keyInput, mouse);
         levelOrganizerManager.setPreferredSize(new Dimension(200, 480));
         
         JPanel centerContainer = new JPanel(new FlowLayout());

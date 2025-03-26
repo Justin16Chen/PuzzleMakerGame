@@ -17,9 +17,9 @@ public class GameBoard {
 
     // input
     private KeyInput keyInput;
-    private MouseInput mouseInput;
+    private Mouse mouse;
     public KeyInput getKeyInput() { return keyInput; }
-    public MouseInput getMouseInput() { return mouseInput; }
+    public Mouse getMouseInput() { return mouse; }
     
     // board properties
     private int tileSize = 32;
@@ -38,9 +38,9 @@ public class GameBoard {
     private boolean showGridLines;
     public Sprite getBoardSprite() { return boardSprite; }
     
-    public GameBoard(KeyInput keyInput, MouseInput mouseInput) {
+    public GameBoard(KeyInput keyInput, Mouse mouse) {
         this.keyInput = keyInput;
-        this.mouseInput = mouseInput;
+        this.mouse = mouse;
 
         gameObjects = new ArrayList<>();
         board = new GameObject[1][1];
@@ -278,8 +278,8 @@ public class GameBoard {
             GameObject gameObject = gameObjects.get(i);
 
             // update game object info box
-            if (mouseInput.clicked()
-                && mouseInput.isOver(gameObject.getSprite().getX(), gameObject.getSprite().getY(), gameObject.getSprite().getWidth(), gameObject.getSprite().getHeight())) 
+            if (mouse.clicked()
+                && mouse.isOver(gameObject.getSprite().getX(), gameObject.getSprite().getY(), gameObject.getSprite().getWidth(), gameObject.getSprite().getHeight())) 
                 gameObject.getInfoBox().setVisible(!gameObject.getInfoBox().isVisible());
             if (gameObject.getInfoBox().isVisible()) {
                 gameObject.getInfoBox().setX(gameObject.getSprite().getX());

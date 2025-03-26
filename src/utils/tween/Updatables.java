@@ -8,7 +8,7 @@ import utils.Print;
 
 public class Updatables {
 
-    private static boolean allowPrint = true;
+    private static boolean allowPrint = false;
 
     public static boolean getAllowPrint() { return allowPrint; }
     public static void setAllowPrint(boolean allowPrint) { Updatables.allowPrint = allowPrint; }
@@ -57,9 +57,6 @@ public class Updatables {
                 if (i >= list.size())
                     return;
             }
-            else
-                if (canPrintUpdatable(updatable))
-                    Print.println("adding " + updatable, Print.BLUE);
             // update updatable
             if (!updatable.isPaused()) {
                 updatable.updateTime(dt);

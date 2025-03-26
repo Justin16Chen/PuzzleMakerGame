@@ -18,20 +18,19 @@ public class Game extends ParentFrame {
         return gameManager;
     }
 
-    public void startGame() {
+    public void startGame(GameManager.GameState gameState) {
         setupWindow();
-        gameManager.startGame(startLevel);
+        gameManager.startEverything(startLevel, gameState);
     }
 
     public void setupWindow() {
-        
         KeyInput keyInput = new KeyInput();
-        MouseInput mouseInput = new MouseInput(getInsets());
+        Mouse mouse = new Mouse(getInsets());
         this.addKeyListener(keyInput);
-        this.addMouseListener(mouseInput);
-        this.addMouseMotionListener(mouseInput);
+        this.addMouseListener(mouse);
+        this.addMouseMotionListener(mouse);
 
-        gameManager = new GameManager(this, framesPerSecond, keyInput, mouseInput);
+        gameManager = new GameManager(this, framesPerSecond, keyInput, mouse);
         contentPane.add(gameManager);
         gameManager.setContentPaneInsets(contentPane.getInsets());
         
@@ -40,6 +39,6 @@ public class Game extends ParentFrame {
 
     public static void main(String[] args) {
         Game game = new Game(60, 0);
-        game.startGame();
+        game.startGame(GameManager.GameState.MAIN_MENU);
     }
 }

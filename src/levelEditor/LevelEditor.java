@@ -12,7 +12,7 @@ import javax.swing.JTextField;
 
 import gameplay.gameObjects.GameObjectData;
 import utils.input.KeyInput;
-import utils.input.MouseInput;
+import utils.input.Mouse;
 
 public class LevelEditor extends JFrame {
 
@@ -35,12 +35,12 @@ public class LevelEditor extends JFrame {
 
         // setup input
         KeyInput keyInput = new KeyInput();
-        MouseInput mouseInput = new MouseInput(new Insets(30, 8, 0, 0));
+        Mouse mouse = new Mouse(new Insets(30, 8, 0, 0));
         addKeyListener(keyInput);
-        addMouseListener(mouseInput);
-        addMouseMotionListener(mouseInput);
+        addMouseListener(mouse);
+        addMouseMotionListener(mouse);
 
-        levelEditorManager = new LevelEditorManager(keyInput, mouseInput);
+        levelEditorManager = new LevelEditorManager(keyInput, mouse);
         levelEditorManager.setBounds(0, 0, getWidth(), getHeight());
         layeredPane.add(levelEditorManager, JLayeredPane.DEFAULT_LAYER);
         

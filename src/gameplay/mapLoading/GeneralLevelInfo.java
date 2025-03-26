@@ -34,7 +34,7 @@ public class GeneralLevelInfo {
     public int getStartLevel() { return startLevel; }
     public int getEndLevel() { return endLevel; }
     public double getTransitionTime() { return transitionTime; }
-    public double getWaitTime() { return waitTime; }
+    public double getWaitTime(String transitionText) { return transitionText.length() > 0 ? waitTime : 0.2; }
     public double getTotalTransitionTime() { return transitionTime * 2 + waitTime; }
 }
 

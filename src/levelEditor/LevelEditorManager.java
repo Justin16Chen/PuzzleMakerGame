@@ -24,7 +24,7 @@ import utils.Print;
 import utils.drawing.sprites.Sprite;
 import utils.drawing.sprites.Sprites;
 import utils.input.KeyInput;
-import utils.input.MouseInput;
+import utils.input.Mouse;
 import utils.tween.Updatables;
 
 public class LevelEditorManager extends JPanel {
@@ -33,17 +33,17 @@ public class LevelEditorManager extends JPanel {
     private final static int PANEL_WIDTH = 120, PANEL_HEIGHT = 600;
     private final static Color PANEL_COLOR = new Color(30, 30, 30);
     private KeyInput keyInput;
-    private MouseInput mouseInput;
+    private Mouse mouse;
     private GameBoard board;
     private Panel panel;
     private CellSelector cellSelector;
     private ArrayList<Option> options;
 
-    public LevelEditorManager(KeyInput keyInput, MouseInput mouseInput) {
+    public LevelEditorManager(KeyInput keyInput, Mouse mouse) {
         this.keyInput = keyInput;
-        this.mouseInput = mouseInput;
-        panel = new Panel(0, 0, PANEL_WIDTH, PANEL_HEIGHT, PANEL_COLOR, mouseInput);
-        board = new GameBoard(KeyInput.NOTHING_INPUT, MouseInput.NOTHING_INPUT);
+        this.mouse = mouse;
+        panel = new Panel(0, 0, PANEL_WIDTH, PANEL_HEIGHT, PANEL_COLOR, mouse);
+        board = new GameBoard(KeyInput.NOTHING_INPUT, Mouse.NOTHING_INPUT);
         cellSelector = new CellSelector();
     }
 
@@ -83,7 +83,7 @@ public class LevelEditorManager extends JPanel {
                     dt = (currentTime - prevTime) / 1000.;
 
                     keyInput.update();
-                    mouseInput.update();
+                    mouse.update();
 
                     Updatables.updateUpdatables(dt);
                     update();
@@ -129,7 +129,7 @@ public class LevelEditorManager extends JPanel {
     }
     private void update() {
         // update cell selector
-        cellSelector.update(mouseInput, board, panel.getSelectedOption());
+        cellSelector.update(mouse, board, panel.getSelectedOption());
     }
 
     @Override
@@ -140,6 +140,6 @@ public class LevelEditorManager extends JPanel {
         
         // draw cursor
         // g2.setColor(Color.BLACK);
-        // g2.drawArc(mouseInput.getX(), mouseInput.getY(), 5, 5, 0, 360);
+        // g2.drawArc(mouse.getX(), mouse.getY(), 5, 5, 0, 360);
     }
 }

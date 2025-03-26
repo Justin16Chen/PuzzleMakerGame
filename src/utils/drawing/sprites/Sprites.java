@@ -4,6 +4,8 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import utils.tween.Updatable;
+
 public class Sprites {
 
     private static HashMap<Integer, String> layers = new HashMap<>();
@@ -24,7 +26,7 @@ public class Sprites {
         layers.put(layerNumber, layerName);
         sprites.put(layerName, new ArrayList<Sprite>());
     }
-    public static void addSprite(Sprite sprite, String layerName) {
+    protected static void addSprite(Sprite sprite, String layerName) {
         if (!layers.values().contains(layerName)) 
             throw new IllegalArgumentException("Layer " + layerName + " does not exist");
         sprites.get(layerName).add(sprite);
@@ -56,11 +58,48 @@ public class Sprites {
         }
     }
 
+    public static void deleteAllSprites() {
+        for (String layerName : layers.values())
+            sprites.get(layerName).clear();
+    }
+
+    // removes all updatables except the one with a matching name
+    public static void deleteExceptNames(String[] exceptions) {
+        for (String layerName : layers.values()) {
+            ArrayList<Sprite> spritesOnLayer = sprites.get(layerName);
+            for (int i=0; i<spritesOnLayer.size(); i++) { 
+                Sprite sprite = spritesOnLayer.get(i);
+                for (String exception : exceptions)
+                    if (!exception.equals(sprite.getName())) {
+                        sprites.get(layerName).remove(i);
+                        i--;
+                }
+            }
+        }
+    }
+    // deletes updatable unless they have ONE of the provided tags
+    public static void deleteExceptTags(String[] tags) {
+        for (String layerName : layers.values()) {
+            ArrayList<Sprite> spritesOnLayer = sprites.get(layerName);
+            for (int i=0; i<spritesOnLayer.size(); i++) { 
+                Sprite sprite = spritesOnLayer.get(i);
+                for (String tag : tags)
+                    if (!sprite.hasTag(tag)) {
+                        sprites.get(layerName).remove(i);
+                        i--;
+                    }
+                    else
+                        System.out.println(sprite + "\nhas [" + tag + "] tag");
+            }
+        }
+    }
+
     public static void drawSprites(Graphics2D g) {
         for (String layerName : layers.values()) 
-            for (Sprite sprite : sprites.get(layerName)) 
+            for (Sprite sprite : sprites.get(layerName))  {
                 if (sprite.isVisible())
                     sprite.draw(g);
+            }
     }
 
     public static String getLayersToString() {

@@ -20,14 +20,14 @@ import org.json.JSONObject;
 
 import utils.drawing.tilemap.Tile;
 import utils.input.KeyInput;
-import utils.input.MouseInput;
+import utils.input.Mouse;
 
 public class TilemapMaker extends JFrame {
 
     private static final double TM_X_OFFSET = 0.5, TM_Y_OFFSET = 0.5, TM_WIDTH_PERCENT = 0.6, TM_SPACING_PERCENT = 0.05;
     private static final String ANYTHING_KEY = "A", FILLED_KEY = "F", EMPTY_KEY = "E";
     private static final String[] SAVE_KEYS = {"Ctrl", "S" };
-    private MouseInput mouseInput;
+    private Mouse mouse;
     private KeyInput keyInput;
     private TilemapWrapper tilemap;
     private JPanel panel;
@@ -52,9 +52,9 @@ public class TilemapMaker extends JFrame {
         panel.setPreferredSize(new Dimension(500, 500));
         add(panel);
         
-        mouseInput = new MouseInput(new Insets(25, 5, 0, 0));
-        addMouseListener(mouseInput);
-        addMouseMotionListener(mouseInput);
+        mouse = new Mouse(new Insets(25, 5, 0, 0));
+        addMouseListener(mouse);
+        addMouseMotionListener(mouse);
 
         keyInput = new KeyInput();
         addKeyListener(keyInput);
@@ -74,7 +74,7 @@ public class TilemapMaker extends JFrame {
                 while (true) {
 
                     // update input
-                    mouseInput.update();
+                    mouse.update();
                     keyInput.update();
 
                     update();
@@ -107,8 +107,8 @@ public class TilemapMaker extends JFrame {
         if (keyInput.keyDown(SAVE_KEYS[0]) && keyInput.keyClicked(SAVE_KEYS[1]))
             saveToJsonFile(jsonDataPath);
 
-        if (mouseInput.down())
-            tilemap.setSelectedTileRule(currentRuleType, mouseInput.getX(), mouseInput.getY());
+        if (mouse.down())
+            tilemap.setSelectedTileRule(currentRuleType, mouse.getX(), mouse.getY());
         
 
     }
@@ -121,9 +121,9 @@ public class TilemapMaker extends JFrame {
         g.drawString("Current rule type: " + currentRuleType, 20, 20);
         int r = 4;
         g.setColor(Color.BLACK);
-        g.fillRect(mouseInput.getX() - r, mouseInput.getY() - 4, r * 2, r * 2);
+        g.fillRect(mouse.getX() - r, mouse.getY() - 4, r * 2, r * 2);
         g.setColor(Color.WHITE);
-        g.drawRect(mouseInput.getX() - r, mouseInput.getY() - 4, r * 2, r * 2);
+        g.drawRect(mouse.getX() - r, mouse.getY() - 4, r * 2, r * 2);
     }
 
     private void saveToJsonFile(String filePath) {

@@ -11,7 +11,7 @@ import gameplay.gameObjects.GameObject;
 import gameplay.gameObjects.GameObjectData;
 import gameplay.mapLoading.LevelLoader;
 import utils.drawing.sprites.Sprite;
-import utils.input.MouseInput;
+import utils.input.Mouse;
 
 public class CellSelector {
     private final static int SELECTED_CELL_STROKE = 4;
@@ -37,18 +37,18 @@ public class CellSelector {
         };
     }
 
-    public void update(MouseInput mouseInput, GameBoard board, Option selectedOption) {
-        if (mouseInput.isOver(board.getBoardSprite())) {
-            if (!mouseInput.released() && !mouseInput.down()) {
-                curx = board.getBoardX(mouseInput.getX());
-                cury = board.getBoardY(mouseInput.getY());
+    public void update(Mouse mouse, GameBoard board, Option selectedOption) {
+        if (mouse.isOver(board.getBoardSprite())) {
+            if (!mouse.released() && !mouse.down()) {
+                curx = board.getBoardX(mouse.getX());
+                cury = board.getBoardY(mouse.getY());
                 startx = curx;
                 starty = cury;
                 selectSprite.setVisible(true);
             }
             else {
-                curx = board.getBoardX(mouseInput.getX());
-                cury = board.getBoardY(mouseInput.getY());
+                curx = board.getBoardX(mouse.getX());
+                cury = board.getBoardY(mouse.getY());
             }
             
             left = Math.min(curx, startx);
@@ -56,7 +56,7 @@ public class CellSelector {
             width = Math.abs(curx - startx) + 1;
             height = Math.abs(cury - starty) + 1;
 
-            if (mouseInput.released()) {
+            if (mouse.released()) {
                 // clear area
                 for (int y=top; y<top + height; y++)
                     for (int x=left; x<left + width; x++) {

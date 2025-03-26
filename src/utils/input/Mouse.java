@@ -7,9 +7,9 @@ import java.awt.event.MouseMotionListener;
 
 import utils.drawing.sprites.Sprite;
 
-public class MouseInput extends InputBase implements MouseListener, MouseMotionListener {
+public class Mouse extends InputBase implements MouseListener, MouseMotionListener {
 
-    final public static MouseInput NOTHING_INPUT = new MouseInput(Type.NOTHING);
+    final public static Mouse NOTHING_INPUT = new Mouse(Type.NOTHING);
     final public static int OFFSET_X = 0;
     final public static int OFFSET_Y = 0;
 
@@ -23,7 +23,7 @@ public class MouseInput extends InputBase implements MouseListener, MouseMotionL
     private int absX, absY;
     private Insets insets;
 
-    public MouseInput(Insets insets) {
+    public Mouse(Insets insets) {
         this.insets = insets;
         type = Type.ACTIVE;
         x = -1;
@@ -31,7 +31,7 @@ public class MouseInput extends InputBase implements MouseListener, MouseMotionL
         absX = -1;
         absY = -1;
     }
-    public MouseInput(Type type) {
+    public Mouse(Type type) {
         this.type = type;
         insets = new Insets(0, 0, 0, 0);
         x = -1;

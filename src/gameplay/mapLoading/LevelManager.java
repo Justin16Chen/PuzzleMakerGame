@@ -1,7 +1,6 @@
 package gameplay.mapLoading;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
 
 import gameplay.GameManager;
 import gameplay.gameObjects.GameBoard;
@@ -25,12 +24,16 @@ public class LevelManager {
     public LevelManager(GameManager gameManager, GameBoard gameBoard) {
         this.gameManager = gameManager;
         this.gameBoard = gameBoard;
-        transitionSprite = new Sprite("transition", 0, 0, gameManager.getWidth(), gameManager.getHeight(), "transitions");
-        transitionSprite.setColor(Color.BLACK);
-        transitionTextBgSprite = new Sprite("transitionTextBg", 0, 0, gameManager.getWidth(), 0, "transitions");
-        transitionTextBgSprite.setColor(new Color(30, 30, 30));
         updateGeneralLevelInfo();
         GameObjectData.loadObjectData();
+    }
+    public void setup() {
+        transitionSprite = new Sprite("transition", 0, 0, gameManager.getWidth(), 0, "transitions");
+        transitionSprite.setColor(Color.BLACK);
+        transitionSprite.addTag("necessary");
+        transitionTextBgSprite = new Sprite("transitionTextBg", 0, 0, gameManager.getWidth(), 0, "transitions");
+        transitionTextBgSprite.setColor(new Color(30, 30, 30));
+        transitionTextBgSprite.addTag("necessary");
     }
 
     public int getCurrentLevel() { return currentLevel; }
@@ -60,53 +63,61 @@ public class LevelManager {
             return;
         }
 
-        transitioning = true;
-        Updatables.deleteUpdatables(new String[]{"moveTransitionSpriteTween", "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween", "finishTransition", "updateGameToNewLevel"}); // clear any updatables from previous transitions
+        //Updatables.deleteUpdatables(new String[]{"moveTransitionSpriteTween", "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween", "finishTransition", "updateGameToNewLevel"}); // clear any updatables from previous transitions
 
         // sprite transition animation
         transitionSprite.setVisible(true);
         if (intro && outro) {
-            transitionDown();
-            Timer.createCallTimer("showTransitionText", this, generalLevelInfo.getTransitionTime() * 0.9, "transitionText");
-            Timer.createCallTimer("transitionUpTimer", this, generalLevelInfo.getTransitionTime() + 1.2, "transitionUp");
+            transitionDown("");
+            Timer.createCallTimer("transitionUpTimer", this, generalLevelInfo.getTransitionTime() + generalLevelInfo.getWaitTime(""), "transitionUp");
         }
         else if (intro)
-            transitionDown();
+            transitionDown("");
         else if (outro)
-            transitionUp();        
+            transitionUp(); 
+                   
         // load level
-        if (intro) {
-            transitionSprite.setWidth(gameManager.getWidth());
-            transitionSprite.setHeight(gameManager.getHeight());
+        if (intro) 
             Timer.createCallTimer("updateGameToNewLevel", this, generalLevelInfo.getTransitionTime(), "setLevelInfo", level);
-        } else 
+        else 
             setLevelInfo(level);
-
-        // update transition variable
-        Timer.createCallTimer("finishTransition", this, intro && outro ? generalLevelInfo.getTotalTransitionTime() : generalLevelInfo.getTransitionTime(), "finishTransition");
-    }
-
-    private void transitionText() {
-        transitionTextBgSprite.setY((int) (gameManager.getHeight() * 0.5));
-        Tween.createTween("transitionTextHeight", transitionTextBgSprite, "height", 0, gameManager.getHeight() * 0.15, 0.3).setEaseType(new EaseType(Ease.EASE_OUT));
-        Tween.createTween("transitionTextY", transitionTextBgSprite, "y", gameManager.getHeight() * 0.5, gameManager.getHeight() * 0.35, 0.3).setEaseType(new EaseType(Ease.EASE_OUT));
-        Timer.createCallTimer("hideTransitionText", this, 0.9, "hideTransitionText");
-    }
-    private void hideTransitionText() {
-        Tween.createTween("transitionTextHeight", transitionTextBgSprite, "height", transitionTextBgSprite.getHeight(), 0, 0.3).setEaseType(new EaseType(Ease.EASE_IN));
-        Tween.createTween("transitionTextY", transitionTextBgSprite, "y", transitionTextBgSprite.getY(), gameManager.getHeight() * 0.5, 0.3).setEaseType(new EaseType(Ease.EASE_IN));
-    }
-    private void transitionDown() {
-        Tween.createTween("moveTransitionSpriteTween", transitionSprite, "height", 1, gameManager.getHeight(), generalLevelInfo.getTransitionTime()).setEaseType(new EaseType(Ease.EASE_OUT, 2));
-    }
-    private void transitionUp() {
-        System.out.println("TRANSITION UP");
-        Tween.createTween("moveTransitionSpriteUpTween", transitionSprite, "height", gameManager.getHeight(), 1, generalLevelInfo.getTransitionTime()).setEaseType(new EaseType(Ease.EASE_OUT, 2));
     }
 
     @SuppressWarnings("unused")
-    private void finishTransition() {
-        transitioning = false;
+    private void transitionText(String transitionText) {
+        double waitTime = generalLevelInfo.getWaitTime(transitionText);
+        transitionTextBgSprite.setY((int) (gameManager.getHeight() * 0.5));
+        Tween.createTween("transitionTextHeight", transitionTextBgSprite, "height", 0, gameManager.getHeight() * 0.16, waitTime * 0.3).setEaseType(new EaseType(Ease.EASE_OUT));
+        Tween.createTween("transitionTextY", transitionTextBgSprite, "y", gameManager.getHeight() * 0.5, gameManager.getHeight() * 0.42, waitTime * 0.3).setEaseType(new EaseType(Ease.EASE_OUT));
+        Timer.createCallTimer("hideTransitionText", this, waitTime * 0.7, "hideTransitionText", transitionText);
+    }
+    @SuppressWarnings("unused")
+    private void hideTransitionText(String transitionText) {
+        double waitTime = generalLevelInfo.getWaitTime(transitionText);
+        Tween.createTween("transitionTextHeight", transitionTextBgSprite, "height", transitionTextBgSprite.getHeight(), 0, waitTime * 0.3).setEaseType(new EaseType(Ease.EASE_IN));
+        Tween.createTween("transitionTextY", transitionTextBgSprite, "y", transitionTextBgSprite.getY(), gameManager.getHeight() * 0.5, waitTime * 0.3).setEaseType(new EaseType(Ease.EASE_IN));
+    }
+    public void transitionDown(String transitionText) {
+        transitionSprite.setWidth(gameManager.getWidth());
+        transitionSprite.setHeight(gameManager.getHeight());
+        transitioning = true;
+        Tween.createTween("moveTransitionSpriteTween", transitionSprite, "height", 1, gameManager.getHeight(), generalLevelInfo.getTransitionTime()).setEaseType(new EaseType(Ease.EASE_OUT, 2));
+        if (transitionText.length() > 0)
+            Timer.createCallTimer("showTransitionText", this, generalLevelInfo.getTransitionTime() * 0.9, "transitionText", transitionText);
+    }
+    public void transitionUp() {
+        transitionSprite.setWidth(gameManager.getWidth());
+        transitionSprite.setHeight(gameManager.getHeight());
+        transitioning = true;
+        Tween.createTween("moveTransitionSpriteUpTween", transitionSprite, "height", gameManager.getHeight(), 1, generalLevelInfo.getTransitionTime()).setEaseType(new EaseType(Ease.EASE_OUT, 2));
+        Timer.createSetTimer("finish transition", this, generalLevelInfo.getTotalTransitionTime(), "transitioning", false);
+    }
+    public void transitionUpSlow() {
+        transitionSprite.setWidth(gameManager.getWidth());
+        transitionSprite.setHeight(gameManager.getHeight());
+        transitioning = true;
+        Tween.createTween("moveTransitionSpriteUpTween", transitionSprite, "height", gameManager.getHeight(), 1, generalLevelInfo.getTransitionTime() + 0.4).setEaseType(new EaseType(Ease.EASE_OUT, 2));
+        Timer.createSetTimer("finish transition", this, generalLevelInfo.getTotalTransitionTime(), "transitioning", false);
     }
     
     // transition to the next level with optional intro/outro tweens
@@ -121,7 +132,7 @@ public class LevelManager {
 
     // sets the level info of the gameboard to a level
     // returns if it is successful or not
-    private boolean setLevelInfo(int level) {
+    public boolean setLevelInfo(int level) {
         // load in the level
         LevelInfo levelInfo = LevelLoader.getLevelInfo("res/levels/" + level + ".json");
         if (levelInfo != null) {
@@ -129,11 +140,6 @@ public class LevelManager {
 
             // clear sprites
             gameBoard.clearGameObjects();
-
-            // clear updatables
-            Updatables.deleteAllUpdatablesExcept(new String[]{ "finishTransition", "updateGameToNewLevel", "moveTransitionSpriteTween", 
-                "moveTransitionSpriteDownTween", "moveTransitionSpriteUpTween", "transitionUpTimer", 
-                "showTransitionText", "transitionTextHeight", "transitionTextY", "hideTransitionText" });
             
             // create the new game board
             gameBoard.setCurrentBoard(levelInfo);

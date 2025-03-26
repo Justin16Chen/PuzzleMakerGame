@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import gameplay.gameObjects.GameObject;
 import utils.drawing.sprites.Sprite;
-import utils.input.MouseInput;
+import utils.input.Mouse;
 
 public class Panel {
     private final static int V_BORDER_PADDING = 70, H_BORDER_PADDING = 40;
@@ -15,7 +15,7 @@ public class Panel {
     private final static int OPTION_SPACING = 64;
     private final static int TEXT_SPACING = 10;
     private final static Color SELECT_COLOR = new Color(230, 230, 230);
-    private MouseInput mouseInput;
+    private Mouse mouse;
     private int x, y;
     private int width, height;
     private ArrayList<Option> options;
@@ -25,13 +25,13 @@ public class Panel {
     private Sprite selectHighlightSprite;
     private Option selectedOption;
 
-    public Panel(int x, int y, int width, int height, Color panelColor, MouseInput mouseInput) {
+    public Panel(int x, int y, int width, int height, Color panelColor, Mouse mouse) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.panelColor = panelColor;
-        this.mouseInput = mouseInput;
+        this.mouse = mouse;
     }
 
     public void setup() {
@@ -51,7 +51,7 @@ public class Panel {
                 g.setColor(SELECT_COLOR);
                 for (Option option : options) {
                     g.drawString(("" + option.getName()).toLowerCase(), x + H_BORDER_PADDING, option.getSprite().getY() - TEXT_SPACING);
-                    if (mouseInput.down() && mouseInput.isOver(option.getSprite())) {
+                    if (mouse.down() && mouse.isOver(option.getSprite())) {
                         selectedOption = option;
                     }
                 }

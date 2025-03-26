@@ -20,7 +20,7 @@ import org.json.JSONObject;
 
 import utils.Print;
 import utils.input.KeyInput;
-import utils.input.MouseInput;
+import utils.input.Mouse;
 
 public class LevelOrganizerManager extends JPanel {
     
@@ -32,7 +32,7 @@ public class LevelOrganizerManager extends JPanel {
 
     private JScrollBar scrollBar;
     private KeyInput keyInput;
-    private MouseInput mouseInput;
+    private Mouse mouse;
 
     private ArrayList<String> levelFileNames;
     private int startLevelFileIndex;
@@ -43,10 +43,10 @@ public class LevelOrganizerManager extends JPanel {
     private FontMetrics fontMetrics;
     private int offset, spacing;
 
-    public LevelOrganizerManager(KeyInput keyInput, MouseInput mouseInput) {
+    public LevelOrganizerManager(KeyInput keyInput, Mouse mouse) {
         this.keyInput = keyInput;
-        this.mouseInput = mouseInput;
-        mouseInput.setInsets(new Insets(90, 197, 0, 0));
+        this.mouse = mouse;
+        mouse.setInsets(new Insets(90, 197, 0, 0));
         levelFileNames = loadLevelFileNames("res/properties/levelInfo.json");
 
         start();
@@ -67,7 +67,7 @@ public class LevelOrganizerManager extends JPanel {
 
                     // update input
                     keyInput.update();
-                    mouseInput.update();
+                    mouse.update();
 
                     update();
                     repaint();
@@ -89,19 +89,19 @@ public class LevelOrganizerManager extends JPanel {
         
         if (spacing == 0)
             return;
-        if (mouseInput.getX() >= getWidth() || mouseInput.getY() >= getHeight()) 
+        if (mouse.getX() >= getWidth() || mouse.getY() >= getHeight()) 
             return;
-        int index = getFileIndex(mouseInput.getY());
+        int index = getFileIndex(mouse.getY());
         if (index < -1 || index >= levelFileNames.size())
             return;
 
-        if (mouseInput.clicked() && index >= 0) {
+        if (mouse.clicked() && index >= 0) {
             selectedIndex = index;
             selectedFileName = levelFileNames.get(selectedIndex);
             draggingSelectedFile = true;
         }
-        int dragIndex = mouseInput.getY() < OFFSET_Y + spacing * 0.5 ? 0 : getFileIndex(mouseInput.getY() + DRAG_OFFSET_Y) + 1;
-        if (!mouseInput.down()) {
+        int dragIndex = mouse.getY() < OFFSET_Y + spacing * 0.5 ? 0 : getFileIndex(mouse.getY() + DRAG_OFFSET_Y) + 1;
+        if (!mouse.down()) {
             if (draggingSelectedFile) {
                 levelFileNames.remove(selectedIndex);
                 if (dragIndex >= selectedIndex)
@@ -198,9 +198,9 @@ public class LevelOrganizerManager extends JPanel {
         // draw selected file being dragged by mouse
         if (draggingSelectedFile) {
             g.setColor(SELECTED_COLOR);
-            g.fillRect(0, (int) (mouseInput.getY() - spacing * SPACING_PERCENT + DRAG_OFFSET_Y), fontMetrics.stringWidth(selectedFileName) + OFFSET_X * 2, spacing);
+            g.fillRect(0, (int) (mouse.getY() - spacing * SPACING_PERCENT + DRAG_OFFSET_Y), fontMetrics.stringWidth(selectedFileName) + OFFSET_X * 2, spacing);
             g.setColor(Color.BLACK);
-            g.drawString(selectedFileName, OFFSET_X, mouseInput.getY() + DRAG_OFFSET_Y);
+            g.drawString(selectedFileName, OFFSET_X, mouse.getY() + DRAG_OFFSET_Y);
         }
     }
 
