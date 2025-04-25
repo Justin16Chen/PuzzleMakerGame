@@ -95,12 +95,18 @@ public class KeyInput extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
         if (type == Type.NOTHING)
             return;
-        keyMap.get(parseKeyEvent(e)).setDown(true);
+        String keyName = parseKeyEvent(e);
+        if (keyMap.getOrDefault(keyName, null) == null)
+            return;
+        keyMap.get(keyName).setDown(true);
     }
     @Override
     public void keyReleased(KeyEvent e) {
         if (type == Type.NOTHING)
             return;
-        keyMap.get(parseKeyEvent(e)).setDown(false);
+        String keyName = parseKeyEvent(e);
+        if (keyMap.getOrDefault(keyName, null) == null)
+            return;
+        keyMap.get(keyName).setDown(false);
     }
 }
