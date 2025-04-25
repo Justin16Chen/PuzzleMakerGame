@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 
 import utils.input.Mouse;
+import utils.tween.Ease;
+import utils.tween.EaseType;
 import utils.tween.Tween;
 import utils.tween.Updatables;
 
@@ -17,16 +19,25 @@ public abstract class ButtonSprite extends Sprite {
     private int resizeAmount;
     private double resizeTime;
     private int currentScale;
+    private int startX, startY, startW, startH;
     public ButtonSprite(int x, int y, int w, int h, String layerName, Mouse mouse) {
         super("button", x, y, w, h, layerName);
         this.mouse = mouse;
         resizeAmount = 4;
+        startX = x;
+        startY = y;
+        startW = w;
+        startH = h;
     }
     public ButtonSprite(int x, int y, int w, int h, String text, String layerName, Mouse mouse) {
         super("button", x, y, w, h, layerName);
         this.text = text;
         this.mouse = mouse;
         resizeAmount = 4;
+        startX = x;
+        startY = y;
+        startW = w;
+        startH = h;
     }
 
     public void setText(String text, Color textColor, Font textFont) {
@@ -43,11 +54,12 @@ public abstract class ButtonSprite extends Sprite {
         if (currentScale == scaleFactor)
             return;
         currentScale = scaleFactor;
+        System.out.println(scaleFactor);
         Updatables.deleteUpdatables(new String[] {"resize button x", "resize button y", "resize button w", "resize button h"});
-        Tween.createTween("resize button x", this, "x", getX(), getX() - resizeAmount / 2 * scaleFactor, resizeTime);
-        Tween.createTween("resize button y", this, "y", getX(), getY() - resizeAmount / 2 * scaleFactor, resizeTime);
-        Tween.createTween("resize button w", this, "width", getX(), getWidth() + resizeAmount * scaleFactor, resizeTime);
-        Tween.createTween("resize button h", this, "height", getX(), getHeight() + resizeAmount * scaleFactor, resizeTime);
+        Tween.createTween("resize button x", this, "x", getX(), startX - resizeAmount / 2 * scaleFactor, resizeTime).setEaseType(new EaseType(Ease.EASE_OUT));
+        Tween.createTween("resize button y", this, "y", getY(), startY - resizeAmount / 2 * scaleFactor, resizeTime).setEaseType(new EaseType(Ease.EASE_OUT));
+        Tween.createTween("resize button w", this, "width", getWidth(), startW + resizeAmount * scaleFactor, resizeTime).setEaseType(new EaseType(Ease.EASE_OUT));
+        Tween.createTween("resize button h", this, "height", getHeight(), startH + resizeAmount * scaleFactor, resizeTime).setEaseType(new EaseType(Ease.EASE_OUT));
     }
 
     // this will run after update loop in the draw loop

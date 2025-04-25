@@ -34,6 +34,7 @@ public abstract class MainMenuManager {
                     }
                 };
                 buttons[index].setText("" + (index + 1), Color.WHITE, new Font("Arial", Font.PLAIN, 15));
+                buttons[index].setResizeAmount((int) (width * 0.3), 0.07);
             }
         }
     }
